@@ -67,7 +67,7 @@ namespace Hashira.CanvasUI
         private void HandleNextFloorEvent()
         {
             PlayerDataManager.Instance.ResetPlayerCardEffect(_sendCardList);
-            SceneLoadingManager.LoadScene(SceneName.CardSelectScene);
+            SceneLoadingManager.LoadScene(SceneName.GameScene);
         }
 
         private void OnDestroy()

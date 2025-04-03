@@ -1,3 +1,4 @@
+using NUnit.Framework.Constraints;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -84,7 +85,11 @@ namespace Hashira.Core.StatSystem
 
         private void SetDictionary()
         {
-            _modifiers ??= new Dictionary<EModifyLayer, Dictionary<string, StatModifier>>();
+            _modifiers ??= new Dictionary<EModifyLayer, Dictionary<string, StatModifier>>()
+            {
+                { EModifyLayer.Default, new Dictionary<string, StatModifier>() },
+                { EModifyLayer.Last, new Dictionary<string, StatModifier>() },
+            };
         }
 
         private void SetValue()
@@ -127,17 +132,13 @@ namespace Hashira.Core.StatSystem
 
         public void AddModify(string key, float value, EModifyMode eModifyMode, EModifyLayer eModifyLayer, bool canValueOverlap = true)
         {
-            if (_modifiers.ContainsKey(eModifyLayer))
+            if (_modifiers[eModifyLayer].ContainsKey(key))
             {
-                if (_modifiers[eModifyLayer].ContainsKey(key))
-                {
-                    _modifiers[eModifyLayer][key]++;
-                }
+                _modifiers[eModifyLayer][key]++;
             }
             else
             {
                 StatModifier modifier = new StatModifier(value, eModifyMode, canValueOverlap);
-                _modifiers[eModifyLayer] = new Dictionary<string, StatModifier>();
                 _modifiers[eModifyLayer][key] = modifier;
             }
 
@@ -145,16 +146,12 @@ namespace Hashira.Core.StatSystem
         }
         public void AddModify(string key, StatModifier statModifier, EModifyLayer eModifyLayer)
         {
-            if (_modifiers.ContainsKey(eModifyLayer))
+            if (_modifiers[eModifyLayer].ContainsKey(key))
             {
-                if (_modifiers[eModifyLayer].ContainsKey(key))
-                {
-                    _modifiers[eModifyLayer][key]++;
-                }
+                _modifiers[eModifyLayer][key]++;
             }
             else
             {
-                _modifiers[eModifyLayer] = new Dictionary<string, StatModifier>();
                 _modifiers[eModifyLayer][key] = statModifier;
             }
 
@@ -162,20 +159,15 @@ namespace Hashira.Core.StatSystem
         }
         public void RemoveModify(string key, EModifyLayer eModifyLayer)
         {
-            if (_modifiers.ContainsKey(eModifyLayer))
+            if (_modifiers[eModifyLayer].ContainsKey(key))
             {
-                if (_modifiers[eModifyLayer].ContainsKey(key))
-                {
-                    _modifiers[eModifyLayer][key]--;
-                    if (_modifiers[eModifyLayer][key] == 0)
-                        _modifiers[eModifyLayer].Remove(key);
-                    SetValue();
-                }
-                else
-                    Debug.LogWarning($"[{key}]Key not found for statModifier");
+                _modifiers[eModifyLayer][key]--;
+                if (_modifiers[eModifyLayer][key] == 0)
+                    _modifiers[eModifyLayer].Remove(key);
+                SetValue();
             }
             else
-                Debug.LogWarning($"[{eModifyLayer}]Layer not found for statModifier");
+                Debug.LogWarning($"[{key}]Key not found for statModifier");
         }
 
         public object Clone()

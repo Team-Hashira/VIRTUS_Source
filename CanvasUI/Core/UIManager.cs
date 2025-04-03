@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -92,6 +90,25 @@ namespace Hashira.CanvasUI
                             _uiDomainDict.Add(domainType, domain);
                             _uiDomainDict.Add(interfaceType, domain);
                             _uiDomainDict[interfaceType].AddUI(ui);
+                        }
+                    }
+                }
+            }
+        }
+        public void RemoveUI(UIBase uiBase)
+        {
+            _uiBaseList.Remove(uiBase);
+            if (uiBase is IUserInterface ui)
+            {
+                foreach (Type interfaceType in uiBase.GetType().GetInterfaces())
+                {
+                    if (typeof(IUserInterface).IsAssignableFrom(interfaceType))
+                    {
+                        if (interfaceType == typeof(IUserInterface))
+                            continue;
+                        if (_uiDomainDict.TryGetValue(interfaceType, out var list))
+                        {
+                            _uiDomainDict[interfaceType].RemoveUI(ui);
                         }
                     }
                 }

@@ -1,9 +1,10 @@
+using Hashira.Combat;
 using Hashira.Entities.Components;
 using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
-    public class GiantGoblinSwingPattern : BossPattern
+    public class GiantGoblinSwingPattern : GiantGoblinPattern
     {
         [SerializeField] private CircleDamageCaster2D _damageCaster;
         private float _casterOrigin;
@@ -25,7 +26,7 @@ namespace Hashira.Bosses.Patterns
             if (trigger == EAnimationTriggerType.Trigger)
             {
                 CameraManager.Instance.ShakeCamera(30, 5, 0.85f);
-                _damageCaster.CastDamage(1, Vector2.zero, Vector2.right * _lookDirection * _knockbackPower);
+                _damageCaster.CastDamage(AttackInfo.defaultOneDamage, Vector2.right * _lookDirection * _knockbackPower, false);
             }
         }
 

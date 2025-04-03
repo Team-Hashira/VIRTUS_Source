@@ -1,4 +1,5 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Entities;
 using Hashira.Players;
 using Hashira.Projectiles;
@@ -34,7 +35,7 @@ namespace Hashira.Enemies.Slime
         {
             if (_projectileCollider.CheckCollision(_slime.WhatIsPlayer, out _hits))
             {
-                _hits[0].collider.GetComponent<Player>().GetEntityComponent<EntityHealth>().ApplyDamage(1);
+                _hits[0].collider.GetComponent<Player>().GetEntityComponent<EntityHealth>().ApplyDamage(AttackInfo.defaultOneDamage);
                 this.Push();
             }
         }

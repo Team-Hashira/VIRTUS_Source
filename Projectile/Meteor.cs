@@ -1,4 +1,5 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Enemies;
 using Hashira.Entities;
 using UnityEngine;
@@ -53,7 +54,8 @@ namespace Hashira
 
         private void Boom()
         {
-            _circleDamageCaster2D.CastDamage(_damage, attackType: EAttackType.Fire);
+            AttackInfo attackInfo = new AttackInfo(_damage, Vector2.zero, EAttackType.Fire);
+            _circleDamageCaster2D.CastDamage(attackInfo);
             PopCore.Pop(EffectPoolType.MeteorBoomEffect, transform.position, Quaternion.identity);
             SoundManager.Instance.PlaySFX("MeteorBoom", transform.position, 1f);
             CameraManager.Instance.ShakeCamera(10, 5, 0.4f);

@@ -1,11 +1,12 @@
 using Doryu.CustomAttributes;
 using Hashira.Core.AnimationSystem;
+using System;
 using UnityEngine;
 
 namespace Hashira.FSM
 {
     [CreateAssetMenu(fileName = "StateSO", menuName = "SO/FSM/StateSO")]
-    public class StateSO : ScriptableObject
+    public class StateSO : ScriptableObject, ICloneable
     {
         public string stateName;
 
@@ -19,5 +20,10 @@ namespace Hashira.FSM
         public bool isFullName;
 
         public AnimatorParamSO animatorParam;
+
+        public object Clone()
+        {
+            return Instantiate(this);
+        }
     }
 }

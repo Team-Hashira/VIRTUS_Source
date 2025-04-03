@@ -154,8 +154,9 @@ namespace Hashira.Projectiles
                         // 데미지
                         BeginDamageCast(hitInfo);
                         int finalDamage = CalculateDamage(damage);
+                        AttackInfo attackInfo = new AttackInfo(finalDamage, Vector2.zero, attackType);
                         if (hitInfo.damageable != null)
-                            hitInfo.damageable.ApplyDamage(finalDamage, raycastHit, Owner, attackType: attackType);
+                            hitInfo.damageable.ApplyDamage(attackInfo, raycastHit);
                         AfterDamageCast(hitInfo, finalDamage);
                         OnHited(hitInfo);
 
@@ -163,15 +164,21 @@ namespace Hashira.Projectiles
                         moveDistance = raycastHit.distance;
 
                         bool dieable = true;
+                        bool isReflected = false;
                         foreach (var undyingMode in _lifeCountDictionary.Keys)
                         {
                             if (_lifeCountDictionary[undyingMode] > 0)
                             {
                                 _lifeCountDictionary[undyingMode]--;
+                                if (undyingMode == EProjectileUndyingMode.Reflection)
+                                    isReflected = true;
                                 dieable = false;
                                 break;
                             }
                         }
+
+                        if (isReflected)
+                            break;
 
                         if (dieable)
                         {

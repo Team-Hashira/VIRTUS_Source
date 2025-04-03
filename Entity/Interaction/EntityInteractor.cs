@@ -33,8 +33,13 @@ namespace Hashira.Entities
 
             _isClicked = isDown;
             if (isDown)
-                _holdStartTime = Time.time;
-            else
+            {
+                if (HoldInteractable == null)
+                    Interactable.Interaction(_entity as Player);
+                else
+                    _holdStartTime = Time.time;
+            }
+            else if (HoldInteractable != null)
             {
                 if (_isHolding == false)
                     Interactable?.Interaction(_entity as Player);

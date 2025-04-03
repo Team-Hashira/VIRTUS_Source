@@ -109,6 +109,11 @@ namespace Hashira.Visualizers
             OnComplete?.Invoke();
         }
 
+        public void Fold(float duration)
+        {
+            StartCoroutine(FoldCoroutine(transform.position, _endPos, duration));
+        }
+
         private IEnumerator FoldCoroutine(Vector2 startPos, Vector2 endPos, float duration, Func<float, float> EaseFunction = null)
         {
             Vector2 direction = endPos - startPos;
@@ -118,7 +123,7 @@ namespace Hashira.Visualizers
             float multiplier = 1f / duration;
 
             Vector2 offset = direction.normalized * _spriteRenderer.size.y * -0.5f;
-            
+
             endPos += offset;
             startPos += offset;
             do
@@ -159,17 +164,19 @@ namespace Hashira.Visualizers
         /// <param name="toblinkDuration">blinkColor까지 도달하는 시간</param>
         /// <param name="toDefaultDuration">blinkColor에서 defautlColor로 돌아오는 시간</param>
         /// <param name="blinkColor">적지 않을경우 기본은 흰색</param>
-        public void Blink(float toblinkDuration, float toDefaultDuration, Color blinkColor = default)
+        public void Blink(float toblinkDuration, float toDefaultDuration, Color blinkColor = default, Action OnComplete = null)
         {
             if (blinkColor == default)
                 blinkColor = Color.white;
 
             _spriteRenderer.DOColor(blinkColor, toblinkDuration)
-                .OnComplete(() => _spriteRenderer.DOColor(_defaultLineColor, toDefaultDuration));
+                .OnComplete(() => _spriteRenderer.DOColor(_defaultLineColor, toDefaultDuration).OnComplete(() => OnComplete?.Invoke()));
         }
 
         private IEnumerator LifeTimeCoroutine(float lifeTime)
         {
+            if (lifeTime < 0)
+                yield break;
             yield return new WaitForSeconds(lifeTime);
             StartCoroutine(FoldCoroutine(transform.position, _endPos, 0.3f));
         }

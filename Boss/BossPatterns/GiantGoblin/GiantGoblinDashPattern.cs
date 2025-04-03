@@ -1,23 +1,37 @@
 using Hashira.Bosses.BillboardClasses;
+using Hashira.Combat;
+using System.Collections;
 using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
-    public class GiantGoblinDashPattern : BossPattern
+    public class GiantGoblinDashPattern : GiantGoblinPattern
     {
+        [SerializeField] private float _dashDelay = 0.5f;
+        [SerializeField] private float _dashDuration = 1.75f;
         [SerializeField] private float _wallCheckdistance = 1;
         private float _dashDirection;
         [SerializeField] private float _maxSpeed = 5;
         [SerializeField] private float _speedIncreaseDuration = 2f;
-        [SerializeField] private AnimationCurve _speedIncreaseCurve;
+        [SerializeField] private DamageCaster2D _dashDamageCaster;
         private float _speedTime = 0;
         private LayerMask _whatIsGround;
-
+        private bool _isDashStart = false;
+        
         public override void OnStart()
         {
             base.OnStart();
+            _speedTime = 0;
             _whatIsGround = Boss.BillboardValue<LayerMaskValue>("WhatIsGround").Value;
             _dashDirection = CheckPlayerPos();
+            _isDashStart = false;
+            Boss.StartCoroutine(CoroutineStartDash());
+        }
+
+        private IEnumerator CoroutineStartDash()
+        {
+            yield return new WaitForSeconds(_dashDelay);
+            _isDashStart = true;
         }
 
         private float CheckPlayerPos()
@@ -30,11 +44,20 @@ namespace Hashira.Bosses.Patterns
         public override void OnUpdate()
         {
             base.OnUpdate();
+            if (_isDashStart == false) return;
+            
+            var currentSpeed = _maxSpeed;
+            _speedTime += Time.deltaTime;
             if (_speedIncreaseDuration > _speedTime)
-                _speedTime += Time.deltaTime;
-            var currentSpeed = _speedIncreaseCurve.Evaluate(_speedTime/_speedIncreaseDuration) * _maxSpeed;
-
-            Mover.SetMovement(Vector2.right * currentSpeed * _dashDirection);
+                currentSpeed = Mathf.Lerp(0, _maxSpeed, _speedTime/_speedIncreaseDuration);
+            else
+                _dashDamageCaster.CastDamage(
+                    new AttackInfo(1, Vector2.right * _dashDirection * 10), 
+                    Vector2.zero, false);
+            
+            if (_dashDuration < _speedTime) EndPattern();
+            else Mover.SetMovement(Vector2.right * currentSpeed * _dashDirection);
+            
             CheckWall();
         }
 
@@ -43,6 +66,12 @@ namespace Hashira.Bosses.Patterns
             RaycastHit2D hit = Physics2D.Raycast(Transform.position, Vector2.right * _dashDirection, _wallCheckdistance, _whatIsGround);
             if (hit.transform != null)
                 OnGroggy(3f);
+        }
+
+        public override void OnEnd()
+        {
+            Mover.StopImmediately();
+            base.OnEnd();
         }
 
         public override void OnDrawGizmos(Transform transform)

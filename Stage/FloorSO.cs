@@ -2,12 +2,12 @@ using UnityEngine;
 
 namespace Hashira.StageSystem
 {
-    [CreateAssetMenu(menuName = "SO/Floor")]
+    [CreateAssetMenu(menuName = "SO/Level/Floor")]
     public class FloorSO : ScriptableObject
     {
-        public StageDataSO[] stages;
+        public StageTypeListSO[] stages;
         
         public int Length => stages.Length;
-        public StageDataSO this[int index] => stages[index];
+        public StageTypeListSO this[int index] => stages[index];
     }
 }

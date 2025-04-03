@@ -1,7 +1,9 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Entities;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace Hashira.Object
 {
@@ -23,20 +25,18 @@ namespace Hashira.Object
 			CurrentHealth = MaxHealth;
 		}
 
-		public void ApplyDamage(int value, RaycastHit2D raycastHit, Transform attackerTrm, Vector2 knockback = default, EAttackType attackType = EAttackType.Default, bool popUpText = true)
+        public void ApplyDamage(AttackInfo attackInfo, RaycastHit2D raycastHit, bool popUpText = true)
         {
-			CurrentHealth -= value;
+            CurrentHealth -= attackInfo.damage;
 
             var curPercent = CurrentHealth / (float)MaxHealth;
-            if(_spriteList.Count > 0)
-			    _spriteRenderer.sprite = _spriteList[(int)(curPercent * _spriteList.Count)];
+            if (_spriteList.Count > 0)
+                _spriteRenderer.sprite = _spriteList[(int)(curPercent * _spriteList.Count)];
 
-			gameObject.Pop(_breakParticle, transform.position, Quaternion.identity);
+            gameObject.Pop(_breakParticle, transform.position, Quaternion.identity);
 
-            if(CurrentHealth <= 0)
+            if (CurrentHealth <= 0)
                 Destroy(gameObject);
-
-            return;
         }
     }
 }

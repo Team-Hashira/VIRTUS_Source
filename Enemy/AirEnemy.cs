@@ -13,9 +13,8 @@ namespace Hashira.Enemies
             base.AfterIntiialize();
             _enemyMover = GetEntityComponent<EnemyMover>();
             _enemyMover.SetGravity(false);
-            _enemyMover.RemoveMoveProcessor<ApplyVelocityProcessor>();
-            _enemyMover.AddMoveProcessor<XSmoothProcessor>();
-            _enemyMover.AddMoveProcessor<YSmoothProcessor>();
+            _enemyMover.SetActiveMoveProcessor<ApplyVelocityProcessor>(false);
+            _enemyMover.AddMoveProcessor<XYSmoothProcessor>();
         }
     }
 }

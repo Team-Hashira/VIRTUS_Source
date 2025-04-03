@@ -1,5 +1,3 @@
-using Crogen.CrogenPooling;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,6 +8,8 @@ namespace Hashira
     {
         private Dictionary<EPopupUIName, List<IPopupUI>> _popupUIDictionary = new();
 
+        [SerializeField] private Transform _stagePanelTrm;
+
         private void Awake()
         {
             FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IPopupUI>().ToList().ForEach(popupUI =>
@@ -19,6 +19,11 @@ namespace Hashira
                 else
                     _popupUIDictionary.Add(popupUI.PopupUIName, new List<IPopupUI>() { popupUI });
             });
+        }
+
+        public void AddGameCanvas(Transform panel)
+        {
+            panel.SetParent(_stagePanelTrm);
         }
 
         public List<IPopupUI> PopupUIActive(EPopupUIName popupUI, bool isOn)

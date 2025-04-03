@@ -22,6 +22,13 @@ namespace Hashira.Bosses.BillboardClasses
 
     public class UnityEventValue : BillboardValue { public UnityEvent Value; }
 
+    public class FloatValue : BillboardValue { public float Value; }
+    public class IntValue : BillboardValue { public int Value; }
+    public class BoolValue : BillboardValue { public bool Value; }
+    public class StringValue : BillboardValue { public string Value; }
+    public class Vector3Value : BillboardValue { public Vector3 Value; }
+    public class Vector2Value : BillboardValue { public Vector2 Value; }
+    
     public class GiantGolemHandValue : BillboardValue { public GiantGolemHand Value; }
     
     public class GiantGolemEyeValue : BillboardValue { public GiantGolemEye Value; }

@@ -1,13 +1,9 @@
 using DG.Tweening;
-using Hashira.Bosses.BillboardClasses;
 using Hashira.Combat;
-using Hashira.Entities;
 using Hashira.Entities.Components;
 using Hashira.MainScreen;
 using Hashira.Pathfind;
-using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Hashira.Bosses.Patterns
 {
@@ -16,7 +12,7 @@ namespace Hashira.Bosses.Patterns
         [SerializeField] private float _handMaxPositionY = 1;
         [SerializeField] private AttackVisualizer _groundAttackVisualizer;
         [SerializeField] private ParticleSystem _groundParticle;
-        
+
         public override void OnStart()
         {
             base.OnStart();
@@ -31,8 +27,7 @@ namespace Hashira.Bosses.Patterns
             if (trigger == EAnimationTriggerType.Start)
                 SoundManager.Instance.PlaySFX("GiantGolemScream", Transform.position, 1);
         }
- 
-        
+
         private void HandleAttackEnd(EAnimationTriggerType trigger, int count)
         {
             if (trigger == EAnimationTriggerType.Trigger)
@@ -51,7 +46,7 @@ namespace Hashira.Bosses.Patterns
                 seq.Join(_groundAttackVisualizer.SetDamageCastSignValue(0, 0.1f));
                 seq.AppendCallback(() =>
                 {
-                    _groundAttackVisualizer.DamageCaster.CastDamage(1, Vector2.zero, Vector2.up * 30, EAttackType.Default);
+                    _groundAttackVisualizer.DamageCaster.CastDamage(AttackInfo.defaultOneDamage, Vector2.up * 30);
                     _groundParticle.Play(true);
                 });
                 seq.Append(MainScreenEffect.OnLocalMoveScreenSide(DirectionType.Down));

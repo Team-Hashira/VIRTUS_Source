@@ -1,4 +1,5 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Entities;
 using Hashira.Projectiles;
 using System;
@@ -66,7 +67,8 @@ namespace Hashira.Enemies.Goblin.BoomerangGoblin
                 var health = entity.GetEntityComponent<EntityHealth>();
                 if (health != null)
                 {
-                    health.ApplyDamage(_damage, popUpText: false);
+                    AttackInfo attackInfo = new AttackInfo(_damage);
+                    health.ApplyDamage(attackInfo, popUpText: false);
                     _hasDealtDamage = true;
                 }
             }

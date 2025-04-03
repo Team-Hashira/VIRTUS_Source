@@ -1,4 +1,5 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -28,7 +29,8 @@ namespace Hashira
         {
             if (CooldownUtillity.CheckCooldown("ElectricZoneDelay", _delay, true))
             {
-                _damageCaster.CastDamage(_damage, attackType: Entities.EAttackType.Electricity);
+                AttackInfo attackInfo = new AttackInfo(_damage, Vector2.zero, Entities.EAttackType.Electricity);
+                _damageCaster.CastDamage(attackInfo);
                 CooldownUtillity.StartCooldown("ElectricZoneDelay");
             }
 

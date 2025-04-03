@@ -15,7 +15,6 @@ namespace Hashira.Entities
     public enum EAttackType
     {
         Default,        // 기본 공격
-        [Obsolete] HeadShot,       // 헤드샷
         Fixed,          // 고정피해
         Fire,           // 화염피해
         Electricity,    // 전기피해
@@ -34,7 +33,7 @@ namespace Hashira.Entities
         public Guid guid;
     }
     public delegate void OnHealthChangedEvent(int previous, int current);
-    public class EntityHealth : MonoBehaviour, IEntityComponent, IAfterInitialzeComponent, IDamageable, IRecoverable
+    public class EntityHealth : MonoBehaviour, IEntityComponent, IAfterInitialzeComponent, IDamageable
     {
         public int Health { get; private set; }
         public Stack<Shield> Shields { get; set; } = new Stack<Shield>();
@@ -85,59 +84,8 @@ namespace Hashira.Entities
             _isInvincible = _maxHealth == null;
             Health = MaxHealth;
         }
-        
-        [Obsolete("이제부터 서로 AttackInfo를 써라.")]
-        public void ApplyDamage(int damage, RaycastHit2D raycastHit = default, Transform attackerTrm = null, Vector2 knockback = default, EAttackType attackType = EAttackType.Default, bool popUpText = true)
-        {
-            if (IsDie || _evasionCount > 0) return;
 
-            int shieldValue = 0;
-
-            while (shieldValue < damage && Shields.Count() > 0)
-            {
-                // 감쇠시킬 쉴드 값 더해주기
-                Shield shield = Shields.Pop();
-                shieldValue += shield.value;
-
-                // 받은 데미지보다 쉴드값이 더 클 때
-                if (shieldValue > damage)
-                {
-                    Shields.Push(new Shield(shieldValue - damage, shield.guid));
-
-                    // 아예 상쇄시키기
-                    return;
-                }
-            }
-
-            // 데미지 감쇠
-            damage -= shieldValue;
-
-            int prev = Health;
-            int finalDamage = CalculateDamage(damage, attackType);
-
-            if (popUpText)
-            {
-                Vector3 textPos = raycastHit != default ? raycastHit.point : Owner.transform.position;
-                CreateDamageText(finalDamage, textPos, attackType);
-            }
-
-            Health -= finalDamage;
-            if (finalDamage > 0)
-                _entityRenderer?.Blink(0.1f);
-            
-            if (Health < 0)
-                Health = 0;
-            OnHealthChangedEvent?.Invoke(prev, Health);
-
-            if (knockback != Vector2.zero)
-                OnKnockback(knockback.normalized, knockback.magnitude);
-
-            if (Health == 0) Die();
-
-            return;
-        }
-
-        public void ApplyDamage(AttackInfo attackInfo, bool popUpText = true)
+        public void ApplyDamage(AttackInfo attackInfo, RaycastHit2D raycastHit = default, bool popUpText = true)
         {
             if (IsDie || _evasionCount > 0) return;
 
@@ -167,7 +115,7 @@ namespace Hashira.Entities
 
             if (popUpText)
             {
-                Vector3 textPos = attackInfo.raycastHit != default ? attackInfo.raycastHit.point : Owner.transform.position;
+                Vector3 textPos = raycastHit != default ? raycastHit.point : Owner.transform.position;
                 CreateDamageText(finalDamage, textPos, attackInfo.attackType);
             }
 

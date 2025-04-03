@@ -48,17 +48,18 @@ namespace Hashira.Bosses.Patterns.GiantGolem
         {
             _attackedGround = true;
             Vector2 playerPos = PlayerManager.Instance.Player.transform.position;
+
             _attackVisualizer.DamageCaster.CastDamage(
-                1, Vector2.zero, 
+                AttackInfo.defaultOneDamage, 
                 (playerPos - (Vector2)transform.position).normalized*8f, 
-                EAttackType.Default, false);
+                false);
 
             CameraManager.Instance.ShakeCamera(10, 50, 0.5f);
             
             _attackVisualizer.SetDamageCastSignValue(0);
         }
-        
-        public void ApplyDamage(int value, RaycastHit2D raycastHit, Transform attackerTrm, Vector2 knockback = default, EAttackType attackType = EAttackType.Default, bool popUpText = true)
+
+        public void ApplyDamage(AttackInfo attackInfo, RaycastHit2D raycastHit, bool popUpText = true)
         {
             ++_currentHitCount;
             Blink(0.1f);
@@ -68,7 +69,7 @@ namespace Hashira.Bosses.Patterns.GiantGolem
                 Destroy(this.gameObject);
             }
             _hitCountText.text = (_maxHitCount - _currentHitCount).ToString();
-            _hitCountText.transform.DOShakePosition(0.1f, 1f, 40, fadeOut:false);
+            _hitCountText.transform.DOShakePosition(0.1f, 1f, 40, fadeOut: false);
         }
 
         public void Throw(Vector2 targetPosition)

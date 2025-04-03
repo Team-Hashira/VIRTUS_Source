@@ -1,3 +1,4 @@
+using Hashira.Combat;
 using Hashira.Entities;
 using UnityEngine;
 
@@ -31,8 +32,9 @@ namespace Hashira.EffectSystem.Effects
             if (_lastDamageTime + _damageDelay < Time.time)
             {
                 _lastDamageTime = Time.time;
+                AttackInfo attackInfo = new AttackInfo(_damage, Vector2.zero, EAttackType.Bleeding);
                 entity.GetEntityComponent<EntityHealth>()
-                    .ApplyDamage(_damage, default, null, attackType: EAttackType.Bleeding);
+                    .ApplyDamage(attackInfo);
             }
         }
 

@@ -17,7 +17,7 @@ namespace Hashira.Cards.Effects
         protected override int[] _NeedCostByStack => _needCostByStack;
 
         private int _currentShootCount = 0;
-        private int _needShootCount = 15;
+        private int _needShootCount = 9;
         private int _damage = 50;
 
         private List<Projectile> _projectileList;
@@ -52,7 +52,8 @@ namespace Hashira.Cards.Effects
                         slowdown.Setup(statModifier, 2f);
                         entity.GetEntityComponent<EntityEffector>().AddEffect(slowdown);
                     }
-                    damageable.ApplyDamage(_damage, raycastHit, player.transform, attackType: EAttackType.Electricity);
+                    AttackInfo attackInfo = new AttackInfo(_damage, Vector2.zero, EAttackType.Electricity);
+                    damageable.ApplyDamage(attackInfo, raycastHit);
                 }
             }
         }

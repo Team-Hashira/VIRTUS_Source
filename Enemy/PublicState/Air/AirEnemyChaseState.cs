@@ -13,13 +13,17 @@ namespace Hashira.Enemies.PublicStates
 
         private EnemyMover _enemyMover;
         private EnemyDetector _enemyDetector;
+        private EntityRenderer _entityRenderer;
 
         private StatElement _speedElement;
+
+        public string TargetState { get; set; } = "Attack";
 
         public AirEnemyChaseState(Entity entity, StateSO stateSO) : base(entity, stateSO)
         {
             _enemyMover = entity.GetEntityComponent<EnemyMover>();
             _enemyDetector = entity.GetEntityComponent<EnemyDetector>();
+            _entityRenderer = entity.GetEntityComponent<EntityRenderer>();
 
             var stat = entity.GetEntityComponent<EntityStat>();
             _speedElement = stat.StatDictionary[StatName.Speed];
@@ -37,9 +41,10 @@ namespace Hashira.Enemies.PublicStates
             Vector2 dir = _target.transform.position - _entity.transform.position;
             dir.Normalize();
             _enemyMover.SetMovement(dir * _speedElement.Value);
-            if(_enemyDetector.IsTargetOnAttackRange(_target.transform))
+            _entityRenderer.LookTarget(_target.transform.position);
+            if (_enemyDetector.IsTargetOnAttackRange(_target.transform))
             {
-                //AttackState가야돼
+                _entityStateMachine.ChangeState(TargetState);
             }
         }
     }

@@ -1,3 +1,7 @@
+using Crogen.AttributeExtension;
+using Doryu.CustomAttributes;
+using Hashira.Core.AnimationSystem;
+using Hashira.Core.StatSystem;
 using Hashira.Entities;
 using Hashira.FSM;
 using System;
@@ -10,12 +14,19 @@ using UnityEngine.Serialization;
 
 namespace Hashira.Entities.Components
 {
+    [Serializable]
+    public class StateInfo
+    {
+        public StateSO state;
+        public AnimatorParamSO toOverrideParam;
+    }
+
     public class EntityStateMachine : MonoBehaviour, IEntityComponent, IAfterInitialzeComponent
     {
         private Entity _entity;
 
         [SerializeField]
-        private List<StateSO> _stateList;
+        private List<StateInfo> _stateInfoList;
         [field: SerializeField]
         public StateSO StartState { get; private set; }
 
@@ -38,6 +49,15 @@ namespace Hashira.Entities.Components
             _stateTypeDictionary = new Dictionary<Type, EntityState>();
             _stateDictionary = new Dictionary<string, EntityState>();
             _shareVariableDict = new Dictionary<string, object>();
+
+            for(int i = 0; i <  _stateInfoList.Count; i++)
+            {
+                _stateInfoList[i].state = _stateInfoList[i].state.Clone() as StateSO;
+                if (_stateInfoList[i].toOverrideParam != null)
+                {
+                    _stateInfoList[i].state.animatorParam = _stateInfoList[i].toOverrideParam;
+                }
+            }
         }
 
         private void Start()
@@ -48,6 +68,15 @@ namespace Hashira.Entities.Components
         private void Update()
         {
             CurrentState.OnUpdate();
+        }
+
+        public EntityState GetState(string stateName)
+        {
+            if (_stateDictionary.TryGetValue(stateName, out EntityState entityState))
+            {
+                return entityState;
+            }
+            return null;
         }
 
         public T GetState<T>() where T : EntityState
@@ -176,8 +205,9 @@ namespace Hashira.Entities.Components
             //    stringBuilder.Clear();
             //}
 
-            foreach (var state in _stateList)
+            foreach (var stateInfo in _stateInfoList)
             {
+                var state = stateInfo.state;
                 string stateName = state.ifClassNameIsDifferent ? state.className : state.stateName;
                 string className = state.isFullName ? stateName : $"{_entity.GetType().FullName}{stateName}State";
                 try

@@ -1,4 +1,5 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Entities;
 using Hashira.MainScreen;
 using System;
@@ -56,7 +57,8 @@ namespace Hashira
                     transform.position += movement.normalized * raycastHit2D.distance;
                     if (raycastHit2D.transform.TryGetComponent(out IDamageable damageable))
                     {
-                        damageable.ApplyDamage(_damage, raycastHit2D, _owner.transform);
+                        AttackInfo attackInfo = new AttackInfo(_damage);
+                        damageable.ApplyDamage(attackInfo, raycastHit2D, _owner.transform);
                     }
                     CameraManager.Instance.ShakeCamera(5, 5, 0.2f);
                     gameObject.Pop(EffectPoolType.KnifeHitEffect, transform.position, transform.rotation);

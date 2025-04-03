@@ -7,6 +7,8 @@ namespace Hashira.Core.MoveSystem
     {
         protected EntityMover _entityMover;
 
+        public bool IsActive { get; set; } = true;
+
         public virtual void Initialize(EntityMover entityMover)
         {
             _entityMover = entityMover;

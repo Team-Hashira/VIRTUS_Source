@@ -1,8 +1,10 @@
 using Crogen.CrogenPooling;
+using Doryu.CustomAttributes;
 using Hashira.Bosses;
 using Hashira.Core;
 using Hashira.Enemies;
 using Hashira.Entities;
+using Hashira.Entities.Interacts;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -89,14 +91,17 @@ namespace Hashira.StageSystem
         [field:SerializeField] public Vector2 Center { get; private set; } = Vector2.zero;
         [Space]
         [SerializeField] private Transform _playerSpawnPoint;
+        [SerializeField] private Portal[] _portals;
         public Wave[] waves;
+        [SerializeField] private bool _useCanvas;
+        [ToggleField(nameof(_useCanvas)), SerializeField] private Transform _stagePanel;
 
         protected StageGenerator _stageGenerator;
         public int CurrentEnemiesCount => EnemyList.Count;
         public int CurrentWaveCount { get; private set; } = 0;
-        public UnityEvent OnAllClearEvent;
+        //public UnityEvent OnAllClearEvent;
 
-        public event Action OnNextWave;
+        public event Action OnWaveChanged;
 
         public List<Enemy> EnemyList { get; private set; } = new List<Enemy>();
 
@@ -139,8 +144,20 @@ namespace Hashira.StageSystem
             // 적 리스트 초기화
             for (int i = 0; i < waves.Length; i++)
                 EnemyList.AddRange(waves[i].enemies);
+
+            foreach (var portal in _portals)
+                portal.gameObject.SetActive(false);
+
+            if (_useCanvas)
+                UIManager.Instance.AddGameCanvas(_stagePanel);
         }
-        
+
+        private void OnDestroy()
+        {
+            if (_useCanvas && _stagePanel != null)
+                Destroy(_stagePanel.gameObject);
+        }
+
         private void Start()
         {
             // 이벤트 구독
@@ -163,13 +180,14 @@ namespace Hashira.StageSystem
         private IEnumerator CoroutineAddWaveCount(int value)
         {
             CurrentWaveCount += value;
-            OnNextWave?.Invoke();
             if (CurrentWaveCount >= waves.Length)
             {
-                OnAllClearEvent?.Invoke();
+                ClearStage();
+                //OnAllClearEvent?.Invoke();
             }
             else
             {
+                OnWaveChanged?.Invoke();
                 yield return new WaitForSeconds(waves[CurrentWaveCount].delay);
                 StartCoroutine(waves[CurrentWaveCount].SetActiveAllEnemies(true, 0.1f));
             }
@@ -178,6 +196,17 @@ namespace Hashira.StageSystem
         public void SetPlayerPosToSpawnPoint()
         {
             PlayerManager.Instance.Player.transform.position = _playerSpawnPoint.position;
+        }
+
+        public void ClearStage()
+        {
+            Cost.AddCost(15);
+            List<StageTypeSO> stageTypeSOList = StageGenerator.Instance.GetNextStageData().GetRandomStageType(_portals.Length);
+            for (int i = 0; i < stageTypeSOList.Count; i++)
+            {
+                _portals[i].gameObject.SetActive(true);
+                _portals[i].Init(stageTypeSOList[i]);
+            }
         }
 
 #if UNITY_EDITOR

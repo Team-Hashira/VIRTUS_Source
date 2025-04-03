@@ -2,7 +2,6 @@ using Hashira.Core.EventSystem;
 using Hashira.Core.StatSystem;
 using Hashira.Entities;
 using Hashira.Projectiles;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Hashira.Cards.Effects

@@ -89,7 +89,8 @@ namespace Hashira.Entities
             }
             foreach (var processor in _moveProcessorDict.Values)
             {
-                Velocity = processor.ProcessMove(Velocity);
+                if (processor.IsActive)
+                    Velocity = processor.ProcessMove(Velocity);
             }
         }
 
@@ -187,7 +188,7 @@ namespace Hashira.Entities
             Collider2D.isTrigger = isUnderJump;
         }
 
-        public void SetIgnoreOnewayPlayform(bool isIgnore)
+        public void SetIgnoreOnewayPlatform(bool isIgnore)
         {
             if (isIgnore)
                 _whatIsGround &= ~(_oneWayPlatform);
@@ -217,6 +218,18 @@ namespace Hashira.Entities
                 _moveProcessorDict.Remove(type);
             }
         }
+
+        public T SetActiveMoveProcessor<T>(bool isActive) where T : MoveProcessor
+        {
+            Type type = typeof(T);
+            if (_moveProcessorDict.TryGetValue(type, out var processor))
+            {
+                processor.IsActive = isActive;
+                return processor as T;
+            }
+            return default;
+        }
+
 
 #if UNITY_EDITOR
         protected virtual void OnDrawGizmos()

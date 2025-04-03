@@ -1,4 +1,5 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Entities;
 using System;
 using UnityEngine;
@@ -38,7 +39,8 @@ namespace Hashira
             
             if (hit.transform.TryGetComponent(out IDamageable damageable))
             {
-                damageable.ApplyDamage(1, hit, transform, direction, EAttackType.Fixed, false);
+                AttackInfo attackInfo = new AttackInfo(1, direction, EAttackType.Fixed);
+                damageable.ApplyDamage(attackInfo, hit, false);
                 return;
             }
             

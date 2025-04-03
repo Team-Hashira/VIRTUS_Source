@@ -1,4 +1,5 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Enemies;
 using Hashira.Entities;
 using Hashira.Entities.Components;
@@ -66,7 +67,8 @@ namespace Hashira.Cards.Effects
             {
                 point = pos
             };
-            enemy.GetEntityComponent<EntityHealth>().ApplyDamage(damage, hit2D, attackType: EAttackType.Electricity);
+            AttackInfo attackInfo = new AttackInfo(damage, Vector2.zero, EAttackType.Electricity);
+            enemy.GetEntityComponent<EntityHealth>().ApplyDamage(attackInfo, hit2D);
 
             CameraManager.Instance.ShakeCamera(4, 15, 0.1f);
             PopCore.Pop(EffectPoolType.LightningVFX, pos, Quaternion.identity);

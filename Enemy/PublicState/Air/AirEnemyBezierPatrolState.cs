@@ -10,6 +10,7 @@ namespace Hashira.Enemies.PublicStates
 {
     public class AirEnemyBezierPatrolState : EntityState
     {
+        private EntityRenderer _entityRenderer;
         private EnemyDetector _enemyDetector;
         private EnemyMover _enemyMover;
 
@@ -26,8 +27,10 @@ namespace Hashira.Enemies.PublicStates
         {
             BezierPositionList = new List<Vector2>();
 
+            _entityRenderer = entity.GetEntityComponent<EntityRenderer>();
             _enemyDetector = entity.GetEntityComponent<EnemyDetector>();
             _enemyMover = entity.GetEntityComponent<EnemyMover>();
+
             var stat = entity.GetEntityComponent<EntityStat>();
             _speedElement = stat.StatDictionary[StatName.Speed];
         }
@@ -43,6 +46,7 @@ namespace Hashira.Enemies.PublicStates
         {
             base.OnUpdate();
             Vector3 toMove = MathEx.Bezier(Mathf.Clamp01(_percent), BezierPositionList);
+            _entityRenderer.LookTarget(toMove);
             Vector2 direction = toMove - _entity.transform.position;
             _enemyMover.SetMovement(direction.normalized * _speedElement.Value);
             _percent += Time.deltaTime;

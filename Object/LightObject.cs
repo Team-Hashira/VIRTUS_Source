@@ -1,4 +1,5 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Entities;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -15,13 +16,11 @@ namespace Hashira.Object
         [field: SerializeField] public int Resistivity { get; set; } = 1;
         public bool IsEvasion { get; set; }
 
-        public void ApplyDamage(int value, RaycastHit2D raycastHit, Transform attackerTrm, Vector2 knockback = default, EAttackType attackType = EAttackType.Default, bool popUpText = true)
+        public void ApplyDamage(AttackInfo attackInfo, RaycastHit2D raycastHit, bool popUpText = true)
         {
             _light.enabled = false;
             _collider.enabled = false;
             gameObject.Pop(_breakEffect, transform.position, Quaternion.identity);
-
-            return;
         }
     }
 }

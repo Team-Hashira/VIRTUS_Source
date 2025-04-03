@@ -9,6 +9,8 @@ namespace Hashira.EffectSystem.Effects
         public float Duration { get; private set; }
         public float LifeTime { get; set; }
 
+        private string _newState;
+
         public void Setup(float duration)
         {
             Duration = duration;
@@ -17,15 +19,17 @@ namespace Hashira.EffectSystem.Effects
         public override void Enable()
         {
             base.Enable();
-
             _entityStateMachine = entity.GetEntityComponent<EntityStateMachine>();
+            _newState = _entityStateMachine.GetShareVariable<string>("TargetState");
+            if (_newState == "")
+                _newState = _entityStateMachine.StartState.stateName;
             _entityStateMachine.ChangeState("Stun");
         }
 
         public override void Disable()
         {
             base.Disable();
-            _entityStateMachine.ChangeState(_entityStateMachine.StartState);
+            _entityStateMachine.ChangeState(_newState);
         }
 
         public void OnAddEffect(Effect effect)

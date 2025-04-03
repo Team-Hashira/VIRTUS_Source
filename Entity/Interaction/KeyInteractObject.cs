@@ -11,12 +11,8 @@ namespace Hashira.Entities.Interacts
 
         [Header("==========KeyInteractObject setting==========")]
         [SerializeField] protected GameObject _keyGuideObject;
-        [SerializeField] protected TMP_Text _keyText, _nameText;
+        [SerializeField] protected TMP_Text _keyText;
         [SerializeField] protected InputReaderSO _inputReader;
-        [SerializeField] protected SpriteRenderer _itemSprite;
-        [SerializeField] protected SpriteRenderer _holdOutlineSprite;
-
-        protected Material _holdOutlineMat;
 
         public event Action OnInteractionEvent;
 
@@ -25,11 +21,9 @@ namespace Hashira.Entities.Interacts
         protected virtual void Awake()
         {
             _keyGuideObject.SetActive(false);
-            _holdOutlineMat = _holdOutlineSprite.material;
-            _holdOutlineMat.SetFloat(_FillAmountShaderHash, 0);
         }
 
-        public virtual void Interaction(Player entity)
+        public virtual void Interaction(Player player)
         {
             if (CanInteraction == false) return;
             OnInteractionEvent?.Invoke();

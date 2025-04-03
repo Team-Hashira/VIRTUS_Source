@@ -5,27 +5,21 @@ namespace Hashira.Combat
 {
     public struct AttackInfo
     {
+        public static AttackInfo defaultOneDamage =
+            new AttackInfo(1, Vector2.zero, EAttackType.Default);
+
         public AttackInfo(
             int damage = 1, 
-            RaycastHit2D raycastHit = default, 
-            Transform attackerTrm = null, 
             Vector2 knockback = default, 
-            Vector2 moveTo = default, 
             EAttackType attackType = EAttackType.Default)
         {
             this.damage = damage;
-            this.raycastHit = raycastHit;
-            this.attackerTrm = attackerTrm;
             this.knockback = knockback;
-            this.moveTo = moveTo;
             this.attackType = attackType;
         }
         
         public int damage;
-        public RaycastHit2D raycastHit;
-        public Transform attackerTrm;
         public Vector2 knockback;
-        public Vector2 moveTo;
         public EAttackType attackType;
     }
     

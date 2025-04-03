@@ -1,12 +1,10 @@
 using Hashira.Bosses.BillboardClasses;
 using Hashira.Bosses.Patterns;
-using Hashira.Core;
 using Hashira.Enemies;
 using Hashira.Entities;
 using System;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace Hashira.Bosses
 {
@@ -21,22 +19,14 @@ namespace Hashira.Bosses
     [Serializable]
     public class BillboardPair
     {
-        [Delayed] public string valueName;
-        [Delayed] public string typeName;
-        [SerializeReference] public BillboardValue billboardValue;
-
-        public BillboardPair()
-        {
-            valueName = string.Empty;
-            typeName = string.Empty;
-            billboardValue = null;
-        }
+        [Delayed] public string valueName = string.Empty;
+        [Delayed] public string typeName = string.Empty;
+        [SerializeReference] public BillboardValue billboardValue = null;
     }
 
     public class Boss : Enemy
     {
-        [field:SerializeField] public LayerMask whatIsGround { get; private set; }
-        [SerializeField] private Tilemap _currentMap;
+        [field:SerializeField] public LayerMask WhatIsGround { get; private set; }
         [field:SerializeField] public string BossName { get; private set; }
         [field:SerializeField] public string BossDisplayName { get; private set; }
         [Range(1, 10)] public int maxPhase = 1;
@@ -49,20 +39,13 @@ namespace Hashira.Bosses
         public float CurrentMaxGroggyTime { get; set; }
 
         #region Initialize Boss
-        protected override void AfterIntiialize()
-        {
-            base.AfterIntiialize();
-        }
-        protected override void Awake()
-        {
-            base.Awake();
-            for (int i = 0; i < bossPatterns.Length; i++)
-                bossPatterns[i].pattern.Init(this);
-        }
         protected override void InitializeComponent()
         {
             base.InitializeComponent();
 
+            for (int i = 0; i < bossPatterns.Length; i++)
+                bossPatterns[i].pattern.Init(this);
+            
             _entityHealth = GetEntityComponent<EntityHealth>();
             _entityStat = GetEntityComponent<EntityStat>();
         }
@@ -106,18 +89,8 @@ namespace Hashira.Bosses
 
         public float GetGroundFloorPosY()
         {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up, 1000, whatIsGround);
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector2.up, 1000, WhatIsGround);
             return hit.point.y;
-        }
-        public Vector2[] GetGroundFloorPositions()
-        {
-            float y = GetGroundFloorPosY();
-
-            //TileBase[] tiles = _currentMap.Get
-
-            //return;
-
-            return null;
         }
         #endregion
 
@@ -150,6 +123,7 @@ namespace Hashira.Bosses
                     }
                     catch (Exception)
                     {
+                        // ignored
                     }
                 }
             }
@@ -172,6 +146,7 @@ namespace Hashira.Bosses
                     }
                     catch (Exception)
                     {
+                        // ignored
                     }
                 }
             }

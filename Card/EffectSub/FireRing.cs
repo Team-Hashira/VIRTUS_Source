@@ -1,4 +1,5 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Core;
 using Hashira.Enemies;
 using Hashira.Entities;
@@ -67,7 +68,8 @@ namespace Hashira
                 {
                     if (raycastHit.transform.TryGetComponent(out IDamageable damageable))
                     {
-                        damageable.ApplyDamage(_damage, raycastHit, PlayerManager.Instance.Player.transform, attackType: EAttackType.Fire);
+                        AttackInfo attackInfo = new AttackInfo(_damage, Vector2.zero, EAttackType.Fire);
+                        damageable.ApplyDamage(attackInfo, raycastHit);
                         Vector3 dir = raycastHit.transform.position - transform.position;
                         PopCore.Pop(EffectPoolType.FireRingHitEffect, raycastHit.transform.position, Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + 90f));
                         CameraManager.Instance.ShakeCamera(4, 4, 0.2f);
@@ -84,7 +86,8 @@ namespace Hashira
                     {
                         if (enemy.TryGetEntityComponent(out EntityHealth health))
                         {
-                            health.ApplyDamage(_burstDamage, attackerTrm: PlayerManager.Instance.Player.transform, attackType: EAttackType.Fire);
+                            AttackInfo attackInfo = new AttackInfo(_burstDamage, Vector2.zero, EAttackType.Fire);
+                            health.ApplyDamage(attackInfo);
                         }
                     }
                     _endBurstParticle.Play();

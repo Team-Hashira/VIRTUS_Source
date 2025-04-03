@@ -1,4 +1,5 @@
 using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Core.EventSystem;
 using Hashira.Entities;
 using Hashira.Projectiles;
@@ -41,17 +42,20 @@ namespace Hashira.Cards.Effects
 
         private IEnumerator DelayAttackCoroutine(float delay, Transform target, EntityHealth health, ProjectileBeginHitEvent projectileHit)
         {
+            HitInfo hitInfo = projectileHit.hitInfo;
+            Projectile projectile = projectileHit.projectile;
             yield return new WaitForSeconds(delay);
             if (target != null)
             {
-                Vector3 hitPos = projectileHit.hitInfo.raycastHit.collider.transform.position;
+                Vector3 hitPos = hitInfo.raycastHit.collider.transform.position;
                 RaycastHit2D raycastHit = new RaycastHit2D()
                 {
                     point = hitPos
                 };
-                PopCore.Pop(EffectPoolType.AbsenceSlice, hitPos, Quaternion.identity);
-                int damage = Mathf.CeilToInt(Mathf.Log(health.Health / projectileHit.projectile.damage + 1, 10) * projectileHit.projectile.damage);
-                health.ApplyDamage(damage, raycastHit, attackerTrm: player.transform);
+                PopCore.Pop(EffectPoolType.AbsenceSlice, raycastHit.point, Quaternion.identity);
+                int damage = Mathf.CeilToInt(Mathf.Log(health.Health / projectile.damage + 1, 10) * projectile.damage);
+                AttackInfo attackInfo = new AttackInfo(damage);
+                health.ApplyDamage(attackInfo, raycastHit);
 
                 // 내(데미지)가 약하고 적(체력)이 강하면 추가딜 업
             }

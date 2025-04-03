@@ -38,7 +38,7 @@ namespace Hashira.Bosses.Patterns
             {
                 _currentAttackTime = Time.time;
                 SoundManager.Instance.PlaySFX("GiantGolemLaser", transform.position, 1, UnityEngine.Random.Range(0.9f, 0.5f));
-                AttackVisualizer.DamageCaster.CastDamage(1, false);
+                AttackVisualizer.DamageCaster.CastDamage(AttackInfo.defaultOneDamage, popupText:false);
             }
         }
 

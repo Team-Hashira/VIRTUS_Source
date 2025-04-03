@@ -31,10 +31,13 @@ namespace Hashira.Projectiles
 
                 if (damageable is EntityHealth health && health.TryGetComponent(out Entity entity))
                 {
-                    ParticleSystem bulletHitEffect = gameObject.Pop(EffectPoolType.BulletHitEffect, hit.point + hit.normal * 0.1f, 
-                        Quaternion.Euler(0, 0, -90) * transform.rotation).gameObject.GetComponent<ParticleSystem>();
-                    var mainModule = bulletHitEffect.main;
-                    mainModule.startColor = _trailRenderer.startColor;
+                    ParticleSystem[] bulletHitEffects = gameObject.Pop(EffectPoolType.BulletHitEffect, hit.point + hit.normal * 0.1f, 
+                        Quaternion.Euler(0, 0, -90) * transform.rotation).gameObject.GetComponentsInChildren<ParticleSystem>();
+                    foreach (ParticleSystem bulletHitEffect in bulletHitEffects)
+                    {
+                        var mainModule = bulletHitEffect.main;
+                        mainModule.startColor = _trailRenderer.startColor;
+                    }
                 }
             }
             else
