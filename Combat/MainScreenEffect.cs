@@ -3,6 +3,8 @@ using Hashira.Core;
 using Hashira.Pathfind;
 using UnityEngine;
 using Hashira.StageSystem;
+using UnityEngine.UIElements;
+using Unity.Cinemachine;
 
 namespace Hashira.MainScreen
 {
@@ -82,11 +84,11 @@ namespace Hashira.MainScreen
 
         public static Vector3 OriginPositionConvert(Vector3 position)
         {
-            Vector3 offsetPos = position - _transform.position;
+            Vector3 offsetPos = position - _transform.position + (Vector3)_currentStage.Center;
             Vector3 rotatedPos = Quaternion.Inverse(_transform.rotation) * offsetPos;
             Vector3 scaledPosx= new Vector3(
-                rotatedPos.x / (_transform.localScale.x / _originScale.x),
-                rotatedPos.y / (_transform.localScale.y / _originScale.y));
+                rotatedPos.x / (_transform.localScale.x / _currentStage.ScreenCamera.orthographicSize),
+                rotatedPos.y / (_transform.localScale.y / _currentStage.ScreenCamera.orthographicSize));
 
             return scaledPosx;
         }
@@ -112,7 +114,7 @@ namespace Hashira.MainScreen
             }
             if (Input.GetKey(KeyCode.Alpha4))
             {
-                OnScaling(0.5f);
+                OnScaling(0.75f);
             }
             if (Input.GetKey(KeyCode.Alpha5))
             {

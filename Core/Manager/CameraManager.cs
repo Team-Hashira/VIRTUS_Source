@@ -7,11 +7,10 @@ public class CameraManager : MonoSingleton<CameraManager>
 {
     [SerializeField] private AYellowpaper.SerializedCollections.SerializedDictionary<string, CinemachineCamera> _cameraDictionary = new AYellowpaper.SerializedCollections.SerializedDictionary<string, CinemachineCamera>();
 
-
     private Sequence _shakeSequence;
-
+    
     private CinemachineVirtualCameraBase _currentCamera;
-    public CinemachineVirtualCameraBase currentCamera
+    public CinemachineVirtualCameraBase CurrentCamera
     {
         get
         {
@@ -26,48 +25,49 @@ public class CameraManager : MonoSingleton<CameraManager>
         private set
         {
             _currentCamera = value;
-            currentMultiChannel = currentCamera.GetComponent<CinemachineBasicMultiChannelPerlin>();
+            CurrentMultiChannel = CurrentCamera.GetComponent<CinemachineBasicMultiChannelPerlin>();
         }
     }
 
     private CinemachineBasicMultiChannelPerlin _currentMultiChannel;
-    private CinemachineBasicMultiChannelPerlin currentMultiChannel
+    private CinemachineBasicMultiChannelPerlin CurrentMultiChannel
     {
         get
         {
+            Debug.Assert(CurrentCamera != null, "뭔데");
             if (_currentMultiChannel == null)
-                _currentMultiChannel = currentCamera.GetComponent<CinemachineBasicMultiChannelPerlin>();
+                _currentMultiChannel = CurrentCamera.GetComponent<CinemachineBasicMultiChannelPerlin>();
             return _currentMultiChannel;
         }
         set => _currentMultiChannel = value;
     }
 
-    public void MoveToPlayerPositionimmediately()
+    public void MoveToPlayerPositionImmediately()
     {
-        currentCamera.ForceCameraPosition(currentCamera.Follow.position, Quaternion.identity);
+        CurrentCamera.ForceCameraPosition(CurrentCamera.Follow.position, Quaternion.identity);
     }
 
     public void ChangeCamera(CinemachineCamera camera)
     {
-        currentMultiChannel.AmplitudeGain = 0;
-        currentMultiChannel.FrequencyGain = 0;
+        CurrentMultiChannel.AmplitudeGain = 0;
+        CurrentMultiChannel.FrequencyGain = 0;
 
-        currentCamera.Priority = 10;
-        currentCamera = camera;
-        currentCamera.Priority = 11;
-        currentMultiChannel = currentCamera.GetComponent<CinemachineBasicMultiChannelPerlin>();
+        CurrentCamera.Priority = 10;
+        CurrentCamera = camera;
+        CurrentCamera.Priority = 11;
+        CurrentMultiChannel = CurrentCamera.GetComponent<CinemachineBasicMultiChannelPerlin>();
     }
     public void ChangeCamera(string cameraName)
     {
-        currentMultiChannel.AmplitudeGain = 0;
-        currentMultiChannel.FrequencyGain = 0;
+        CurrentMultiChannel.AmplitudeGain = 0;
+        CurrentMultiChannel.FrequencyGain = 0;
 
-        currentCamera.Priority = 10;
-        currentCamera = _cameraDictionary[cameraName];
-        currentCamera.Priority = 11;
-        currentMultiChannel = currentCamera.GetComponent<CinemachineBasicMultiChannelPerlin>();
+        CurrentCamera.Priority = 10;
+        CurrentCamera = _cameraDictionary[cameraName];
+        CurrentCamera.Priority = 11;
+        CurrentMultiChannel = CurrentCamera.GetComponent<CinemachineBasicMultiChannelPerlin>();
     }
-
+    
     public void ShakeCamera(float amplitude, float frequency, float time, AnimationCurve curve, bool isAdd = true)
     {
         if (_shakeSequence != null && _shakeSequence.IsActive()) _shakeSequence.Kill();
@@ -77,23 +77,23 @@ public class CameraManager : MonoSingleton<CameraManager>
         float startFre;
         if (isAdd)
         {
-            startAmp = currentMultiChannel.AmplitudeGain + amplitude * OptionData.GraphicSaveData.screenEffectValue;
-            startFre = currentMultiChannel.FrequencyGain + frequency * OptionData.GraphicSaveData.screenEffectValue;
+            startAmp = CurrentMultiChannel.AmplitudeGain + amplitude * OptionData.GraphicSaveData.screenEffectValue;
+            startFre = CurrentMultiChannel.FrequencyGain + frequency * OptionData.GraphicSaveData.screenEffectValue;
         }
         else
         {
-            startAmp = Mathf.Max(currentMultiChannel.AmplitudeGain, amplitude) * OptionData.GraphicSaveData.screenEffectValue;
-            startFre = Mathf.Max(currentMultiChannel.FrequencyGain, frequency) * OptionData.GraphicSaveData.screenEffectValue;
+            startAmp = Mathf.Max(CurrentMultiChannel.AmplitudeGain, amplitude) * OptionData.GraphicSaveData.screenEffectValue;
+            startFre = Mathf.Max(CurrentMultiChannel.FrequencyGain, frequency) * OptionData.GraphicSaveData.screenEffectValue;
         }
 
         _shakeSequence
             .Append(
                 DOTween.To(() => startAmp,
-                value => currentMultiChannel.AmplitudeGain = value,
+                value => CurrentMultiChannel.AmplitudeGain = value,
                 0, time).SetEase(curve))
             .Join(
                 DOTween.To(() => startFre,
-                value => currentMultiChannel.FrequencyGain = value,
+                value => CurrentMultiChannel.FrequencyGain = value,
                 0, time).SetEase(curve));
     }
     public void ShakeCamera(float amplitude, float frequency, float time, Ease ease = Ease.Linear, bool isAdd = true)
@@ -105,23 +105,23 @@ public class CameraManager : MonoSingleton<CameraManager>
         float startFre;
         if (isAdd)
         {
-            startAmp = currentMultiChannel.AmplitudeGain + amplitude * OptionData.GraphicSaveData.screenEffectValue;
-            startFre = currentMultiChannel.FrequencyGain + frequency * OptionData.GraphicSaveData.screenEffectValue;
+            startAmp = CurrentMultiChannel.AmplitudeGain + amplitude * OptionData.GraphicSaveData.screenEffectValue;
+            startFre = CurrentMultiChannel.FrequencyGain + frequency * OptionData.GraphicSaveData.screenEffectValue;
         }
         else
         {
-            startAmp = Mathf.Max(currentMultiChannel.AmplitudeGain, amplitude) * OptionData.GraphicSaveData.screenEffectValue;
-            startFre = Mathf.Max(currentMultiChannel.FrequencyGain, frequency) * OptionData.GraphicSaveData.screenEffectValue;
+            startAmp = Mathf.Max(CurrentMultiChannel.AmplitudeGain, amplitude) * OptionData.GraphicSaveData.screenEffectValue;
+            startFre = Mathf.Max(CurrentMultiChannel.FrequencyGain, frequency) * OptionData.GraphicSaveData.screenEffectValue;
         }
 
         _shakeSequence
             .Append(
                 DOTween.To(() => startAmp,
-                value => currentMultiChannel.AmplitudeGain = value,
+                value => CurrentMultiChannel.AmplitudeGain = value,
                 0, time).SetEase(ease))
             .Join(
                 DOTween.To(() => startFre,
-                value => currentMultiChannel.FrequencyGain = value,
+                value => CurrentMultiChannel.FrequencyGain = value,
                 0, time).SetEase(ease));
     }
 }

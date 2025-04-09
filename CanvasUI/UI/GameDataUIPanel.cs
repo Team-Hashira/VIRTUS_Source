@@ -56,5 +56,10 @@ namespace Hashira.CanvasUI
             }
             _stageText.text = text;
         }
+
+        private void OnDestroy()
+        {
+            Hashira.CanvasUI.UIManager.Instance.RemoveUI(this);
+        }
     }
 }

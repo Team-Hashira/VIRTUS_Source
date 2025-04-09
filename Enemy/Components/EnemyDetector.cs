@@ -39,11 +39,10 @@ namespace Hashira.Enemies.Components
             Vector3 direction = coll.transform.position - transform.position;
             float distance = direction.magnitude;
             direction.Normalize();
-            if (!Physics2D.Raycast(transform.position, direction, distance, _whatIsGround))
+            //if (!Physics2D.Raycast(transform.position, direction, distance, _whatIsGround))
             {
                 return coll.GetComponent<Player>();
             }
-            return null;
         }
 
         public virtual bool IsWallBetweenTarget(Transform target)

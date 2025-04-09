@@ -24,6 +24,9 @@ namespace Hashira.Visualizers
         private Vector2 _offset;
         private Color _defaultLineColor;
 
+        private Coroutine _lifeTimeCoroutine;
+        private Coroutine _foldCoroutine;
+
         private void Awake()
         {
             _defaultLineColor = _spriteRenderer.color;
@@ -75,7 +78,7 @@ namespace Hashira.Visualizers
                 OnComplete?.Invoke();
             }
 
-            StartCoroutine(LifeTimeCoroutine(lifeTime));
+            _lifeTimeCoroutine = StartCoroutine(LifeTimeCoroutine(lifeTime));
         }
 
         private IEnumerator VisualizeCoroutine(Vector2 startPos, Vector2 endPos, float duration, Func<float, float> EaseFunction, Action OnComplete)
@@ -111,6 +114,10 @@ namespace Hashira.Visualizers
 
         public void Fold(float duration)
         {
+            if (_foldCoroutine != null)
+                return;
+            if (_lifeTimeCoroutine != null)
+                StopCoroutine(_lifeTimeCoroutine);
             StartCoroutine(FoldCoroutine(transform.position, _endPos, duration));
         }
 
@@ -142,6 +149,7 @@ namespace Hashira.Visualizers
             _maskTrm.localScale = new Vector2(0, _spriteRenderer.size.y);
             transform.position = endPos;
             this.Push();
+            _foldCoroutine = null;
         }
 
         private void CreateDirectionMark(Vector2 startPos, Vector2 endPos, float distance, float angle, int count, float space)
@@ -178,7 +186,7 @@ namespace Hashira.Visualizers
             if (lifeTime < 0)
                 yield break;
             yield return new WaitForSeconds(lifeTime);
-            StartCoroutine(FoldCoroutine(transform.position, _endPos, 0.3f));
+            _foldCoroutine = StartCoroutine(FoldCoroutine(transform.position, _endPos, 0.3f));
         }
 
         public void OnPop()

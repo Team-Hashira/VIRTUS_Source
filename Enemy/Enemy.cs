@@ -44,6 +44,7 @@ namespace Hashira.Enemies
             PlayerDataManager.Instance.AddKillCount();
             SoundManager.Instance.PlaySFX("EnemyDie", transform.position, 1f);
             Destroy(gameObject);
+            Cost.AddCost(2);
         }
 
         protected override void InitializeComponent()

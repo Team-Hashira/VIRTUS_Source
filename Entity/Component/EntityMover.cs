@@ -79,13 +79,14 @@ namespace Hashira.Entities
                 movement = _movement;
             //if (_entity is Player) Debug.Log($"{transform.up} dot {_hitedGround.normal}");
             //if (_entity is Player) Debug.Log($"{Mathf.Acos(Vector3.Dot(transform.up, _hitedGround.normal)) * Mathf.Rad2Deg} >= {_maxSlopeAngle}");
-            if (IsGrounded && Vector3.Dot(transform.up, _hitedGround.normal) >= Mathf.Cos(_maxSlopeAngle * Mathf.Deg2Rad))
+            if (IsGrounded)
             {
                 ToMove = Vector3.ProjectOnPlane(movement, _hitedGround.normal).normalized * movement.magnitude + (Vector3)_hitedGround.normal * _yMovement;
             }
             else
             {
-                ToMove = movement + transform.up * _yMovement;
+                ToMove = Vector3.ProjectOnPlane(movement, transform.up).normalized * 
+                    movement.magnitude + transform.up * _yMovement;
             }
             foreach (var processor in _moveProcessorDict.Values)
             {
@@ -99,7 +100,7 @@ namespace Hashira.Entities
             RaycastHit2D[] groundHits = Physics2D.BoxCastAll((Vector2)transform.position,
                 _checkerSize, _entity.transform.eulerAngles.z, -_entity.transform.up, _downDistance, _whatIsGround);
 
-            if (groundHits.Length > 0)
+            if (groundHits.Length > 0 && Vector3.Dot(transform.up, groundHits[0].normal) >= Mathf.Cos(_maxSlopeAngle * Mathf.Deg2Rad))
             {
                 _hitedGround = groundHits[0];
             }

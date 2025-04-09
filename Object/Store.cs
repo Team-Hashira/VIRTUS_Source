@@ -1,15 +1,15 @@
-using Hashira.CanvasUI;
 using Hashira.CanvasUI.Wells;
+using Hashira.CanvasUI;
 using Hashira.Entities.Interacts;
 using Hashira.Players;
 using UnityEngine;
+using Hashira.CanvasUI.Stores;
 
 namespace Hashira.Object
 {
-    public class Well : KeyInteractObject
+    public class Store : KeyInteractObject
     {
         private ToggleDomain toggleDomain;
-
         private Collider2D _collider2D;
 
         protected override void Awake()
@@ -23,15 +23,7 @@ namespace Hashira.Object
             base.Interaction(player);
 
             toggleDomain = Hashira.CanvasUI.UIManager.Instance.GetDomain<ToggleDomain>();
-            WellUI wellUI = toggleDomain.OpenUI("WellUI") as WellUI;
-            wellUI.Init(this);
-            wellUI.Enable();
-        }
-
-        public void EventEnd()
-        {
-            _collider2D.enabled = false;
-            OffInteractable();
+            StoreUI storeUI = toggleDomain.OpenUI("StoreUI") as StoreUI;
         }
     }
 }

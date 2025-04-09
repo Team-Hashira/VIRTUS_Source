@@ -19,6 +19,7 @@ namespace Hashira
                 StartCardUse();
             else
                 StartCardSelect();
+
         }
 
         public void StartCardUse()

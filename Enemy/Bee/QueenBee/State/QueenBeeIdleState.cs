@@ -1,3 +1,4 @@
+using Crogen.CrogenPooling;
 using Hashira.Core;
 using Hashira.Enemies.Components;
 using Hashira.Entities;
@@ -17,6 +18,9 @@ namespace Hashira.Enemies.Bee.QueenBee
         private Player _target;
 
         private bool _isEvasioned;
+
+        private float _spawnTimer = 0;
+        private float _spawnDelay = 7f;
 
         public QueenBeeIdleState(Entity entity, StateSO stateSO) : base(entity, stateSO)
         {
@@ -47,6 +51,15 @@ namespace Hashira.Enemies.Bee.QueenBee
                     _entityStateMachine.ChangeState("Evasion");
                     _isEvasioned = true;
                 }
+            }
+            _spawnTimer += Time.deltaTime;
+            if(_spawnTimer >= _spawnDelay)
+            {
+                CommonBee.CommonBee bee = PopCore.Pop(_queenBee.CommonBee, _entity.transform.position, Quaternion.identity) as CommonBee.CommonBee;
+                Vector2 dir = Random.insideUnitCircle.normalized;
+                bee.GetEntityComponent<EnemyMover>().SetMovement(dir * 6);
+
+                _spawnTimer = 0;
             }
         }
     }

@@ -11,7 +11,7 @@ namespace Hashira.CanvasUI
     {
         private readonly static int _ValueShaderHash = Shader.PropertyToID("_Value");
 
-        [SerializeField] private bool _isUseMove; 
+        [SerializeField] private bool _isUseMove;
         [SerializeField, ToggleField(nameof(_isUseMove))] private float _moveDistance;
         [SerializeField, ToggleField(nameof(_isUseMove))] private float _moveDuration;
 
@@ -22,6 +22,7 @@ namespace Hashira.CanvasUI
         [SerializeField] private bool _isUseLight;
         [SerializeField, ToggleField(nameof(_isUseLight))] private Image _image;
         [SerializeField, ToggleField(nameof(_isUseLight))] private TextMeshProUGUI _text;
+        [SerializeField, ToggleField(nameof(_isUseLight))] private Color lightColor = Color.white;
         [SerializeField, ToggleField(nameof(_isUseLight))] private float _lightOffDuration;
 
         [SerializeField] private bool _isUseGlitch;
@@ -42,6 +43,9 @@ namespace Hashira.CanvasUI
         public event Action OnClickEvent;
         public event Action<bool> OnHoverEvent;
 
+        private bool _onHoverEvent = true;
+        private bool _onClickEvent = true;
+
         protected override void Awake()
         {
             base.Awake();
@@ -54,20 +58,40 @@ namespace Hashira.CanvasUI
             _defaultAnchoredPos = RectTransform.anchoredPosition;
         }
 
+        public void SetText(string text)
+        {
+            if (_text != null) _text.text = text;
+        }
+
+        public void ActiveHoverEvent(bool active)
+        {
+            OnCursorExit();
+            _onHoverEvent = active;
+        }
+        public void ActiveClickEvent(bool active)
+        {
+            OnClickEnd(true);
+            OnClickEnd(false);
+            _onClickEvent = active;
+        }
+
         public void OnClick(bool isLeft)
         {
+            if (_onClickEvent == false) return;
+
             if (isLeft)
                 OnClickEvent?.Invoke();
-            Light();
         }
 
         public void OnClickEnd(bool isLeft)
         {
+            if (_onClickEvent == false) return;
 
         }
 
         public void OnCursorEnter()
         {
+            if (_onHoverEvent == false) return;
             OnHoverEvent?.Invoke(true);
             if (_isUseMove)
             {
@@ -88,8 +112,8 @@ namespace Hashira.CanvasUI
         {
             if (_isUseLight == false) return;
             if (_colorSeq != null && _colorSeq.IsActive()) _colorSeq.Kill();
-            if (_text != null) _text.color = Color.white;
-            _image.color = Color.white;
+            if (_text != null) _text.color = lightColor;
+            _image.color = lightColor;
         }
 
         private void Glitch()
@@ -99,9 +123,10 @@ namespace Hashira.CanvasUI
             if (_materialTween != null && _materialTween.IsActive()) _materialTween.Kill();
             _materialTween = DOTween.To(() => 1f, value => _childrenMaterialController.SetValue(_ValueShaderHash, value), 0f, _glitchDuration).SetUpdate(_isDonUseTimeScale);
         }
-        
+
         public void OnCursorExit()
         {
+            if (_onHoverEvent == false) return;
             OnHoverEvent?.Invoke(false);
             if (_isUseLight)
             {

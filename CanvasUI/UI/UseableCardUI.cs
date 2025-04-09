@@ -139,7 +139,7 @@ namespace Hashira.CanvasUI
                 {
                     if (Cost.TryRemoveCost(_needCost))
                     {
-                        PlayerDataManager.Instance.AddEffect(CardSO.GetEffectClass());
+                        PlayerDataManager.Instance.AddEffect(CardSO.GetEffectInstance());
                         CardUse();
                     }
                     else

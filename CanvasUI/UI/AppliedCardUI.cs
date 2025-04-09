@@ -31,9 +31,9 @@ namespace Hashira.CanvasUI
         public void Initialize(CardEffect cardEffect)
         {
             _cardEffect = cardEffect;
-            _foreIconImage.sprite = cardEffect.CardSO.cardSprite;
-            _backIconImage.sprite = cardEffect.CardSO.cardSprite;
-            _cardNameText.text = cardEffect.CardSO.cardDisplayName;
+            _foreIconImage.sprite = cardEffect.CardSO.sprite;
+            _backIconImage.sprite = cardEffect.CardSO.sprite;
+            _cardNameText.text = cardEffect.CardSO.displayName;
             _innerBackground.color = CardColor.GetColorByType(cardEffect.CardSO.cardType);
             UpdateCount(cardEffect.stack);
         }

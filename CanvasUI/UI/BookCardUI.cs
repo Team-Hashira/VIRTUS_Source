@@ -23,7 +23,7 @@ namespace Hashira.CanvasUI
         public void Initialize(CardSO cardSO)
         {
             _cardSO = cardSO;
-            _cardImage.sprite = _cardSO.cardSprite;
+            _cardImage.sprite = _cardSO.sprite;
             _descriptionText.text = PlayerDataManager.Instance.GetCardDescription(cardSO);
         }
 

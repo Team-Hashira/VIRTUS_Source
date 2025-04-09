@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Hashira.Accessories;
 using Hashira.Core;
 using Hashira.Core.StatSystem;
 using Hashira.Entities;
@@ -59,7 +60,8 @@ namespace Hashira.Players
             int prevStageHealth = PlayerDataManager.Instance.Health;
             if (prevStageHealth != -1) _entityHealth.SetHealth(prevStageHealth);
 
-            _entityHealth.OnHealthChangedEvent += HandleHealthChange;
+            _entityHealth.OnHitEvent += HandleOnHitEvent;
+            _entityHealth.OnDieEvent += HandleOnDieEvent;
             InputReader.OnDashEvent += HandleDashEvent;
             InputReader.OnInteractEvent += HandleInteractEvent;
             InputReader.OnSprintToggleEvent += HandleSprintToggle;
@@ -68,9 +70,11 @@ namespace Hashira.Players
             InputReader.OnAttackEvent += HandleAttackEvent;
         }
 
+        
         private void Start()
         {
             PlayerManager.Instance.SetCardEffectList(PlayerDataManager.Instance.CardEffectList, true);
+            Accessory.ApplyAll(this);
             _currentStamina = MaxStamina;
         }
 
@@ -81,23 +85,19 @@ namespace Hashira.Players
         }
 
         #region Handles
-
-        private void HandleHealthChange(int old, int cur)
+        private void HandleOnHitEvent(int hp)
         {
-            if (old > cur)
-            {
-                SoundManager.Instance.PlaySFX("PlayerHit", transform.position, 1f);
-                CameraManager.Instance.ShakeCamera(5, 5, 0.3f);
-                StartCoroutine(EvasionCoroutine());
-                MainScreenEffect.OnGlitch(0.2f, 0).OnComplete(() => MainScreenEffect.OnGlitch(0, 0.5f));
-                LightingController.Aberration(1f, 0.3f);
-                StartCoroutine(TimeCoroutine());
-            }
+            SoundManager.Instance.PlaySFX("PlayerHit", transform.position, 1f);
+            CameraManager.Instance.ShakeCamera(5, 5, 0.3f);
+            StartCoroutine(EvasionCoroutine());
+            MainScreenEffect.OnGlitch(0.2f, 0).OnComplete(() => MainScreenEffect.OnGlitch(0, 0.5f));
+            LightingController.Aberration(1f, 0.3f);
+            StartCoroutine(TimeCoroutine());
+        }
 
-            if (cur <= 0)
-            {
-                GameManager.Instance.GameOver();
-            }
+        private void HandleOnDieEvent(Entity entity)
+        {
+            GameManager.Instance.GameOver();
         }
 
         private IEnumerator TimeCoroutine()
@@ -219,7 +219,8 @@ namespace Hashira.Players
         {
             base.OnDestroy();
 
-            _entityHealth.OnHealthChangedEvent -= HandleHealthChange;
+            _entityHealth.OnHitEvent -= HandleOnHitEvent;
+            _entityHealth.OnDieEvent -= HandleOnDieEvent;
             InputReader.OnDashEvent -= HandleDashEvent;
             InputReader.OnInteractEvent -= HandleInteractEvent;
             InputReader.OnSprintToggleEvent -= HandleSprintToggle;

@@ -30,7 +30,7 @@ namespace Hashira.CanvasUI
             List<CardSO> cardList
                 = PlayerDataManager.Instance.CardEffectList.Select(cardEffect => cardEffect.CardSO).ToList();
             _cardSpreader.CreateCard(cardList, true);
-            _setupCardVisualList = _cardSpreader.GetCardList<SetupCardVisual>();
+            _setupCardVisualList = _cardSpreader.GetCardList();
             _lastRandomIndex = _setupCardVisualList.Count;
 
             _cardSendBtn.OnClickEvent += HandleCardSendEvent;

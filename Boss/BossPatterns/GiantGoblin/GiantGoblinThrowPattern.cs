@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
-    public class GiantGoblinThrowPattern : GiantGoblinPattern
+    public class GiantGoblinThrowPattern : BossPattern
     {
         [SerializeField] private ProjectilePoolType _giantRockPoolType;
         [SerializeField] private int _rockStartLevel;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
-    public class GiantGoblinSwingPattern : GiantGoblinPattern
+    public class GiantGoblinSwingPattern : BossPattern
     {
         [SerializeField] private CircleDamageCaster2D _damageCaster;
         private float _casterOrigin;

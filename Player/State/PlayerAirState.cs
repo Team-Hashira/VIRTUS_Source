@@ -37,11 +37,13 @@ namespace Hashira.Players
             if (_speedStat != null)
                 movement *= _speedStat.Value;
 
-            _entityMover.SetMovement(new Vector2(movement, 0));
+            _entityMover.SetMovement(_player.transform.right * movement);
 
             if (_entityMover.IsGrounded == true)
             {
-                _player.gameObject.Pop(EffectPoolType.LandingSmoke, _player.transform.position - _player.transform.up * 0.4f, _player.transform.rotation);
+                ParticleSystem landingEffect = _player.gameObject.Pop(EffectPoolType.LandingSmoke, _player.transform.position - _player.transform.up * 0.4f, Quaternion.identity).gameObject.GetComponent<ParticleSystem>();
+                var mainModule = landingEffect.main;
+                mainModule.startRotation = _player.transform.eulerAngles.z * Mathf.Deg2Rad;
                 _entityStateMachine.ChangeState("Idle");
             }
         }

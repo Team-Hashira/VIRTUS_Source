@@ -92,7 +92,7 @@ namespace Hashira.CanvasUI
                                         $"{prevStageText}  >>  {nextStageText}";
 
             CardManager.Instance.OnFixationCardEvent += HandleFixationCardEvent;
-            HandleFixationCardEvent(CardManager.Instance.FixedCardNeedCost[0]);
+            HandleFixationCardEvent(0);
 
             if (_openSeq != null && _openSeq.IsActive()) _openSeq.Kill();
             _openSeq = DOTween.Sequence();

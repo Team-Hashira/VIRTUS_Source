@@ -29,7 +29,7 @@ namespace Hashira.UI
             {
                 _entityHealth = boss.GetEntityComponent<EntityHealth>();
                 _bossNameText.text = boss.BossDisplayName;
-                _healthText.text = "100%";
+                _healthText.text = "100.00%";
                 _rectTransform.DOAnchorPosY(0, 1f);
                 _entityHealth.OnHealthChangedEvent += HandleHealthChanged;
             }
@@ -44,7 +44,7 @@ namespace Hashira.UI
         private void HandleHealthChanged(int previous, int current)
         {
             _slider.value = (float)current / _entityHealth.MaxHealth;
-            _healthText.text = $"{((float)_entityHealth.Health/_entityHealth.MaxHealth)*100f}%";
+            _healthText.text = $"{((float)_entityHealth.Health/_entityHealth.MaxHealth*100f):F}%";
         }
     }
 }

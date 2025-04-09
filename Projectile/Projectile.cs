@@ -126,7 +126,7 @@ namespace Hashira.Projectiles
         {
             if (IsDead) return;
             // 중력
-            movement.y -= _gravity / 20;
+            movement -= Owner.up * _gravity / 20;
             transform.right = movement.normalized;
 
             _currentHit2D = Physics2D.BoxCastAll(transform.position + transform.rotation * ((Vector2)transform.localScale * _castOffset), (Vector2)transform.localScale * _castSize, transform.eulerAngles.z, movement.normalized, movement.magnitude * Time.fixedDeltaTime, WhatIsTarget);

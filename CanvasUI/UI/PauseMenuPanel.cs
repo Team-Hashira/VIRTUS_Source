@@ -55,8 +55,8 @@ namespace Hashira
             _canvasGroup.alpha = 0;
             _canvasGroup.interactable = false;
             _canvasGroup.blocksRaycasts = false;
-            TimeController.UndoTimeScale();
-            _inputReader.PlayerActive(true);
+
+            Hashira.CanvasUI.UIManager.Instance.RemovePauseMenu(this);
         }
 
         public void Open()
@@ -65,8 +65,8 @@ namespace Hashira
             _canvasGroup.alpha = 1;
             _canvasGroup.interactable = true;
             _canvasGroup.blocksRaycasts = true;
-            TimeController.SetTimeScale(0);
-            _inputReader.PlayerActive(false);
+
+            Hashira.CanvasUI.UIManager.Instance.AddPauseMenu(this);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Hashira.CanvasUI
     public class PlayerHealthController : MonoBehaviour
     {
         [SerializeField] private PlayerHealthUI _healthUI;
-        private EntityHealth _playerHealth;
+        private EntityHealth _playerHealth; 
         private Player _player;
 
         private List<PlayerHealthUI> _healthImageList;

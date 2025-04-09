@@ -1,10 +1,11 @@
+using Hashira.Items;
 using Hashira.Players;
 using System;
 using System.Collections.Generic;
 
 namespace Hashira.Cards.Effects
 {
-    public abstract class CardEffect
+    public abstract class CardEffect : ItemEffect<CardEffect>
     {
         public CardSO CardSO { get; private set; }
         public int stack;
@@ -13,9 +14,12 @@ namespace Hashira.Cards.Effects
 
         public Player player;
 
-        public void Init(CardSO cardSO)
+        public bool IsMaxStack => stack == CardSO.maxOverlapCount;
+
+        public override void Initialize(ItemSO<CardEffect> itemSO)
         {
-            CardSO = cardSO;
+            base.Initialize(itemSO);
+            CardSO = itemSO as CardSO;
             stack = 1;
         }
 

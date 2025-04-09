@@ -75,7 +75,7 @@ namespace Hashira.Tutorials
             }
             if (withGlitch)
             {
-                DOVirtual.Float(_materialController.GetGlitchValue(_glitchValueHash), 1f, duration * 0.5f, value => _materialController.SetValue(_glitchValueHash, value));
+                DOVirtual.Float(_materialController.GetValue(_glitchValueHash), 1f, duration * 0.5f, value => _materialController.SetValue(_glitchValueHash, value));
             }
         }
 

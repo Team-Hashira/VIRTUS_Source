@@ -12,6 +12,8 @@ namespace Hashira.CanvasUI
         private List<UIManagementDomain> _uiDomainList;
         private Dictionary<Type, UIManagementDomain> _uiDomainDict;
 
+        private List<UIBase> _pauseMenuList;
+
         [field: SerializeField]
         public Canvas MainCanvas { get; private set; }
 
@@ -20,12 +22,17 @@ namespace Hashira.CanvasUI
         public static Vector2 MousePosition;
         public static Vector2 WorldMousePosition;
 
+        [SerializeField] private InputReaderSO _inputReader;
+
+        private bool _isPaused;
+
         protected override void OnCreateInstance()
         {
             base.OnCreateInstance();
             _uiBaseList = new List<UIBase>();
             _uiDomainList = new List<UIManagementDomain>();
             _uiDomainDict = new Dictionary<Type, UIManagementDomain>();
+            _pauseMenuList = new List<UIBase> ();
         }
 
         private void Awake()
@@ -44,6 +51,37 @@ namespace Hashira.CanvasUI
             foreach (var doamin in _uiDomainList)
             {
                 doamin.UpdateUI();
+            }
+        }
+
+        public void AddPauseMenu(UIBase uiBase)
+        {
+            _pauseMenuList.Add(uiBase);
+            PauseUpdate();
+        }
+
+        public void RemovePauseMenu(UIBase uiBase)
+        {
+            if (_pauseMenuList.Contains(uiBase))
+            {
+                _pauseMenuList.Remove(uiBase);
+                PauseUpdate();
+            }
+        }
+
+        public void PauseUpdate()
+        {
+            if (_isPaused == false && _pauseMenuList.Count > 0)
+            {
+                _isPaused = true;
+                TimeController.SetTimeScale(0);
+                _inputReader.PlayerActive(false);
+            }
+            else if (_isPaused && _pauseMenuList.Count == 0)
+            {
+                _isPaused = false;
+                TimeController.UndoTimeScale();
+                _inputReader.PlayerActive(true);
             }
         }
 
@@ -113,6 +151,12 @@ namespace Hashira.CanvasUI
                     }
                 }
             }
+        }
+
+        private void OnDestroy()
+        {
+            _pauseMenuList.Clear();
+            PauseUpdate();
         }
     }
 }

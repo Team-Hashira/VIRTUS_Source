@@ -1,3 +1,4 @@
+using Hashira.Accessories;
 using Hashira.Cards;
 using Hashira.Cards.Effects;
 using Hashira.Core;
@@ -43,13 +44,13 @@ namespace Hashira
             MaxHealth = maxHealth;
         }
 
-        private bool IsCanAddEffect(CardEffect cardEffect)
+        public bool IsMaxStackEffect(CardSO cardSO)
         {
-            if (cardEffect.CardSO.maxOverlapCount < 0) return true;
-            if (_cardEffectDictionary.TryGetValue(cardEffect.GetType(), out CardEffect effect))
-                return cardEffect.CardSO.maxOverlapCount > effect.stack;
+            if (cardSO.maxOverlapCount < 0) return false;
+            if (_cardEffectDictionary.TryGetValue(cardSO.GetEffectType(), out CardEffect effect))
+                return cardSO.maxOverlapCount == effect.stack;
             else
-                return true;
+                return false;
         }
 
         public void AddEffect(CardEffect cardEffect)
@@ -58,7 +59,7 @@ namespace Hashira
 
             Type type = cardEffect.GetType();
 
-            if (IsCanAddEffect(cardEffect) == false) return;
+            if (IsMaxStackEffect(cardEffect.CardSO)) return;
 
             if (_cardEffectDictionary.TryGetValue(type, out CardEffect effect))
                 effect.stack += cardEffect.stack;
@@ -79,6 +80,18 @@ namespace Hashira
                     _cardEffectDictionary.Remove(type);
 
                 EffectRemovedEvent?.Invoke(effect);
+            }
+            else
+                Debug.Log($"Effect {type.Name} was not found");
+        }
+
+        public void SetEffectStat(CardSO cardSO, int stack)
+        {
+            Type type = cardSO.GetEffectType();
+
+            if (cardSO != null && _cardEffectDictionary.TryGetValue(type, out CardEffect effect))
+            {
+                effect.stack = stack;
             }
             else
                 Debug.Log($"Effect {type.Name} was not found");
@@ -126,6 +139,7 @@ namespace Hashira
             ResetPlayerData();
             CardManager.Instance.ClearCardList();
             Cost.ResetCost();
+            Accessory.ResetAccessory();
             StageGenerator.ResetStage();
         }
         public void ResetPlayerData()

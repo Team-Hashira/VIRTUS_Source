@@ -33,6 +33,7 @@ namespace Hashira.Entities
         public Guid guid;
     }
     public delegate void OnHealthChangedEvent(int previous, int current);
+    public delegate void OnHitEvent(int hp);
     public class EntityHealth : MonoBehaviour, IEntityComponent, IAfterInitialzeComponent, IDamageable
     {
         public int Health { get; private set; }
@@ -45,6 +46,7 @@ namespace Hashira.Entities
 
         public int MaxHealth => _maxHealth.IntValue;
         public event OnHealthChangedEvent OnHealthChangedEvent;
+        public event OnHitEvent OnHitEvent;
         public event Action<Entity> OnDieEvent;
 
         private EntityMover _entityMover;
@@ -125,6 +127,7 @@ namespace Hashira.Entities
             
             if (Health < 0)
                 Health = 0;
+            OnHitEvent?.Invoke(Health);
             OnHealthChangedEvent?.Invoke(prev, Health);
 
             if (attackInfo.knockback != Vector2.zero)
@@ -255,6 +258,7 @@ namespace Hashira.Entities
         {
             if (_damageHandlerDict[layer] == null)
                 _damageHandlerDict[layer] = new List<DamageHandler>();
+            handler.Initialize(Owner);
             _damageHandlerDict[layer].Add(handler);
         }
 

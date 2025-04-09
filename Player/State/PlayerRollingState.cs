@@ -3,6 +3,8 @@ using Hashira.Entities;
 using Hashira.Entities.Components;
 using Hashira.FSM;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace Hashira.Players
 {
@@ -28,10 +30,7 @@ namespace Hashira.Players
         public override void OnEnter()
         {
             base.OnEnter();
-            if (_playerMover.Velocity.x != 0)
-                _moveDir = Mathf.Sign(_playerMover.Velocity.x);
-            else
-                _moveDir = _entityRenderer.FacingDirection;
+            _moveDir = _entityRenderer.FacingDirection;
 
             var mainModule = _player.AfterImageParticle.main;
             mainModule.startRotationZ = -_moveDir * _player.transform.eulerAngles.z * Mathf.Deg2Rad;
@@ -58,9 +57,9 @@ namespace Hashira.Players
         public override void OnUpdate()
         {
             base.OnUpdate();
-
-			_playerMover.SetMovement(new Vector2(_moveDir * _dashSpeedStat.Value, 0));
-            _entityRenderer.LookTarget(_player.transform.position + Vector3.right * _moveDir);
+            
+            _playerMover.SetMovement(_player.transform.right * _moveDir * _dashSpeedStat.Value);
+            _entityRenderer.LookTarget(_player.transform.position + _player.transform.right * _moveDir);
         }
 
         public override void OnExit()

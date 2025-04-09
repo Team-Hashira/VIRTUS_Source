@@ -15,7 +15,6 @@ namespace Hashira.Enemies.Bee.CommonBee
         public override void OnEnter()
         {
             base.OnEnter();
-            Debug.Log(">");
             _entityAnimator.OnAnimationTriggeredEvent += HandleOnAnimationTriggerEvent;
         }
 

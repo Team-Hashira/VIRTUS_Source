@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
-    public class GiantGoblinDashPattern : GiantGoblinPattern
+    public class GiantGoblinDashPattern : BossPattern
     {
         [SerializeField] private float _dashDelay = 0.5f;
         [SerializeField] private float _dashDuration = 1.75f;

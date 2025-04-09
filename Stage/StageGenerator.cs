@@ -1,4 +1,6 @@
 using Hashira.Bosses;
+using Hashira.Core;
+using Hashira.MainScreen;
 using System;
 using System.Collections;
 using System.Linq;
@@ -20,10 +22,13 @@ namespace Hashira.StageSystem
         public Stage GetCurrentStage() => _currentStage;
         public int GetCurrentEnemiesCount() => _currentStage.CurrentEnemiesCount;
 
-        public void GenerateStage()
+        public void GenerateStage(StageTypeSO stages = null)
         {
             if (floors.Length == 0) return;
-            _currentStage = Instantiate(GetCurrentStageData().GetRandomStageType(1)[0].GetRandomStage(), transform);
+            _currentStage = Instantiate(stages == null ? GetCurrentStageData().GetRandomStageType(1)[0].GetRandomStage() : stages.GetRandomStage(), transform);
+
+            PlayerManager.Instance.Player.Rotate(0, 0);
+            
             //_currentStage.OnAllClearEvent.AddListener(() =>
             //{
             //    if (currentFloorIdx == floors.Length - 1 && currentStageIdx == floors[currentFloorIdx].Length - 1)
@@ -101,7 +106,7 @@ namespace Hashira.StageSystem
         {
             Destroy(_currentStage.gameObject);
             yield return new WaitForEndOfFrame();
-            _currentStage = Instantiate(stages.GetRandomStage(), transform);
+            GenerateStage(stages);
         }
 
         //private IEnumerator ClearStageCoroutine()

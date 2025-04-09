@@ -83,7 +83,7 @@ namespace Hashira.CanvasUI
             if (_glitchTween != null && _glitchTween.IsActive())
                 _glitchTween.Kill();
             _childMaterialController.SetValue(_glitchValueHash, 0.6f);
-            _glitchTween = DOTween.To(() => _childMaterialController.GetGlitchValue(_glitchValueHash),
+            _glitchTween = DOTween.To(() => _childMaterialController.GetValue(_glitchValueHash),
                 v => _childMaterialController.SetValue(_glitchValueHash, v), 0f, 0.15f);
             _hoverSequence = DOTween.Sequence();
             _hoverSequence.Append(RectTransform.DOScale(_defaultScale * new Vector2(1.3f, 1.3f), 0.2f));
@@ -100,7 +100,7 @@ namespace Hashira.CanvasUI
         public void Wipe(int direction)
         {
             float x = direction == 1 ? Screen.width * 1.5f : -Screen.width * 0.5f;
-            DOTween.To(() => _childMaterialController.GetGlitchValue(_glitchValueHash), v => _childMaterialController.SetValue(_glitchValueHash, v), 1f, 0.4f);
+            DOTween.To(() => _childMaterialController.GetValue(_glitchValueHash), v => _childMaterialController.SetValue(_glitchValueHash, v), 1f, 0.4f);
             RectTransform.DOAnchorPosX(x, 0.6f).SetEase(Ease.InBack);
         }
 
@@ -108,7 +108,7 @@ namespace Hashira.CanvasUI
         {
             Vector2 startPos = RectTransform.anchoredPosition;
             _childMaterialController.SetValue(_glitchValueHash, 1f);
-            DOTween.To(() => _childMaterialController.GetGlitchValue(_glitchValueHash),
+            DOTween.To(() => _childMaterialController.GetValue(_glitchValueHash),
                 v => _childMaterialController.SetValue(_glitchValueHash, v), 0, 0.7f);
             //Vector2 randomPos = Random.insideUnitCircle.normalized;
             //randomPos = destination + randomPos * (Screen.width * 0.5f);

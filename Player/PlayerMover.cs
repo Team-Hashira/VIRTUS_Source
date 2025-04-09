@@ -39,8 +39,7 @@ namespace Hashira.Players
         {
             base.FixedUpdate();
             Vector3 rigidVelocity = Rigidbody2D.linearVelocity;
-            _lastVelocityValue = rigidVelocity.magnitude;
-            if (rigidVelocity.x != 0)
+            if (Vector3.ProjectOnPlane(rigidVelocity.normalized, transform.up) != Vector3.zero)
             {
                 _entityRenderer.LookTarget(transform.position + rigidVelocity);
             }
