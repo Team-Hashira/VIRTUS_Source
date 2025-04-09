@@ -39,12 +39,19 @@ namespace Hashira.StageSystem
 
         public void Init(Stage stage)
         {
-            _enemyCount = enemyPairs.Length;
+            _enemyCount = enemyPairs.Count(x => x.ignore == false);
             _owner = stage;
 
+            if (_enemyCount == 0)
+            {
+                ClearEvent?.Invoke();
+                _owner.AddWaveCount();
+                return;
+            }
+            
             foreach (EnemyPair pair in enemyPairs)
             {
-                if (pair.ignore)
+                if (pair.ignore == false)
                     pair.enemy.GetEntityComponent<EntityHealth>().OnDieEvent += HandleEnemyCounting;
             }
         }
@@ -110,7 +117,6 @@ namespace Hashira.StageSystem
         [SerializeField] private bool _useCanvas;
         [ToggleField(nameof(_useCanvas)), SerializeField] private Transform _stagePanel;
 
-        protected StageGenerator _stageGenerator;
         public int CurrentEnemiesCount => EnemyList.Count;
         public int CurrentWaveCount { get; private set; } = 0;
         //public UnityEvent OnAllClearEvent;
@@ -118,6 +124,7 @@ namespace Hashira.StageSystem
         public event Action OnWaveChanged;
 
         public List<Enemy> EnemyList { get; private set; } = new List<Enemy>();
+        public List<Enemy> IgnoredEnemyList { get; private set; } = new List<Enemy>();
 
         public Wave GetCurrentWave() => waves[CurrentWaveCount];
 
@@ -129,24 +136,6 @@ namespace Hashira.StageSystem
                 waves[i].name = $"Wave{i}";
         }
 #endif
-
-        public Enemy[] GetEnabledRandomEnemies(int count)
-        {
-            List<Enemy> curEnemyList = GetEnabledEnemies().ToList();
-
-            int finalCount = Mathf.Clamp(count, 0, curEnemyList.Count);
-            Enemy[] finalEnemies = new Enemy[finalCount];
-
-            for (int i = 0; i < finalCount; i++)
-            {
-                int random = UnityEngine.Random.Range(0, curEnemyList.Count);
-
-                finalEnemies[i] = curEnemyList[random];
-                curEnemyList.RemoveAt(random);
-            }
-
-            return finalEnemies;
-        }
 
         public Enemy[] GetEnabledEnemies()
         {
@@ -171,11 +160,10 @@ namespace Hashira.StageSystem
 
         private void Update()
         {
-            if (ScreenCamera != null)
-            {
-                ScreenCamera.orthographicSize = Mathf.Max(Scale.x, Scale.y);
-                ScreenCamera.transform.position = new Vector3(Center.x, Center.y, -10f);
-            }
+            if (ScreenCamera == null) return;
+
+            ScreenCamera.orthographicSize = Mathf.Max(Scale.x, Scale.y);
+            ScreenCamera.transform.position = new Vector3(Center.x, Center.y, -10f);
         }
 
         private void OnDestroy()
@@ -187,14 +175,13 @@ namespace Hashira.StageSystem
         private void Start()
         {
             // 이벤트 구독
-            for (int i = 0; i < waves.Length; i++)
+            foreach (var wave in waves)
             {
-                waves[i].Init(this);
-                StartCoroutine(waves[i].SetActiveAllEnemies(false));
+                wave.Init(this);
+                StartCoroutine(wave.SetActiveAllEnemies(false));
             }
 
             SetPlayerPosToSpawnPoint();
-
             AddWaveCount(0);
         }
 
@@ -219,12 +206,12 @@ namespace Hashira.StageSystem
             }
         }
 
-        public void SetPlayerPosToSpawnPoint()
+        private void SetPlayerPosToSpawnPoint()
         {
             PlayerManager.Instance.Player.transform.position = _playerSpawnPoint.position;
         }
 
-        public void ClearStage()
+        private void ClearStage()
         {
             List<StageTypeSO> stageTypeSOList = StageGenerator.Instance.GetNextStageData().GetRandomStageType(_portals.Length);
             for (int i = 0; i < stageTypeSOList.Count; i++)
@@ -244,6 +231,13 @@ namespace Hashira.StageSystem
                     if (waves[i].enemyPairs[j].enemy == null) continue;
                     var pos = waves[i].enemyPairs[j].Transform.position + new Vector3(0, 1);
                     Handles.Label(pos, $"wave {i}");
+
+                    if (waves[i].enemyPairs[j].ignore)
+                    {
+                        Gizmos.color = new Color(1, 0, 0, 0.5f);
+                        Gizmos.DrawSphere(waves[i].enemyPairs[j].Transform.position, 1);
+                        Gizmos.color = Color.white;
+                    }
                 }
             }
 
