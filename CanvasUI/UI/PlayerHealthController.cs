@@ -24,6 +24,7 @@ namespace Hashira.CanvasUI
 
         private void HandleCardEffectEnableEvent()
         {
+            PlayerManager.Instance.OnCardEffectEnableEvent -= HandleCardEffectEnableEvent;
             _playerHealth = _player.GetEntityComponent<EntityHealth>();
             _playerHealth.OnHealthChangedEvent += HandleHealthChangedEvent;
             SetMaxHealth(_playerHealth.MaxHealth);
@@ -52,6 +53,12 @@ namespace Hashira.CanvasUI
             int addedMaxHealth = Mathf.Clamp(maxHealth - PlayerDataManager.Instance.MaxHealth, 0, int.MaxValue);
             _playerHealth.ApplyRecovery(addedMaxHealth);
             SetHealthImage(_playerHealth.Health, false);
+        }
+
+        private void OnDestroy()
+        {
+            if (_playerHealth != null)
+                _playerHealth.OnHealthChangedEvent -= HandleHealthChangedEvent;
         }
     }
 }

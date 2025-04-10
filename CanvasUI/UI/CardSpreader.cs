@@ -13,6 +13,7 @@ namespace Hashira
 
         [Header("==========Spread setting==========")]
         [SerializeField] private int _horizontalCount = -1;
+        [SerializeField] private Vector2 _pivot = new Vector2(0.5f, 0.5f);
         [SerializeField] private Vector2 _interval = new Vector2(200, 0);
         [SerializeField] private float _angle;
         [SerializeField] private Vector2 _offset;
@@ -53,6 +54,8 @@ namespace Hashira
                 SetupCardVisual setupCardVisual = Instantiate(_setupCardVisual, transform);
                 setupCardVisual.Setup(cardSO, isCurrent);
                 setupCardVisual.transform.position = transform.position;
+                setupCardVisual.RectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                setupCardVisual.RectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                 _setupCardVisualList.Add(setupCardVisual);
             }
         }

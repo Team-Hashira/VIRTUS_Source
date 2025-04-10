@@ -2,6 +2,7 @@ using Hashira.Accessories;
 using Hashira.Cards;
 using Hashira.Cards.Effects;
 using Hashira.Core;
+using Hashira.EffectSystem;
 using Hashira.StageSystem;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,7 @@ namespace Hashira
 {
     public class PlayerDataManager : DonDestroyMonoSingleton<PlayerDataManager>
     {
-        private Dictionary<Type, CardEffect> _cardEffectDictionary = new Dictionary<Type, CardEffect>();
-        public List<CardEffect> CardEffectList => _cardEffectDictionary.Values.ToList();
+        public List<CardEffect> CardEffectList { get; private set; } = new List<CardEffect>();
 
         public event Action<CardEffect> EffectAddedEvent;
         public event Action<CardEffect> EffectRemovedEvent;
@@ -47,8 +47,9 @@ namespace Hashira
         public bool IsMaxStackEffect(CardSO cardSO)
         {
             if (cardSO.maxOverlapCount < 0) return false;
-            if (_cardEffectDictionary.TryGetValue(cardSO.GetEffectType(), out CardEffect effect))
-                return cardSO.maxOverlapCount == effect.stack;
+            CardEffect cardEffect = CardEffectList.Find(effect => effect.CardSO == cardSO);
+            if (cardEffect != null)
+                return cardSO.maxOverlapCount == cardEffect.stack;
             else
                 return false;
         }
@@ -56,50 +57,41 @@ namespace Hashira
         public void AddEffect(CardEffect cardEffect)
         {
             if (cardEffect == null) return;
-
-            Type type = cardEffect.GetType();
-
             if (IsMaxStackEffect(cardEffect.CardSO)) return;
 
-            if (_cardEffectDictionary.TryGetValue(type, out CardEffect effect))
-                effect.stack += cardEffect.stack;
-            else
-                _cardEffectDictionary[type] = cardEffect;
+            if (CardEffectList.Contains(cardEffect) == false)
+                CardEffectList.Add(cardEffect);
+            cardEffect.stack++;
 
-            EffectAddedEvent?.Invoke(_cardEffectDictionary[type]);
+            EffectAddedEvent?.Invoke(cardEffect);
         }
 
         public void RemoveEffect(CardEffect cardEffect)
         {
-            Type type = cardEffect.GetType();
-
-            if (cardEffect != null && _cardEffectDictionary.TryGetValue(type, out CardEffect effect))
+            if (CardEffectList.Contains(cardEffect))
             {
-                effect.stack -= cardEffect.stack;
-                if (effect.stack == 0)
-                    _cardEffectDictionary.Remove(type);
-
-                EffectRemovedEvent?.Invoke(effect);
+                cardEffect.stack--;
+                if (cardEffect.stack == 0)
+                    CardEffectList.Remove(cardEffect);
             }
-            else
-                Debug.Log($"Effect {type.Name} was not found");
+                
+            EffectRemovedEvent?.Invoke(cardEffect);
         }
 
-        public void SetEffectStat(CardSO cardSO, int stack)
+        public void SetEffectStack(CardSO cardSO, int stack)
         {
-            Type type = cardSO.GetEffectType();
-
-            if (cardSO != null && _cardEffectDictionary.TryGetValue(type, out CardEffect effect))
+            CardEffect cardEffect = CardEffectList.Find(effect => effect.CardSO == cardSO);
+            if (cardSO != null && cardEffect != null)
             {
-                effect.stack = stack;
+                cardEffect.stack = stack;
             }
             else
-                Debug.Log($"Effect {type.Name} was not found");
+                Debug.Log($"{cardSO.className} was not found");
         }
 
         public int GetAdditionalNeedCost(CardSO cardSO)
         {
-            foreach (CardEffect cardEffect in _cardEffectDictionary.Values)
+            foreach (CardEffect cardEffect in CardEffectList)
             {
                 if (cardEffect.CardSO == cardSO)
                 {
@@ -111,7 +103,7 @@ namespace Hashira
 
         public string GetCardDescription(CardSO cardSO)
         {
-            foreach (CardEffect cardEffect in _cardEffectDictionary.Values)
+            foreach (CardEffect cardEffect in CardEffectList)
             {
                 if (cardEffect.CardSO == cardSO)
                 {
@@ -123,7 +115,7 @@ namespace Hashira
 
         public int GetCardStack(CardSO cardSO)
         {
-            foreach (CardEffect cardEffect in _cardEffectDictionary.Values)
+            foreach (CardEffect cardEffect in CardEffectList)
             {
                 if (cardEffect.CardSO == cardSO)
                 {
@@ -148,8 +140,6 @@ namespace Hashira
 
             bool isInGame = PlayerManager.Instance != null;
 
-            ResetPlayerCardEffect(useDisable: isInGame);
-
             if (isInGame)
                 PlayerManager.Instance.SetCardEffectList(CardEffectList);
         }
@@ -157,28 +147,28 @@ namespace Hashira
         {
             if (useDisable)
             {
-                foreach (CardEffect cardEffect in _cardEffectDictionary.Values)
+                foreach (CardEffect cardEffect in CardEffectList)
                 {
                     cardEffect.Disable();
                 }
             }
 
             if (exceptionCardSO == null)
-                _cardEffectDictionary = new Dictionary<Type, CardEffect>();
+                CardEffectList = new List<CardEffect>();
             else
             {
                 List<CardEffect> exceptionCardEffectList = new List<CardEffect>();
-                foreach (CardEffect cardEffect in _cardEffectDictionary.Values)
+                foreach (CardEffect cardEffect in CardEffectList)
                 {
                     if (exceptionCardSO.Contains(cardEffect.CardSO))
                         exceptionCardEffectList.Add(cardEffect);
                 }
 
-                _cardEffectDictionary = new Dictionary<Type, CardEffect>();
+                CardEffectList = new List<CardEffect>();
 
                 foreach (CardEffect cardEffect in exceptionCardEffectList)
                 {
-                    _cardEffectDictionary.Add(cardEffect.GetType(), cardEffect);
+                    CardEffectList.Add(cardEffect);
                 }
             }
         }

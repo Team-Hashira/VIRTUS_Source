@@ -3,6 +3,7 @@ using Hashira.Bosses.Patterns;
 using Hashira.Enemies;
 using Hashira.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -37,8 +38,18 @@ namespace Hashira.Bosses
         public BossPattern CurrentBossPattern { get; private set; }
 
         public float CurrentMaxGroggyTime { get; set; }
+        public static Dictionary<string, Boss> CurrentBosses { get; private set; } = new Dictionary<string, Boss>();
 
+        public Action OnAttackPatternEvent;         
+        
         #region Initialize Boss
+
+        protected override void Awake()
+        {
+            base.Awake();
+            CurrentBosses.TryAdd(BossName, this);
+        }
+
         protected override void InitializeComponent()
         {
             base.InitializeComponent();

@@ -1,8 +1,11 @@
 using Hashira.Bosses;
+using Hashira.Cards;
 using Hashira.Core;
+using Hashira.Entities;
 using Hashira.MainScreen;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -96,9 +99,15 @@ namespace Hashira.StageSystem
             else
             {
                 if (stages.isSceneChange)
+                {
+                    EntityHealth entityHealth = PlayerManager.Instance.Player.GetEntityComponent<EntityHealth>();
+                    PlayerDataManager.Instance.SetHealth(entityHealth.Health, entityHealth.MaxHealth);
                     SceneLoadingManager.LoadScene(stages.sceneName);
+                }
                 else
+                {
                     StartCoroutine(NextStageCoroutine(stages));
+                }
             }
         }
 
@@ -107,6 +116,10 @@ namespace Hashira.StageSystem
             Destroy(_currentStage.gameObject);
             yield return new WaitForEndOfFrame();
             GenerateStage(stages);
+            yield return null;
+            List<CardSO> cardSOList = PlayerDataManager.Instance.CardEffectList.Select(cardEffect => cardEffect.CardSO).ToList();
+            PlayerDataManager.Instance.ResetPlayerCardEffect(cardSOList, useDisable: true);
+            PlayerManager.Instance.SetCardEffectList(PlayerDataManager.Instance.CardEffectList, true);
         }
 
         //private IEnumerator ClearStageCoroutine()

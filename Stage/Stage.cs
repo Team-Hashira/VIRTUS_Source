@@ -74,7 +74,8 @@ namespace Hashira.StageSystem
                 List<IPoolingObject> spawnEffectList = new List<IPoolingObject>();
                 for (int i = 0; i < enemyPairs.Length; i++)
                 {
-                    if (enemyPairs[i].ignore)
+                    // 이전에 미리 켜둔 놈이라면 굳이 건들지 않는다.
+                    if (enemyPairs[i].GameObject.activeSelf)
                         continue;
                     
                     if (enemyPairs[i].enemy is Boss boss)
@@ -145,10 +146,13 @@ namespace Hashira.StageSystem
         private void Awake()
         {
             // 적 리스트 초기화
-            for (int i = 0; i < waves.Length; i++)
+            foreach (var wave in waves)
             {
-                Enemy[] enemies = waves[i].enemyPairs.Where(x => x.ignore == false).Select(x => x.enemy).ToArray();
+                Enemy[] ignoreEnemies = wave.enemyPairs.Where(x => x.ignore == false).Select(x => x.enemy).ToArray();
+                Enemy[] enemies = wave.enemyPairs.Select(x => x.enemy).ToArray();
+                
                 EnemyList.AddRange(enemies);
+                IgnoredEnemyList.AddRange(ignoreEnemies);
             }
 
             foreach (var portal in _portals)

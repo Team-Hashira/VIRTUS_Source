@@ -20,7 +20,7 @@ namespace Hashira.Cards.Effects
         {
             base.Initialize(itemSO);
             CardSO = itemSO as CardSO;
-            stack = 1;
+            stack = 0;
         }
 
         public int GetAdditionalNeedCost()

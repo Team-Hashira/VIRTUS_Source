@@ -8,6 +8,7 @@ using Hashira.Entities.Components;
 using Hashira.FSM;
 using Hashira.Players;
 using Hashira.Visualizers;
+using System;
 using UnityEngine;
 
 namespace Hashira.Enemies.Bee.CommonBee
@@ -17,6 +18,7 @@ namespace Hashira.Enemies.Bee.CommonBee
         private CommonBee _bee;
         private EnemyMover _enemyMover;
         private EntityEffector _entityEffector;
+        private EntityHealth _entityHealth;
 
         private StatElement _attackPowerElement;
         private StatElement _dashSpeedElement;
@@ -39,10 +41,20 @@ namespace Hashira.Enemies.Bee.CommonBee
             _bee = entity as CommonBee;
             _enemyMover = entity.GetEntityComponent<EnemyMover>();
             _entityEffector = entity.GetEntityComponent<EntityEffector>();
+            _entityHealth = entity.GetEntityComponent<EntityHealth>();
 
             var stat = _entity.GetEntityComponent<EntityStat>();
             _dashSpeedElement = stat.StatDictionary[StatName.DashSpeed];
             _attackPowerElement = stat.StatDictionary[StatName.AttackPower];
+
+            _entityHealth.OnDieEvent += HandleOnDIeEvent;
+        }
+
+        private void HandleOnDIeEvent(Entity entity)
+        {
+            if (_visualizer != null && _visualizer.gameObject.activeSelf)
+                _visualizer.Fold(0.05f);
+            _entityHealth.OnDieEvent -= HandleOnDIeEvent;
         }
 
         public override void OnEnter()
@@ -69,7 +81,7 @@ namespace Hashira.Enemies.Bee.CommonBee
 
         private void HandleOnAnimationTriggeredEvent(EAnimationTriggerType triggerType, int count)
         {
-            if(triggerType == EAnimationTriggerType.End)
+            if (triggerType == EAnimationTriggerType.End)
             {
                 _entityAnimator.SetParam(_setupEndHash, true);
             }

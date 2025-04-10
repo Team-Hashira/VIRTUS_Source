@@ -14,7 +14,7 @@ namespace Hashira.CanvasUI.Wells
 
         private WellUI _wellUI;
 
-        private int _percent = 70;
+        private int _percent = 80;
 
         private void Awake()
         {
@@ -36,7 +36,6 @@ namespace Hashira.CanvasUI.Wells
 
         private void HnadleUpgradeEvent()
         {
-            _reSelectBtn.gameObject.SetActive(false);
             if (PlayerDataManager.Instance.IsMaxStackEffect(_selecrableCard.CardSO) == false)
             {
                 if (Cost.TryRemoveCost(_upgradeCost))
@@ -53,7 +52,7 @@ namespace Hashira.CanvasUI.Wells
                     else
                     {
                         // 실패
-                        PlayerDataManager.Instance.SetEffectStat(_selecrableCard.CardSO, 1);
+                        PlayerDataManager.Instance.SetEffectStack(_selecrableCard.CardSO, 1);
                         _upgradeBtn.SetText("응답없음");
                         _upgradeBtn.ActiveHoverEvent(false);
                         _upgradeBtn.ActiveClickEvent(false);
@@ -61,6 +60,7 @@ namespace Hashira.CanvasUI.Wells
                         _percentText.color = Color.red;
                     }
                     UpdateNeedCost();
+                    _reSelectBtn.gameObject.SetActive(false);
                 }
                 if (PlayerDataManager.Instance.IsMaxStackEffect(_selecrableCard.CardSO))
                 {

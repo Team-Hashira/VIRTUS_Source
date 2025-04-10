@@ -5,6 +5,7 @@ using Hashira.Entities.Components;
 using Hashira.FSM;
 using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Hashira.Enemies.Goblin.DefaultGoblin
 {
@@ -14,6 +15,10 @@ namespace Hashira.Enemies.Goblin.DefaultGoblin
         private DamageCaster2D _damageCaster;
 
         private StatElement _damageElement;
+
+        private bool _checkingDelay;
+        private float _attackDelay;
+        private float _delayTimer;
 
         public DefaultGoblinAttackState(Entity entity, StateSO stateSO) : base(entity, stateSO)
         {
@@ -27,6 +32,9 @@ namespace Hashira.Enemies.Goblin.DefaultGoblin
         public override void OnEnter()
         {
             base.OnEnter();
+            _checkingDelay = false;
+            _attackDelay = Random.Range(0.3f, 1f);
+            _delayTimer = 0;
             _enemyMover.StopImmediately();
             _entityAnimator.OnAnimationTriggeredEvent += HandleOnAnimationTriggeredEvent;
         }
@@ -39,7 +47,7 @@ namespace Hashira.Enemies.Goblin.DefaultGoblin
             }
             if (trigger == EAnimationTriggerType.End)
             {
-                _entityStateMachine.DelayedChangeState("Chase");
+                _checkingDelay = true;
             }
         }
 
@@ -52,6 +60,13 @@ namespace Hashira.Enemies.Goblin.DefaultGoblin
         public override void OnUpdate()
         {
             base.OnUpdate();
+            if (!_checkingDelay)
+                return;
+            _delayTimer += Time.deltaTime;
+            if(_delayTimer >= _attackDelay)
+            {
+                _entityStateMachine.ChangeState("Chase");
+            }
         }
     }
 }
