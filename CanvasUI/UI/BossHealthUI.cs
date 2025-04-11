@@ -1,6 +1,7 @@
 using DG.Tweening;
 using Hashira.Bosses;
 using Hashira.StageSystem;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -24,6 +25,20 @@ namespace Hashira.UI
         private void Start()
         {
             _rectTransform.anchoredPosition = new Vector2(0, 145);
+            StageGenerator.Instance.OnGeneratedStageEvent += OnCheckBossStageHandle;
+        }
+
+        private void OnDestroy()
+        {
+            StageGenerator.Instance.OnGeneratedStageEvent -= OnCheckBossStageHandle;
+        }
+
+        private void OnCheckBossStageHandle()
+        {
+            if (StageGenerator.Instance.IsCurrentBossStage() == false)
+            {
+                _rectTransform.anchoredPosition = new Vector2(0, 145);
+            }
         }
 
         private void Update()
@@ -58,8 +73,6 @@ namespace Hashira.UI
                     }
                 }
 
-                Debug.Log(_currentBossHealthBars.Count);
-                
                 for (int i = 0; i < _currentBossHealthBars.Count; i++)
                 {
                     for (int j = 0; j < _currentBossHealthBars.Count; j++)
@@ -67,7 +80,6 @@ namespace Hashira.UI
                         if (_currentBossHealthBars[j].Boss.Priority == i)
                         {
                             _currentBossHealthBars[j].transform.SetAsLastSibling();
-                            Debug.Log("sfsdfsdf " + i);
                             break;
                         }
                     } 

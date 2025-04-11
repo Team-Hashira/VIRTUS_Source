@@ -46,7 +46,6 @@ namespace Hashira.Bosses.Patterns
         {
             BossPattern nextPattern = Boss.GetBossPattern<T>();
             Boss.SetCurrentBossPattern(nextPattern);
-            StateMachine.ChangeState("Pattern");
         }
 
         public void OnGroggy(float groggyDuration)

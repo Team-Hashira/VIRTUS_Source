@@ -21,6 +21,7 @@ namespace Hashira.StageSystem
 
         public event Action OnFloorUpEvent;
         public event Action OnNextStageEvent;
+        public event Action OnGeneratedStageEvent;
 
         public Stage GetCurrentStage() => _currentStage;
         public int GetCurrentEnemiesCount() => _currentStage.CurrentEnemiesCount;
@@ -42,6 +43,7 @@ namespace Hashira.StageSystem
             //    else
             //        ClearStage();
             //});
+            OnGeneratedStageEvent?.Invoke();
         }
 
         public StageTypeListSO GetCurrentStageData()
@@ -62,14 +64,14 @@ namespace Hashira.StageSystem
             return floors[floor][stage];
         }
 
-        public bool IsCurrentBossStage(out Boss boss)
+        public bool IsCurrentBossStage()
         {
-            return IsBossState(GetCurrentStage(), out boss);
+            return IsBossStage(GetCurrentStage());
         }
 
-        public bool IsBossState(Stage stage, out Boss boss)
+        public bool IsBossStage(Stage stage)
         {
-            boss = stage?.EnemyList.FirstOrDefault(x => x is Boss) as Boss;
+            Boss boss = stage?.EnemyList.FirstOrDefault(x => x is Boss) as Boss;
             return boss != null;
         }
 

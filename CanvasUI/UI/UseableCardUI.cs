@@ -23,7 +23,6 @@ namespace Hashira.CanvasUI
         private float _useDistanceSqr;
 
         private bool _isSelected;
-        private bool _isUseable;
         private bool _isFixationCard;
         private Vector2 _targetScale;
 
@@ -106,24 +105,6 @@ namespace Hashira.CanvasUI
         private void Update()
         {
             SelectZoonIn();
-
-            Vector3 targetPos = Camera.main.ScreenToWorldPoint(_useableCardDrawer.CardUsePos.position);
-            Vector3 myPos = Camera.main.ScreenToWorldPoint(transform.position);
-            float distance = (targetPos - myPos).sqrMagnitude;
-            bool isUseableDistance = distance < _useDistanceSqr;
-            if (_isUseable == false && isUseableDistance)
-            {
-                _isUseable = true;
-                if (_needCost <= Cost.CurrentCost)
-                    _cardImage.color = Color.yellow;
-                else
-                    _cardImage.color = Color.red;
-            }
-            else if (_isUseable == true && isUseableDistance == false)
-            {
-                _isUseable = false;
-                _cardImage.color = Color.white;
-            }
 
             transform.localScale = Vector3.Lerp(transform.localScale, _targetScale, Time.deltaTime * 10);
         }

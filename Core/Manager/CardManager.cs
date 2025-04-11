@@ -40,12 +40,12 @@ namespace Hashira.Cards
         private void Update()
         {
             // 코스트 증가 디버그
-//#if UNITY_EDITOR
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                Cost.AddCost(100);
-            }
-//#endif
+////#if UNITY_EDITOR
+//            if (Input.GetKeyDown(KeyCode.C))
+//            {
+//                Cost.AddCost(100);
+//            }
+////#endif
         }
 
         public void AddCard(CardSO cardSO)

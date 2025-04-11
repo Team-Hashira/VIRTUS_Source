@@ -200,12 +200,12 @@ namespace Hashira.Players
             }
             
             // 데미지업 디버그
-//#if UNITY_EDITOR
-            if (Input.GetKeyDown(KeyCode.O))
-            {
-                _damageStat.AddModify("DebugDamageUp", 100, EModifyMode.Add, EModifyLayer.Default);
-            }
-//#endif
+////#if UNITY_EDITOR
+//            if (Input.GetKeyDown(KeyCode.O))
+//            {
+//                _damageStat.AddModify("DebugDamageUp", 100, EModifyMode.Add, EModifyLayer.Default);
+//            }
+////#endif
         }
 
         protected override void OnDestroy()

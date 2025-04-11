@@ -13,7 +13,6 @@ namespace Hashira.Bosses.Patterns.GiantGolem
         public string OriginPoolType { get; set; }
         public GameObject gameObject { get; set; }
 
-        public event Action<HomingProjectile> OnDieEvent;
         private DamageCaster2D _damageCaster;
         private Vector2 _direction;
         private float _speed;
@@ -61,7 +60,6 @@ namespace Hashira.Bosses.Patterns.GiantGolem
 
         public void OnPush()
         {
-            OnDieEvent?.Invoke(this);
         }
     }
 }

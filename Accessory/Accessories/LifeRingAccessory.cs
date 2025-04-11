@@ -53,10 +53,10 @@ namespace Hashira.Accessories.Effects
 
         public override void ActiveSkill()
         {
-            var enemyList = StageGenerator.Instance.GetCurrentStage().EnemyList;
-            if (enemyList.Count == 0)
+            var enemies = StageGenerator.Instance.GetCurrentStage().GetEnabledEnemies();
+            if (enemies.Length == 0)
                 return;
-            Enemy targetEnemy = enemyList.OrderBy(enemy => (enemy.transform.position - _owner.transform.position).sqrMagnitude).First();
+            Enemy targetEnemy = enemies.OrderBy(enemy => (enemy.transform.position - _owner.transform.position).sqrMagnitude).First();
             targetEnemy.GetEntityComponent<EntityHealth>().ApplyDamage(new AttackInfo(_damage, attackType: EAttackType.Default), popUpText: true);
             PopCore.Pop(EffectPoolType.BeAbsorbEffect, targetEnemy.transform.position, Quaternion.identity);
             PopCore.Pop(EffectPoolType.AbsorbEffect, _owner.transform.position, Quaternion.identity);

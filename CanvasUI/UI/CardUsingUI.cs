@@ -50,19 +50,19 @@ namespace Hashira.CanvasUI
 
         private void Update()
         {
-            // 스테이지 스킵 디버그
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                StageGenerator.currentStageIdx++;
-                if (StageGenerator.currentStageIdx > 10)
-                    StageGenerator.currentStageIdx = 10;
+            //// 스테이지 스킵 디버그
+            //if (Input.GetKeyDown(KeyCode.P))
+            //{
+            //    StageGenerator.currentStageIdx++;
+            //    if (StageGenerator.currentStageIdx > 10)
+            //        StageGenerator.currentStageIdx = 10;
 
-                int currentStageIdx = StageGenerator.currentStageIdx;
-                string prevStageText = currentStageIdx == 0 ? "출발 구역" : $"{currentStageIdx}번 구역";
-                string nextStageText = $"{currentStageIdx + 1}번 구역";
-                _stageProgressText.text = $"{StageGenerator.currentFloorIdx + 1}층\n " +
-                                            $"{prevStageText}  >>  {nextStageText}";
-            }
+            //    int currentStageIdx = StageGenerator.currentStageIdx;
+            //    string prevStageText = currentStageIdx == 0 ? "출발 구역" : $"{currentStageIdx}번 구역";
+            //    string nextStageText = $"{currentStageIdx + 1}번 구역";
+            //    _stageProgressText.text = $"{StageGenerator.currentFloorIdx + 1}층\n " +
+            //                                $"{prevStageText}  >>  {nextStageText}";
+            //}
         }
 
         public void Close()

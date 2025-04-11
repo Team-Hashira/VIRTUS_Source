@@ -14,7 +14,6 @@ namespace Hashira.CanvasUI
         [SerializeField] private int _cardCount = 4;
 
         [field: SerializeField] public bool IsLockMode { get; private set; }
-        [field: SerializeField] public Transform CardUsePos { get; private set; }
         [field: SerializeField] public TextMeshProUGUI CardUseHint { get; private set; }
         [SerializeField] private Transform _dragCardTrm;
         [SerializeField] private CardSpreader _cardSpreader;

@@ -31,8 +31,9 @@ namespace Hashira.Bosses
         [field:SerializeField] public int Priority { get; private set; }
         [field:SerializeField] public string BossName { get; private set; }
         [field:SerializeField] public string BossDisplayName { get; private set; }
-        [Range(1, 10)] public int maxPhase = 1;
-        public int currentPhase;
+        [field:SerializeField, Space] public bool IsPassive { get; private set; }
+        [Range(1, 10), Space] public int maxPhase = 1;
+        [Range(1, 10), Space] public int currentPhase = 1;
         [field:SerializeField] public float PatternPickDelay { get; private set; } = 1.85f;
             
         public BillboardPair[] billboard;
@@ -77,13 +78,10 @@ namespace Hashira.Bosses
         {
             if (bossPatterns.Length == 0) return null;
             
-            var index = UnityEngine.Random.Range(0, bossPatterns.Length);
-
-            // TODO : 일단은 디버그하려고 요렇게 했음(나중에 최적화 땜시 수정할 듯)
-            if (bossPatterns[index].enable == false)
-                return GetRandomBossPattern();
-
-            return bossPatterns[index].pattern;
+            BossPatternPair[] selectedBossPatterns = bossPatterns.Where(x => x.enable && x.pattern.phase == currentPhase).ToArray(); 
+            int index = UnityEngine.Random.Range(0, selectedBossPatterns.Length);
+            
+            return selectedBossPatterns[index].pattern;
         }
         public T GetBossPattern<T>() where T : BossPattern
         {
@@ -92,6 +90,7 @@ namespace Hashira.Bosses
         public void SetCurrentBossPattern(BossPattern bossPattern)
         {
             CurrentBossPattern = bossPattern;
+            _entityStateMachine.ChangeState("Pattern");
         }
         public T BillboardValue<T>(string valueName) where T : BillboardValue
         {

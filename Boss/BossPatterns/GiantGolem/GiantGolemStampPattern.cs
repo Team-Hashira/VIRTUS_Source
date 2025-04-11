@@ -12,6 +12,8 @@ namespace Hashira.Bosses.Patterns
         [SerializeField] private float _handMaxPositionY = 1;
         [SerializeField] private AttackVisualizer _groundAttackVisualizer;
         [SerializeField] private ParticleSystem _groundParticle;
+        [SerializeField] private Boss _handL;
+        [SerializeField] private Boss _handR;
 
         public override void OnStart()
         {
@@ -30,31 +32,31 @@ namespace Hashira.Bosses.Patterns
 
         private void HandleAttackEnd(EAnimationTriggerType trigger, int count)
         {
-            // if (trigger == EAnimationTriggerType.Trigger)
-            // {
-            //     Sequence seq = DOTween.Sequence();
-            //     seq.Append(_handL.transform.DOMoveY(_handMaxPositionY, 0.5f));
-            //     seq.Join(_handR.transform.DOMoveY(_handMaxPositionY, 0.5f));
-            //     seq.AppendInterval(1.25f);
-            //     seq.Join(_groundAttackVisualizer.SetDamageCastSignValue(1, 1.25f));
-            //     seq.Append(_handL.transform.DOMoveY(Boss.GetGroundFloorPosY() + 2, 0.1f));
-            //     seq.Join(_handR.transform.DOMoveY(Boss.GetGroundFloorPosY() + 2, 0.1f));
-            //     seq.AppendCallback(() =>
-            //     {
-            //         SoundManager.Instance.PlaySFX("GiantGolemStamp", Transform.position, 1);
-            //     });
-            //     seq.Join(_groundAttackVisualizer.SetDamageCastSignValue(0, 0.1f));
-            //     seq.AppendCallback(() =>
-            //     {
-            //         _groundAttackVisualizer.DamageCaster.CastDamage(AttackInfo.defaultOneDamage, Vector2.up * 30);
-            //         _groundParticle.Play(true);
-            //     });
-            //     seq.Append(MainScreenEffect.OnLocalMoveScreenSide(DirectionType.Down));
-            //     seq.JoinCallback(() => CameraManager.Instance.ShakeCamera(30, 20, 1.45f));
-            //     seq.AppendInterval(1.4f);
-            //     seq.Append(MainScreenEffect.OnLocalMoveScreenSide(DirectionType.Zero));
-            // }
-            //
+            if (trigger == EAnimationTriggerType.Trigger)
+            {
+                Sequence seq = DOTween.Sequence();
+                seq.Append(_handL.transform.DOMoveY(_handMaxPositionY, 0.5f));
+                seq.Join(_handR.transform.DOMoveY(_handMaxPositionY, 0.5f));
+                seq.AppendInterval(1.25f);
+                seq.Join(_groundAttackVisualizer.SetDamageCastSignValue(1, 1.25f));
+                seq.Append(_handL.transform.DOMoveY(Boss.GetGroundFloorPosY() + 2, 0.1f));
+                seq.Join(_handR.transform.DOMoveY(Boss.GetGroundFloorPosY() + 2, 0.1f));
+                seq.AppendCallback(() =>
+                {
+                    SoundManager.Instance.PlaySFX("GiantGolemStamp", Transform.position, 1);
+                });
+                seq.Join(_groundAttackVisualizer.SetDamageCastSignValue(0, 0.1f));
+                seq.AppendCallback(() =>
+                {
+                    _groundAttackVisualizer.DamageCaster.CastDamage(AttackInfo.defaultOneDamage, popupText:false);
+                    _groundParticle.Play(true);
+                });
+                seq.Append(MainScreenEffect.OnLocalMoveScreenSide(DirectionType.Down));
+                seq.JoinCallback(() => CameraManager.Instance.ShakeCamera(30, 20, 1.45f));
+                seq.AppendInterval(1.4f);
+                seq.Append(MainScreenEffect.OnLocalMoveScreenSide(DirectionType.Zero));
+            }
+            
 
             if (trigger == EAnimationTriggerType.End)
             {
