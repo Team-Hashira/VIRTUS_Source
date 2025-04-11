@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Hashira
 {
-    public class PlayerDataManager : DonDestroyMonoSingleton<PlayerDataManager>
+    public class PlayerDataManager : DontDestroyMonoSingleton<PlayerDataManager>
     {
         public List<CardEffect> CardEffectList { get; private set; } = new List<CardEffect>();
 
@@ -63,6 +63,12 @@ namespace Hashira
                 CardEffectList.Add(cardEffect);
             cardEffect.stack++;
 
+            if (PlayerManager.Instance != null)
+            {
+                cardEffect.Disable();
+                cardEffect.Enable();
+            }
+
             EffectAddedEvent?.Invoke(cardEffect);
         }
 
@@ -71,6 +77,13 @@ namespace Hashira
             if (CardEffectList.Contains(cardEffect))
             {
                 cardEffect.stack--;
+
+                if (PlayerManager.Instance != null)
+                {
+                    cardEffect.Disable();
+                    cardEffect.Enable();
+                }
+
                 if (cardEffect.stack == 0)
                     CardEffectList.Remove(cardEffect);
             }
@@ -84,6 +97,12 @@ namespace Hashira
             if (cardSO != null && cardEffect != null)
             {
                 cardEffect.stack = stack;
+
+                if (PlayerManager.Instance != null)
+                {
+                    cardEffect.Disable();
+                    cardEffect.Enable();
+                }
             }
             else
                 Debug.Log($"{cardSO.className} was not found");
@@ -129,6 +148,7 @@ namespace Hashira
         {
             SetHealth(6, 6);
             ResetPlayerData();
+            ResetPlayerCardEffect(useDisable: true);
             CardManager.Instance.ClearCardList();
             Cost.ResetCost();
             Accessory.ResetAccessory();
@@ -138,10 +158,10 @@ namespace Hashira
         {
             KillCount = 0;
 
-            bool isInGame = PlayerManager.Instance != null;
+            //bool isInGame = PlayerManager.Instance != null;
 
-            if (isInGame)
-                PlayerManager.Instance.SetCardEffectList(CardEffectList);
+            //if (isInGame)
+            //    PlayerManager.Instance.SetCardEffectList(CardEffectList);
         }
         public void ResetPlayerCardEffect(List<CardSO> exceptionCardSO = null, bool useDisable = false)
         {

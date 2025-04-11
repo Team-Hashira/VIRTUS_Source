@@ -1,4 +1,4 @@
-﻿using Hashira.Entities;
+using Hashira.Entities;
 using Hashira.FSM;
 
 namespace Hashira.Players

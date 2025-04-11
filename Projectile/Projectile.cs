@@ -8,6 +8,7 @@ using System.Collections;
 using UnityEngine;
 using NUnit.Framework.Constraints;
 using TMPro;
+using Hashira.StageSystem;
 
 namespace Hashira.Projectiles
 {
@@ -126,7 +127,7 @@ namespace Hashira.Projectiles
         {
             if (IsDead) return;
             // 중력
-            movement -= Owner.up * _gravity / 20;
+            movement -= Owner.up * _gravity * Time.fixedDeltaTime * 25f;
             transform.right = movement.normalized;
 
             _currentHit2D = Physics2D.BoxCastAll(transform.position + transform.rotation * ((Vector2)transform.localScale * _castOffset), (Vector2)transform.localScale * _castSize, transform.eulerAngles.z, movement.normalized, movement.magnitude * Time.fixedDeltaTime, WhatIsTarget);
@@ -285,9 +286,17 @@ namespace Hashira.Projectiles
         public virtual void OnPop()
         {
             IsDead = false;
+            StageGenerator.Instance.OnNextStageEvent += HandleNextStage;
         }
+
+        private void HandleNextStage()
+        {
+            this.Push();
+        }
+
         public virtual void OnPush()
         {
+            StageGenerator.Instance.OnNextStageEvent -= HandleNextStage;
         }
         #endregion
     }

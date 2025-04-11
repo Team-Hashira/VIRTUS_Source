@@ -4,15 +4,16 @@ using Hashira.Items;
 using System;
 using UnityEngine;
 
-namespace Hashira.Accessories
+namespace Hashira.Accessories.Effects
 {
-    public abstract class AccessoryEffect : ItemEffect<AccessoryEffect>
+    public abstract class AccessoryEffect : ItemEffect
     {
         protected Entity _owner;
 
         public AccessorySO AccessorySO { get; private set; }
+        public EAccessoryType CurrentType { get; protected set; } = EAccessoryType.None;
 
-        public override void Initialize(ItemSO<AccessoryEffect> itemSO)
+        public override void Initialize(ItemSO itemSO)
         {
             base.Initialize(itemSO);
             AccessorySO = itemSO as AccessorySO;
@@ -24,6 +25,11 @@ namespace Hashira.Accessories
         }
 
         public virtual void OnAccessoryTypeChange(EAccessoryType accessoryType)
+        {
+            CurrentType = accessoryType;
+        }
+
+        public virtual void Reset()
         {
 
         }

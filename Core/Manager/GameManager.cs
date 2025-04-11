@@ -62,7 +62,8 @@ namespace Hashira.Core
                 .AppendInterval(0.25f)
                 .AppendCallback(() =>
                 {
-                    Destroy(StageGenerator.Instance.GetCurrentStage());
+                    Destroy(StageGenerator.Instance.GetCurrentStage().gameObject);
+                    PlayerDataManager.Instance.ResetData();
                 })
                 .AppendInterval(0.25f)
                 .AppendCallback(() =>
@@ -72,8 +73,7 @@ namespace Hashira.Core
                     gameEndStatistics.Init(StageGenerator.currentFloorIdx + 1, StageGenerator.currentStageIdx + 1, PlayerDataManager.Instance.KillCount, PlayerDataManager.Instance.BossKillCount, 
                         PlayerDataManager.Instance.CardEffectList);
 
-                    Hashira.CanvasUI.UIManager.Instance.GetDomain<ToggleDomain>().CloseUI("PlayerDataUIPanel");
-                    PlayerDataManager.Instance.ResetData();
+                    //Hashira.CanvasUI.UIManager.Instance.GetDomain<ToggleDomain>().CloseUI("GameDataUIPanel");
                 });
         }
     }

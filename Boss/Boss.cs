@@ -28,11 +28,13 @@ namespace Hashira.Bosses
     public class Boss : Enemy
     {
         [field:SerializeField] public LayerMask WhatIsGround { get; private set; }
+        [field:SerializeField] public int Priority { get; private set; }
         [field:SerializeField] public string BossName { get; private set; }
         [field:SerializeField] public string BossDisplayName { get; private set; }
         [Range(1, 10)] public int maxPhase = 1;
+        public int currentPhase;
         [field:SerializeField] public float PatternPickDelay { get; private set; } = 1.85f;
-
+            
         public BillboardPair[] billboard;
         public BossPatternPair[] bossPatterns;
         public BossPattern CurrentBossPattern { get; private set; }
@@ -40,14 +42,15 @@ namespace Hashira.Bosses
         public float CurrentMaxGroggyTime { get; set; }
         public static Dictionary<string, Boss> CurrentBosses { get; private set; } = new Dictionary<string, Boss>();
 
-        public Action OnAttackPatternEvent;         
+        public Action OnPatternStartEvent;
+        public Action OnPatternEndEvent;
         
         #region Initialize Boss
 
         protected override void Awake()
         {
             base.Awake();
-            CurrentBosses.TryAdd(BossName, this);
+            CurrentBosses.TryAdd(BossDisplayName, this);
         }
 
         protected override void InitializeComponent()
@@ -72,6 +75,8 @@ namespace Hashira.Bosses
         #region Pattern Utils
         public BossPattern GetRandomBossPattern()
         {
+            if (bossPatterns.Length == 0) return null;
+            
             var index = UnityEngine.Random.Range(0, bossPatterns.Length);
 
             // TODO : 일단은 디버그하려고 요렇게 했음(나중에 최적화 땜시 수정할 듯)
@@ -105,6 +110,11 @@ namespace Hashira.Bosses
         }
         #endregion
 
+        public void AddPhase()
+        {
+            ++currentPhase;
+            currentPhase = Mathf.Clamp(currentPhase, 1, maxPhase);
+        }
 
 #if UNITY_EDITOR
         private void OnDrawGizmos()
@@ -118,6 +128,8 @@ namespace Hashira.Bosses
             for (int i = 0; i < billboard.Length; i++)
             {
                 Type type = Type.GetType($"Hashira.Bosses.BillboardClasses.{billboard[i].typeName}Value");
+                if (type == null) continue;
+                
                 for (int j = 0; j < i; j++)
                 {
                     if (billboard[i].billboardValue == billboard[j].billboardValue)

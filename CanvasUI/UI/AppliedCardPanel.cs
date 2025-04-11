@@ -19,8 +19,6 @@ namespace Hashira.CanvasUI
         [SerializeField]
         private Transform _contentTransform;
 
-        [SerializeField]
-        private UIPoolType _appliedCardUI;
         private Dictionary<Type, AppliedCardUI> _appliedCardDict;
 
         private PlayerDataManager _playerEffectManager;
@@ -55,7 +53,7 @@ namespace Hashira.CanvasUI
             {
                 if (cardEffect.stack <= 0)
                     continue;
-                AppliedCardUI cardUI = gameObject.Pop(_appliedCardUI, _contentTransform) as AppliedCardUI;
+                AppliedCardUI cardUI = gameObject.Pop(UIPoolType.AppliedCardUI, _contentTransform) as AppliedCardUI;
                 cardUI.Initialize(cardEffect);
                 _appliedCardDict.Add(cardEffect.GetType(), cardUI);
             }
@@ -71,7 +69,7 @@ namespace Hashira.CanvasUI
             }
             else
             {
-                AppliedCardUI cardUI = gameObject.Pop(_appliedCardUI, _contentTransform) as AppliedCardUI;
+                AppliedCardUI cardUI = gameObject.Pop(UIPoolType.AppliedCardUI, _contentTransform) as AppliedCardUI;
                 cardUI.Initialize(cardEffect);
                 _appliedCardDict.Add(cardEffect.GetType(), cardUI);
             }

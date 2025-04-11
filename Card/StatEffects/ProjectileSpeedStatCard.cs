@@ -21,7 +21,7 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
-            _projectileSpeedStat.RemoveModify("ProjectileSpeedStatEffect", EModifyLayer.Default);
+            _projectileSpeedStat?.RemoveModify("ProjectileSpeedStatEffect", EModifyLayer.Default);
         }
 
         public override void Update()

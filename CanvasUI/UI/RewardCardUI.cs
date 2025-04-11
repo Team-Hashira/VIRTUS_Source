@@ -40,7 +40,7 @@ namespace Hashira.CanvasUI
         public void Reload(CardSO cardSO)
         {
             _cardSO = cardSO;
-            _cardVisualSetup.Setup(cardSO);
+            _cardVisualSetup.VisualSetup(cardSO);
             RectTransform.localScale = _defaultScale;
             RectTransform.anchoredPosition = Vector2.zero;
             StartCoroutine(ReloadCoroutine(_defaultPosition, 0.6f));

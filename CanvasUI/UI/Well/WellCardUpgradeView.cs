@@ -1,4 +1,5 @@
 using Hashira.Cards;
+using Hashira.Cards.Effects;
 using TMPro;
 using UnityEngine;
 
@@ -44,8 +45,8 @@ namespace Hashira.CanvasUI.Wells
                     if (random < _percent)
                     {
                         // 성공
-                        PlayerDataManager.Instance.AddEffect(_selecrableCard.CardSO.GetEffectInstance());
-                        _selecrableCard.Setup(_selecrableCard.CardSO, true);
+                        PlayerDataManager.Instance.AddEffect(_selecrableCard.CardSO.GetEffectInstance<CardEffect>());
+                        _selecrableCard.VisualSetup(_selecrableCard.CardSO, true);
                         _percent -= 10;
                         UpdatePercentText();
                     }

@@ -1,9 +1,4 @@
-using AYellowpaper.SerializedCollections;
-using Hashira.Cards.Effects;
-using Hashira.EffectSystem;
-using Hashira.Projectiles;
-using System;
-using System.Collections.Generic;
+using Hashira.Items;
 using UnityEngine;
 
 namespace Hashira.Cards
@@ -16,7 +11,7 @@ namespace Hashira.Cards
     }
 
     [CreateAssetMenu(fileName = "Card", menuName = "SO/Card/Card")]
-    public class CardSO : ItemSO<CardEffect>
+    public class CardSO : ItemSO
     {
         [Header("==========CardSO==========")]
         public ECardType cardType;

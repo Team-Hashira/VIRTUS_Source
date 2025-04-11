@@ -13,11 +13,8 @@ namespace Hashira.Cards.Effects
         private int[] _needCostByStack = new int[] { 1 };
         protected override int[] _NeedCostByStack => _needCostByStack;
 
-        private int _splitCount;
-
         public override void Enable()
         {
-            _splitCount = stack + 1;
             GameEventChannel.AddListener<ProjectileAfterHitEvent>(HandleProjectileHitEvent);
         }
 
@@ -27,8 +24,8 @@ namespace Hashira.Cards.Effects
             Projectile originProjectile = projectileHitEvent.projectile;
 
             Vector3 dir = raycastHit.normal;
-            float angle = 45f / (_splitCount - 1);
-            for (int i = 0; i < _splitCount; i++)
+            float angle = 45f / stack;
+            for (int i = 0; i < stack + 1; i++)
             {
                 PlayerBullet bullet = PopCore.Pop(ProjectilePoolType.Bullet, raycastHit.point, Quaternion.identity) as PlayerBullet;
                 bullet.Init(originProjectile.WhatIsTarget, Quaternion.Euler(0, 0, -22.5f + angle * i) * dir, originProjectile.Speed,

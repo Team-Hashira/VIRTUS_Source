@@ -1,6 +1,7 @@
 using DG.Tweening;
 using Hashira.Cards;
 using Hashira.StageSystem;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,7 +23,6 @@ namespace Hashira.CanvasUI
 
         [SerializeField] private CardRerollButton _rerollBtn;
         [SerializeField] private CustomButton _stageBtn;
-        [SerializeField] private TextMeshProUGUI _cardFixedcNeedCost;
 
         [SerializeField] private Transform _backgroundTrm;
         [SerializeField] private SpriteRenderer _backgroundGlitchRenderer;
@@ -71,13 +71,6 @@ namespace Hashira.CanvasUI
             _canvasGroup.interactable = false;
             _canvasGroup.blocksRaycasts = false;
             _backgroundTrm.gameObject.SetActive(false);
-
-            CardManager.Instance.OnFixationCardEvent -= HandleFixationCardEvent;
-        }
-
-        private void HandleFixationCardEvent(int fixationCard)
-        {
-            _cardFixedcNeedCost.text = $"{CardManager.Instance.FixedCardNeedCost[fixationCard]}";
         }
 
         public void Open()
@@ -90,9 +83,6 @@ namespace Hashira.CanvasUI
             string nextStageText = $"{currentStageIdx + 1}번 구역";
             _stageProgressText.text =   $"{StageGenerator.currentFloorIdx + 1}층\n " +
                                         $"{prevStageText}  >>  {nextStageText}";
-
-            CardManager.Instance.OnFixationCardEvent += HandleFixationCardEvent;
-            HandleFixationCardEvent(0);
 
             if (_openSeq != null && _openSeq.IsActive()) _openSeq.Kill();
             _openSeq = DOTween.Sequence();

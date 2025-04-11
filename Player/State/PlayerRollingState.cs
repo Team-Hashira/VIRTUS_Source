@@ -3,8 +3,6 @@ using Hashira.Entities;
 using Hashira.Entities.Components;
 using Hashira.FSM;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace Hashira.Players
 {
@@ -57,7 +55,7 @@ namespace Hashira.Players
         public override void OnUpdate()
         {
             base.OnUpdate();
-            
+
             _playerMover.SetMovement(_player.transform.right * _moveDir * _dashSpeedStat.Value);
             _entityRenderer.LookTarget(_player.transform.position + _player.transform.right * _moveDir);
         }

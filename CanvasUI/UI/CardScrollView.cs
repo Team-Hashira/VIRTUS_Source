@@ -44,7 +44,7 @@ namespace Hashira.CanvasUI
                 if (isExceptMaxStack && PlayerDataManager.Instance.IsMaxStackEffect(cardSO))
                     continue;
                 SetupCardVisual setupCardVisual = Instantiate(_setupCardVisual, _cardContent);
-                setupCardVisual.Setup(cardSO, isCurrent);
+                setupCardVisual.VisualSetup(cardSO, isCurrent);
                 setupCardVisual.transform.position = transform.position;
                 _setupCardVisualList.Add(setupCardVisual);
             }

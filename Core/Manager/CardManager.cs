@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace Hashira.Cards
 {
-    public class CardManager : DonDestroyMonoSingleton<CardManager>
+    public class CardManager : DontDestroyMonoSingleton<CardManager>
     {
         [field: SerializeField] public CardSetSO CardSetSO { get; private set; } 
         [SerializeField] private CardPackSO _defaultCardPackSO;

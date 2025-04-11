@@ -4,7 +4,18 @@ namespace Hashira.CanvasUI
 {
     public abstract class UIBase : MonoBehaviour
     {
-        public RectTransform RectTransform => transform as RectTransform;
+        private RectTransform _rectTransform;
+        public RectTransform RectTransform
+        {
+            get
+            {
+                if (_rectTransform == null)
+                {
+                    _rectTransform = transform as RectTransform;
+                }
+                return _rectTransform;
+            }
+        }
 
         protected virtual void Awake()
         {

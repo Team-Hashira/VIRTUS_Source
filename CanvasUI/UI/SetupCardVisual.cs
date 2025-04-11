@@ -10,9 +10,9 @@ namespace Hashira.CanvasUI
         [SerializeField]
         private Image _cardBorderImage, _cardIconImage;
         [SerializeField]
-        private TextMeshProUGUI _cardNameText, _cardDescriptionText, _costText;
+        protected TextMeshProUGUI _cardNameText, _cardDescriptionText, _costText;
 
-        public RectTransform _rectTransform;
+        private RectTransform _rectTransform;
         public RectTransform RectTransform
         {
             get
@@ -24,10 +24,10 @@ namespace Hashira.CanvasUI
                 return _rectTransform;
             }
         }
-        public CardSO CardSO { get; private set; }
+        public CardSO CardSO { get; protected set; }
         public Image CardBorderImage => _cardBorderImage;
 
-        public void Setup(CardSO cardSO, bool isCurrent = false)
+        public void VisualSetup(CardSO cardSO, bool isCurrent = false)
         {
             CardSO = cardSO;
             if (_cardBorderImage != null)

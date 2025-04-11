@@ -1,13 +1,12 @@
 using System;
-using UnityEngine;
 
 namespace Hashira.Items
 {
     [Serializable]
-    public abstract class ItemEffect<T> where T : ItemEffect<T>
+    public abstract class ItemEffect
     {
-        public ItemSO<T> ItemSO { get; private set; }
-        public virtual void Initialize(ItemSO<T> itemSO)
+        public ItemSO ItemSO { get; private set; }
+        public virtual void Initialize(ItemSO itemSO)
         {
             ItemSO = itemSO;
         }

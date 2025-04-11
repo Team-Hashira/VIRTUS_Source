@@ -58,7 +58,7 @@ namespace Hashira
             if (isLeft == false) return;
 
             if (Cost.TryRemoveCost(_rerollCost))
-                _useableCardDrower.CardDraw(true);
+                _useableCardDrower.CardDraw();
             else
                 PopupTextManager.Instance.PopupText("코스트가 부족합니다.", Color.red);
         }

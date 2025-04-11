@@ -1,18 +1,28 @@
+using Crogen.CrogenPooling;
+using Hashira.Combat;
 using Hashira.Core.DamageHandler;
+using Hashira.Enemies;
 using Hashira.Entities;
-using System;
+using Hashira.StageSystem;
+using System.Linq;
 using UnityEngine;
 
-namespace Hashira.Accessories
+namespace Hashira.Accessories.Effects
 {
-    [Serializable]
     public class LifeRingAccessory : AccessoryEffect
     {
-        public int height;
         private EntityHealth _ownerHealth;
 
-        public EAccessoryType CurrentType { get; private set; } = EAccessoryType.None;
         private LifeRingHandler _lifeRingHandler;
+
+        [Header("Active Skill Setting")]
+        [SerializeField]
+        private int _damage = 10;
+        [SerializeField]
+        private int _recoverAmount = 1;
+        [SerializeField]
+        private int _useableCount = 2;
+        private int _counter = 0;
 
         public override void Initialize(Entity owner)
         {
@@ -24,8 +34,8 @@ namespace Hashira.Accessories
 
         private void HandleOnHandlerCalledEvent()
         {
-            //여기서 부수는 코드. 일단 이거로 대체
-            _ownerHealth.RemoveDamageHandler(_lifeRingHandler);
+            PopCore.Pop(EffectPoolType.LifeRingPassiveEffect, _owner.transform.position, Quaternion.identity);
+            Accessory.UnequipAccessory(EAccessoryType.Passive, true);
         }
 
         public override void OnAccessoryTypeChange(EAccessoryType accessoryType)
@@ -34,17 +44,34 @@ namespace Hashira.Accessories
             {
                 _ownerHealth.AddDamageHandler(EDamageHandlerLayer.First, _lifeRingHandler);
             }
-            else if(CurrentType == EAccessoryType.Passive)
+            else if (CurrentType == EAccessoryType.Passive)
             {
                 _ownerHealth.RemoveDamageHandler(_lifeRingHandler);
             }
-            CurrentType = accessoryType;
+            base.OnAccessoryTypeChange(accessoryType);
         }
 
         public override void ActiveSkill()
         {
-            base.ActiveSkill();
-            // 쪼옥(생명 흡수하는 소리)
+            var enemyList = StageGenerator.Instance.GetCurrentStage().EnemyList;
+            if (enemyList.Count == 0)
+                return;
+            Enemy targetEnemy = enemyList.OrderBy(enemy => (enemy.transform.position - _owner.transform.position).sqrMagnitude).First();
+            targetEnemy.GetEntityComponent<EntityHealth>().ApplyDamage(new AttackInfo(_damage, attackType: EAttackType.Default), popUpText: true);
+            PopCore.Pop(EffectPoolType.BeAbsorbEffect, targetEnemy.transform.position, Quaternion.identity);
+            PopCore.Pop(EffectPoolType.AbsorbEffect, _owner.transform.position, Quaternion.identity);
+            _ownerHealth.ApplyRecovery(_recoverAmount);
+
+            _counter++;
+            if (_counter >= _useableCount)
+            {
+                Accessory.UnequipAccessory(EAccessoryType.Active, true);
+            }
+        }
+
+        public override void Reset()
+        {
+            _counter = 0;
         }
     }
 }

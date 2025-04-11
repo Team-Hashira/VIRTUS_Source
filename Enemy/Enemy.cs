@@ -21,6 +21,7 @@ namespace Hashira.Enemies
 
         //Test
         [SerializeField] private EffectPoolType _dieEffect;
+        [SerializeField] private int _killCost = 1;
 
         
         [field: SerializeField]
@@ -44,7 +45,7 @@ namespace Hashira.Enemies
             PlayerDataManager.Instance.AddKillCount();
             SoundManager.Instance.PlaySFX("EnemyDie", transform.position, 1f);
             Destroy(gameObject);
-            Cost.AddCost(2);
+            Cost.AddCost(_killCost);
         }
 
         protected override void InitializeComponent()

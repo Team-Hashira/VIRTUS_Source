@@ -77,6 +77,7 @@ namespace Hashira.StageSystem
         {
             bool isNextFloor = false;
             ++currentStageIdx;
+            OnNextStageEvent?.Invoke();
             if (currentStageIdx >= floors[currentFloorIdx].stages.Length)
             {
                 OnFloorUpEvent?.Invoke();
@@ -116,6 +117,7 @@ namespace Hashira.StageSystem
             Destroy(_currentStage.gameObject);
             yield return new WaitForEndOfFrame();
             GenerateStage(stages);
+            PlayerManager.Instance.ReEnableCardEffect();
             yield return null;
             List<CardSO> cardSOList = PlayerDataManager.Instance.CardEffectList.Select(cardEffect => cardEffect.CardSO).ToList();
             PlayerDataManager.Instance.ResetPlayerCardEffect(cardSOList, useDisable: true);

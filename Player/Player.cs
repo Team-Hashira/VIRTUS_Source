@@ -19,12 +19,12 @@ namespace Hashira.Players
         [field: SerializeField] public ParticleSystem AfterImageParticle { get; private set; }
 
         public Attacker Attacker { get; private set; }
+        public PlayerMover Mover { get; private set; }
 
         protected EntityStateMachine _stateMachine;
         protected EntityRenderer _renderCompo;
         protected EntityStat _statCompo;
         protected EntityInteractor _interactor;
-        protected PlayerMover _playerMover;
 
         protected StatElement _damageStat;
 
@@ -64,7 +64,6 @@ namespace Hashira.Players
             _entityHealth.OnDieEvent += HandleOnDieEvent;
             InputReader.OnDashEvent += HandleDashEvent;
             InputReader.OnInteractEvent += HandleInteractEvent;
-            InputReader.OnSprintToggleEvent += HandleSprintToggle;
 
             //InputReader.OnReloadEvent += _weaponGunHolderCompo.Reload; //재장전 만들꺼면 다시 구현
             InputReader.OnAttackEvent += HandleAttackEvent;
@@ -124,20 +123,14 @@ namespace Hashira.Players
             _interactor.Interact(isDown);
         }
 
-        private void HandleSprintToggle()
-        {
-            _playerMover.OnSprintToggle();
-            _stateMachine.ChangeState(_playerMover.IsSprint ? "Run" : "Walk");
-        }
-
         private void HandleDashEvent()
         {
-            if (_playerMover.CanRolling == false) return;
+            if (Mover.CanRolling == false) return;
             if (_stateMachine.CurrentStateName != "Rolling")
             {
                 if (TryUseStamina(1))
                 {
-                    _playerMover.OnDash();
+                    Mover.OnDash();
                     _stateMachine.ChangeState("Rolling");
                 }
                 else
@@ -159,7 +152,7 @@ namespace Hashira.Players
             Attacker = FindAnyObjectByType<Attacker>();
             base.InitializeComponent();
 
-            _playerMover = GetEntityComponent<PlayerMover>();
+            Mover = GetEntityComponent<PlayerMover>();
             _statCompo = GetEntityComponent<EntityStat>();
             _renderCompo = GetEntityComponent<EntityRenderer>();
             _interactor = GetEntityComponent<EntityInteractor>();
@@ -223,7 +216,6 @@ namespace Hashira.Players
             _entityHealth.OnDieEvent -= HandleOnDieEvent;
             InputReader.OnDashEvent -= HandleDashEvent;
             InputReader.OnInteractEvent -= HandleInteractEvent;
-            InputReader.OnSprintToggleEvent -= HandleSprintToggle;
 
             //InputReader.OnReloadEvent -= _weaponGunHolderCompo.Reload; //재장전시 구현
             InputReader.OnAttackEvent -= HandleAttackEvent;
@@ -231,7 +223,7 @@ namespace Hashira.Players
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            _playerMover.OnCollision(collision);
+            Mover.OnCollision(collision);
         }
     }
 }

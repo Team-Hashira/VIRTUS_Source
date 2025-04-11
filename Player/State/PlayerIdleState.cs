@@ -22,10 +22,7 @@ namespace Hashira.Players
 
             if (_player.InputReader.XMovement != 0)
             {
-                if(_playerMover.IsSprint)
-					_entityStateMachine.ChangeState("Run");
-				else
-					_entityStateMachine.ChangeState("Walk");
+                _entityStateMachine.ChangeState("Walk");
             }
         }
     }

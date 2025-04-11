@@ -2,6 +2,8 @@ using Crogen.CrogenPooling;
 using Hashira.Combat;
 using Hashira.Enemies;
 using Hashira.Entities;
+using Hashira.StageSystem;
+using System;
 using UnityEngine;
 
 namespace Hashira
@@ -73,12 +75,17 @@ namespace Hashira
 
         public void OnPop()
         {
+            StageGenerator.Instance.OnNextStageEvent += HandleNextStage;
+        }
 
+        private void HandleNextStage()
+        {
+            this.Push();
         }
 
         public void OnPush()
         {
-
+            StageGenerator.Instance.OnNextStageEvent += HandleNextStage;
         }
 
         private void OnDrawGizmos()

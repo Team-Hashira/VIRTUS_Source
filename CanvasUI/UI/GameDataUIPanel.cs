@@ -21,6 +21,8 @@ namespace Hashira.CanvasUI
         public void Close()
         {
             gameObject.SetActive(false);
+            StageGenerator.Instance.OnNextStageEvent -= HandleNextStageEvent;
+            if (_currentStage != null) _currentStage.OnWaveChanged -= StageTextUpdate;
         }
 
         public void Open()

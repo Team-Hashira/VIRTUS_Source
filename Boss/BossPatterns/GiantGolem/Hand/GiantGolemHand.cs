@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
-    public class GiantGolemHand : Boss
+    public class GiantGolemHand : MonoBehaviour
     {
         private IGiantGolemHandEffect[] _handEffects;
         private IGiantGolemHandEffect _currentActiveEffect;

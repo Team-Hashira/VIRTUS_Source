@@ -56,8 +56,14 @@ namespace Hashira.Bosses.Patterns
             StateMachine.ChangeState("Groggy");
         }
 
-        public virtual void OnStart() { }
-        public virtual void OnEnd() { }
+        public virtual void OnStart()
+        {
+            Boss.OnPatternStartEvent?.Invoke();    
+        }
+        public virtual void OnEnd()
+        {
+            Boss.OnPatternEndEvent?.Invoke();    
+        }
         public virtual void OnUpdate() { }
         public virtual void OnDrawGizmos(Transform transform) { }
     }

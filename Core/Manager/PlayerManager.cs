@@ -4,6 +4,7 @@ using Hashira.Entities.Components;
 using Hashira.Players;
 using System;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 namespace Hashira.Core
 {
@@ -37,6 +38,15 @@ namespace Hashira.Core
 
             if (isEventSender)
                 OnCardEffectEnableEvent?.Invoke();
+        }
+
+        public void ReEnableCardEffect()
+        {
+            for (int i = 0; i < _cardEffectList.Count; i++)
+            {
+                _cardEffectList[i].Disable();
+                _cardEffectList[i].Enable();
+            }
         }
 
         private void Update()

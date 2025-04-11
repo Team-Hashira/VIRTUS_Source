@@ -34,7 +34,8 @@ namespace Hashira.CanvasUI
         }
         private void CallOnCursorExit()
         {
-            _hoveredUI.OnCursorExit();
+            if (_hoveredUI as MonoBehaviour != null)
+                _hoveredUI.OnCursorExit();
             _hoveredUI = null;
         }
     }

@@ -39,9 +39,6 @@ namespace Hashira.Players
             else
                 _entityStateMachine.ChangeState("Idle");
 
-            if(_playerMover.IsSprint && Mathf.Sign(movement) == Mathf.Sign(look))
-				_entityStateMachine.ChangeState("Run");
-
 		}
 
         public override void OnExit()

@@ -5,6 +5,7 @@ using Hashira.Enemies;
 using Hashira.Entities;
 using Hashira.LightingControl;
 using Hashira.StageSystem;
+using System;
 using UnityEngine;
 
 namespace Hashira
@@ -36,11 +37,18 @@ namespace Hashira
             _spawnTime = Time.time;
             _startBurstParticle.Play();
             _ringParticle.Play();
+
+            StageGenerator.Instance.OnNextStageEvent += HandleNextStage;
+        }
+
+        private void HandleNextStage()
+        {
+            this.Push();
         }
 
         public void OnPush()
         {
-
+            StageGenerator.Instance.OnNextStageEvent -= HandleNextStage;
         }
 
         public void Init(int damage, int burstDamage, float duration)

@@ -79,6 +79,8 @@ namespace Hashira.Visualizers
             }
 
             _lifeTimeCoroutine = StartCoroutine(LifeTimeCoroutine(lifeTime));
+
+            _foldCoroutine = null;
         }
 
         private IEnumerator VisualizeCoroutine(Vector2 startPos, Vector2 endPos, float duration, Func<float, float> EaseFunction, Action OnComplete)
@@ -114,10 +116,10 @@ namespace Hashira.Visualizers
 
         public void Fold(float duration)
         {
-            if (_foldCoroutine != null)
-                return;
             if (_lifeTimeCoroutine != null)
                 StopCoroutine(_lifeTimeCoroutine);
+            if (_foldCoroutine != null)
+                return;
             StartCoroutine(FoldCoroutine(transform.position, _endPos, duration));
         }
 
@@ -149,7 +151,6 @@ namespace Hashira.Visualizers
             _maskTrm.localScale = new Vector2(0, _spriteRenderer.size.y);
             transform.position = endPos;
             this.Push();
-            _foldCoroutine = null;
         }
 
         private void CreateDirectionMark(Vector2 startPos, Vector2 endPos, float distance, float angle, int count, float space)

@@ -1,14 +1,10 @@
-using Hashira.Cards.Effects;
 using Hashira.Items;
 using System;
-using System.Runtime.InteropServices;
-using TMPro.EditorUtilities;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-namespace Hashira
+namespace Hashira.Items
 {
-    public abstract class ItemSO<T> : ScriptableObject where T : ItemEffect<T>
+    public abstract class ItemSO : ScriptableObject
     {
         public Sprite sprite;
         public string displayName;
@@ -19,8 +15,10 @@ namespace Hashira
         private string _prevClassName;
 
         private Type _classType;
+        [Space]
+        [Header("ItemEffect의 객체. 아무것도 안뜨면 직렬화 가능한 변수가 없다는 뜻")]
         [SerializeReference]
-        private T _effectInstance;
+        private ItemEffect _effectInstance;
 
         private void OnValidate()
         {
@@ -33,7 +31,7 @@ namespace Hashira
             {
                 try
                 {
-                    string typeName = $"{typeof(T).Namespace}.{className}";
+                    string typeName = $"{GetType().Namespace}.Effects.{className}";
                     Type t = Type.GetType(typeName);
                     _classType = t;
                     _prevClassName = className;
@@ -58,19 +56,21 @@ namespace Hashira
 
         private void CreateInstance()
         {
-            _effectInstance = Activator.CreateInstance(_classType) as T;
-            ItemEffect<T> effect = _effectInstance as ItemEffect<T>;
-            effect.Initialize(this);
+            _effectInstance = Activator.CreateInstance(_classType) as ItemEffect;
+            _effectInstance.Initialize(this);
         }
 
-        public T GetEffectInstance()
+        public T GetEffectInstance<T>() where T : ItemEffect
         {
             if (_effectInstance == null)
             {
                 CreateInstance();
-                return default;
             }
-            return _effectInstance;
+            else if (_effectInstance.ItemSO == null)
+            {
+                _effectInstance.Initialize(this);
+            }
+            return _effectInstance as T;
         }
     }
 }

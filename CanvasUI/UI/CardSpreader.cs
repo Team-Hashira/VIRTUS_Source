@@ -25,6 +25,10 @@ namespace Hashira
         {
             return _setupCardVisualList.Select(cardVisual => cardVisual as T).ToList();
         }
+        public List<SetupCardVisual> GetCardList()
+        {
+            return _setupCardVisualList;
+        }
 
         private void Awake()
         {
@@ -33,31 +37,43 @@ namespace Hashira
 
         private void Update()
         {
-            int horizontalCount = _horizontalCount == -1 ? int.MaxValue : _horizontalCount;
-            int cardCount = Mathf.Min(_setupCardVisualList.Count, horizontalCount);
+            int cardCount = _setupCardVisualList.Count;
             for (int i = 0; i < cardCount; i++)
             {
-                float indexForCenter = (i - (cardCount - 1) / 2f) % horizontalCount;
-                float xPos = indexForCenter * _interval.x + _offset.x;
-                float yPos = -(i / horizontalCount) * _interval.y + _offset.y;
+                float xIndex;
+                float yIndex;
+                if (_horizontalCount == -1)
+                {
+                    xIndex = (i - (cardCount - 1) / 2f);
+                    yIndex = 0;
+                }
+                else
+                {
+                    xIndex = (i - (cardCount - 1) / 2f) % _horizontalCount;
+                    yIndex = -(i / _horizontalCount);
+                }
+
+                float xPos = xIndex * _interval.x + _offset.x;
+                float yPos = yIndex * _interval.y + _offset.y;
                 Vector2 targetPos = new Vector3(xPos, yPos);
-                targetPos = Quaternion.Euler(0, 0, indexForCenter * _angle) * targetPos;
+                targetPos = Quaternion.Euler(0, 0, xIndex * _angle) * targetPos;
                 _setupCardVisualList[i].RectTransform.anchoredPosition
                     = Vector3.Lerp(_setupCardVisualList[i].RectTransform.anchoredPosition, targetPos, Time.deltaTime * 10f);
             }
         }
 
-        public void CardSpread(List<CardSO> cardList, bool isCurrent = false)
+        public List<SetupCardVisual> CardSpread(List<CardSO> cardList, bool isCurrent = false)
         {
             foreach (CardSO cardSO in cardList)
             {
                 SetupCardVisual setupCardVisual = Instantiate(_setupCardVisual, transform);
-                setupCardVisual.Setup(cardSO, isCurrent);
+                setupCardVisual.VisualSetup(cardSO, isCurrent);
                 setupCardVisual.transform.position = transform.position;
                 setupCardVisual.RectTransform.anchorMin = new Vector2(0.5f, 0.5f);
                 setupCardVisual.RectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                 _setupCardVisualList.Add(setupCardVisual);
             }
+            return _setupCardVisualList;
         }
 
         public void ClearCard()
@@ -69,5 +85,10 @@ namespace Hashira
             }
             _setupCardVisualList.Clear();
         }
+
+        public void EnterCard(SetupCardVisual setupCardVisual)
+            => _setupCardVisualList.Add(setupCardVisual);
+        public void ExitCard(SetupCardVisual setupCardVisual)
+            => _setupCardVisualList.Remove(setupCardVisual);
     }
 }

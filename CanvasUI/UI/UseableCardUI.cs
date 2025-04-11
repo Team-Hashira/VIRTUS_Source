@@ -2,62 +2,110 @@ using Crogen.CrogenPooling;
 using DG.Tweening;
 using Hashira.Cards;
 using Hashira.Cards.Effects;
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Hashira.CanvasUI
 {
-    public class UseableCardUI : UIBase, IClickableUI, IHoverableUI, IPoolingObject
+    public class UseableCardUI : SetupCardVisual, IClickableUI, IHoverableUI
     {
         private readonly static int _GlitchValueHash = Shader.PropertyToID("_Value");
-
-        public string OriginPoolType { get; set; }
-        GameObject IPoolingObject.gameObject { get; set; }
-
-        public CardSO CardSO { get; private set; }
 
         private UseableCardDrawer _useableCardDrawer;
         private Image _cardImage;
         private CanvasGroup _canvasGroup;
 
+        [Header("=====UseableCardUI setting=====")]
         [SerializeField] private InputReaderSO _inputReader;
-        [SerializeField] private CustomButton _lockButton;
-        [SerializeField] private SetupCardVisual _setupCardVisual;
+        [SerializeField] private CustomButton _useButton, _cancelButton;
         [field: SerializeField] public ChildrenMaterialController ChildrenMaterialController { get; private set; }
         [SerializeField] private float _useDistance = 14;
         private float _useDistanceSqr;
 
-        private bool _isDrag;
+        private bool _isSelected;
         private bool _isUseable;
         private bool _isFixationCard;
-        private Vector2 _mousePivot;
+        private Vector2 _targetScale;
 
         private Sequence _useSeq;
 
         private int _needCost;
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
             _cardImage = GetComponent<Image>();
             _canvasGroup = GetComponent<CanvasGroup>();
             _useDistanceSqr = _useDistance * _useDistance;
 
-            _lockButton.OnClickEvent += HandleClickEvent;
+            _useButton.OnClickEvent += CardUse;
+            _cancelButton.OnClickEvent += () => ActiveSelectMode(false);
+            ActiveSelectMode(false, false);
+
+            transform.localScale = Vector3.one;
+            _canvasGroup.alpha = 1;
+            PlayerDataManager.Instance.EffectAddedEvent += HandleEffectAddedEvent;
+
+            Vector2 anchor = new Vector2(0.5f, 0.5f);
+            RectTransform.anchorMin = anchor;
+            RectTransform.anchorMax = anchor;
         }
 
-        private void HandleClickEvent()
+        private void ActiveSelectMode(bool active, bool setCardDrawer = true)
+        {
+            _isSelected = active;
+            _useButton.gameObject.SetActive(active);
+            _cancelButton.gameObject.SetActive(active);
+            if (active)
+            {
+                _targetScale = Vector3.one * 1.6f;
+                if (setCardDrawer) _useableCardDrawer.CardSelect(this);
+            }
+            else
+            {
+                _targetScale = Vector3.one;
+                if (setCardDrawer) _useableCardDrawer.CardSelectCancel(this);
+            }
+        }
+
+        private void LockToggle()
         {
             if (_isFixationCard)
+            {
                 CardManager.Instance.UnFixationCard(this);
+                OnCursorEnter();
+            }
             else
+            {
                 CardManager.Instance.FixationCard(this);
+            }
+            _useableCardDrawer.CardLockMode(true);
+        }
+        public void OnLockMode(bool active)
+        {
+            if (active)
+            {
+                int fixedCardCount = CardManager.Instance.FixedCardList.Count;
+                if (_isFixationCard)
+                {
+                    _costText.text = CardManager.Instance.FixedCardNeedCost[fixedCardCount - 1].ToString();
+                    _costText.color = Color.blue;
+                }
+                else
+                {
+                    _costText.text = CardManager.Instance.FixedCardNeedCost[fixedCardCount].ToString();
+                    _costText.color = Color.red;
+                }
+            }
+            else
+            {
+                VisualSetup(CardSO);
+                _costText.color = Color.black;
+            }
         }
 
         private void Update()
         {
-            MouseTracking();
+            SelectZoonIn();
 
             Vector3 targetPos = Camera.main.ScreenToWorldPoint(_useableCardDrawer.CardUsePos.position);
             Vector3 myPos = Camera.main.ScreenToWorldPoint(transform.position);
@@ -76,116 +124,101 @@ namespace Hashira.CanvasUI
                 _isUseable = false;
                 _cardImage.color = Color.white;
             }
+
+            transform.localScale = Vector3.Lerp(transform.localScale, _targetScale, Time.deltaTime * 10);
         }
 
-        private void MouseTracking()
+        private void SelectZoonIn()
         {
-            if (_isDrag == false) return;
+            if (_isSelected == false) return;
 
-            RectTransform.position = _inputReader.MousePosition + _mousePivot;
+            RectTransform.anchoredPosition = Vector3.Lerp(RectTransform.anchoredPosition, new Vector2(0, 100), Time.deltaTime * 10);
         }
 
-        public void SetCard(CardSO cardSO, UseableCardDrawer useableCardDrawer)
+        public void SetCard(UseableCardDrawer useableCardDrawer)
         {
-            CardSO = cardSO;
             _useableCardDrawer = useableCardDrawer;
-            _setupCardVisual.Setup(cardSO);
             _needCost = CardSO.needCost + PlayerDataManager.Instance.GetAdditionalNeedCost(CardSO);
             SetFixationCard(false);
         }
 
         private void CardUse()
         {
-            _useableCardDrawer.OnCardUsed(CardSO);
-            if (_useSeq != null && _useSeq.IsActive()) _useSeq.Kill();
-            _useSeq = DOTween.Sequence();
-            _useSeq.Append(DOTween.To(() => 0f, value => ChildrenMaterialController.SetValue(_GlitchValueHash, value), 1f, 0.05f).SetEase(Ease.OutQuad));
-            _useSeq.Append(DOTween.To(() => 1f, value => _canvasGroup.alpha = value, 0f, 0.05f).SetEase(Ease.InSine));
-            _useSeq.AppendCallback(() => this.Push());
+            ActiveSelectMode(false, false);
+            if (Cost.TryRemoveCost(_needCost))
+            {
+                PlayerDataManager.Instance.AddEffect(CardSO.GetEffectInstance<CardEffect>());
+
+                _useableCardDrawer.CardSelectCancel(null);
+                _useableCardDrawer.CardDraw();
+                if (_useSeq != null && _useSeq.IsActive()) _useSeq.Kill();
+                _useSeq = DOTween.Sequence();
+                _useSeq.Append(DOTween.To(() => 0f, value => ChildrenMaterialController.SetValue(_GlitchValueHash, value), 1f, 0.05f).SetEase(Ease.OutQuad));
+                _useSeq.Append(DOTween.To(() => 1f, value => _canvasGroup.alpha = value, 0f, 0.05f).SetEase(Ease.InSine));
+                _useSeq.AppendCallback(() => Destroy(gameObject));
+            }
+            else
+            {
+                PopupTextManager.Instance.PopupText("코스트가 부족합니다.", Color.red);
+                _useableCardDrawer.CardSelectCancel(this);
+                transform.SetParent(_useableCardDrawer.transform);
+            }
         }
 
         public void OnClick(bool isLeft)
         {
-            if (_isDrag) return;
-
-            if (_isFixationCard == false && isLeft)
+            if (_useableCardDrawer.IsLockMode)
             {
-                _useableCardDrawer.ExitSpread(this);
-                //_useableCardDrawer.CardUseHint.enabled = true;
-                _isDrag = true;
-                _lockButton.gameObject.SetActive(false);
-                _mousePivot = (Vector2)RectTransform.position - _inputReader.MousePosition;
-                transform.SetParent(_useableCardDrawer.DragCardTrm);
+                LockToggle();
+                return;
+            }
+
+            if (_isFixationCard) return;
+            if (_isSelected) return;
+
+            if (isLeft)
+            {
+                ActiveSelectMode(true);
             }
         }
 
         public void SetFixationCard(bool isOn)
         {
+            if (isOn)
+            {
+                _targetScale = Vector3.one;
+            }
             _isFixationCard = isOn;
             _cardImage.color = isOn ? Color.gray : Color.white;
-            if (isOn) transform.localScale = Vector3.one;
         }
 
         public void OnClickEnd(bool isLeft)
         {
-            if (_isDrag == false) return;
-            if (isLeft)
-            {
-                //_useableCardDrawer.CardUseHint.enabled = false;
-                _isDrag = false;
-                _lockButton.gameObject.SetActive(true);
-
-                if (_isUseable)
-                {
-                    if (Cost.TryRemoveCost(_needCost))
-                    {
-                        PlayerDataManager.Instance.AddEffect(CardSO.GetEffectInstance());
-                        CardUse();
-                    }
-                    else
-                    {
-                        PopupTextManager.Instance.PopupText("코스트가 부족합니다.", Color.red);
-                        _useableCardDrawer.EnterSpread(this);
-                        transform.SetParent(_useableCardDrawer.transform);
-                    }
-                }
-                else
-                {
-                    _useableCardDrawer.EnterSpread(this);
-                    transform.SetParent(_useableCardDrawer.transform);
-                }
-            }
-
         }
 
         public void OnCursorEnter()
         {
             if (_isFixationCard) return;
+            if (_isSelected) return;
 
-            transform.localScale = Vector3.one * 1.1f;
+            _targetScale = Vector3.one * 1.1f;
         }
 
         public void OnCursorExit()
         {
             if (_isFixationCard) return;
+            if (_isSelected) return;
 
-            transform.localScale = Vector3.one;
-        }
-
-        public void OnPop()
-        {
-            transform.localScale = Vector3.one;
-            _canvasGroup.alpha = 1;
-            PlayerDataManager.Instance.EffectAddedEvent += HandleEffectAddedEvent;
+            _targetScale = Vector3.one;
         }
 
         private void HandleEffectAddedEvent(CardEffect effect)
         {
-            _setupCardVisual.Setup(CardSO);
+            VisualSetup(CardSO);
             _needCost = CardSO.needCost + PlayerDataManager.Instance.GetAdditionalNeedCost(CardSO);
         }
 
-        public void OnPush()
+        private void OnDestroy()
         {
             PlayerDataManager.Instance.EffectAddedEvent -= HandleEffectAddedEvent;
         }

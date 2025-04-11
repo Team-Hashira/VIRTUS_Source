@@ -1,7 +1,6 @@
+using Hashira.Accessories.Effects;
 using Hashira.Entities;
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Hashira.Accessories
 {
@@ -45,7 +44,7 @@ namespace Hashira.Accessories
         {
             if (broadcastChange)
                 _AccessoryDict[type]?.OnAccessoryTypeChange(EAccessoryType.None);
-            _AccessoryDict[type] = accessory.GetEffectInstance();
+            _AccessoryDict[type] = accessory.GetEffectInstance<AccessoryEffect>();
             if (broadcastChange)
                 _AccessoryDict[type]?.OnAccessoryTypeChange(type);
         }

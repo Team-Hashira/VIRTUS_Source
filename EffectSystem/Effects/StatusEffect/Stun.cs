@@ -1,4 +1,5 @@
 using Hashira.Entities.Components;
+using UnityEngine;
 
 namespace Hashira.EffectSystem.Effects
 {
@@ -21,7 +22,7 @@ namespace Hashira.EffectSystem.Effects
             base.Enable();
             _entityStateMachine = entity.GetEntityComponent<EntityStateMachine>();
             _newState = _entityStateMachine.GetShareVariable<string>("TargetState");
-            if (_newState == "")
+            if (string.IsNullOrEmpty(_newState))
                 _newState = _entityStateMachine.StartState.stateName;
             _entityStateMachine.ChangeState("Stun");
         }

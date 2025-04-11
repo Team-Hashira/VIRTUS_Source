@@ -57,11 +57,13 @@ namespace Hashira.CanvasUI
         public void Open()
         {
             gameObject.SetActive(true);
+            //UIManager.Instance.AddPauseMenu(this);
         }
 
         private void OnDestroy()
         {
             _titleBtn.OnClickEvent -= HandleTitleEvent;
+            //if (UIManager.Instance != null) UIManager.Instance.RemovePauseMenu(this);
         }
     }
 }

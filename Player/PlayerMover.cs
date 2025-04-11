@@ -8,7 +8,6 @@ namespace Hashira.Players
         public bool CanRolling => _currentDelayTime >= rollingDelay;
         public float rollingDelay = 1;
         private float _currentDelayTime = 0;
-		public bool IsSprint { get; private set; } = false;
 
         private float _lastVelocityValue;
         private EntityRenderer _entityRenderer;
@@ -28,11 +27,6 @@ namespace Hashira.Players
         public void OnDash()
         {
             _currentDelayTime = 0;
-		}
-
-		public void OnSprintToggle()
-		{
-			IsSprint = !IsSprint;
 		}
 
         protected override void FixedUpdate()

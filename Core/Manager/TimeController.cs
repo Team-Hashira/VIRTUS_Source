@@ -18,14 +18,14 @@ namespace Hashira
         {
             _timeScaleChangedStack.Push(Time.timeScale);
 			Time.timeScale = value;
-            Time.fixedDeltaTime = _defaultFixedDeltaTime * Time.timeScale;
+            Time.fixedDeltaTime = _defaultFixedDeltaTime / Time.timeScale;
         }
 
         public static void UndoTimeScale()
         {
             if (_timeScaleChangedStack.Count == 0) return;
 			Time.timeScale = _timeScaleChangedStack.Pop();
-            Time.fixedDeltaTime = _defaultFixedDeltaTime * Time.timeScale;
+            Time.fixedDeltaTime = _defaultFixedDeltaTime / Time.timeScale;
         }
 
         public static void ResetTimeScale()
@@ -33,7 +33,7 @@ namespace Hashira
             while (_timeScaleChangedStack.Count > 0)
             {
                 Time.timeScale = _timeScaleChangedStack.Pop();
-                Time.fixedDeltaTime = _defaultFixedDeltaTime * Time.timeScale;
+                Time.fixedDeltaTime = _defaultFixedDeltaTime / Time.timeScale;
             }
         }
     }
