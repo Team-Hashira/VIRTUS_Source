@@ -74,13 +74,13 @@ namespace Hashira.CanvasUI
             if (_isPaused == false && _pauseMenuList.Count > 0)
             {
                 _isPaused = true;
-                TimeController.SetTimeScale(0);
+                TimeController.SetTimeScale(ETimeLayer.PauseUI, 0);
                 _inputReader.PlayerActive(false);
             }
             else if (_isPaused && _pauseMenuList.Count == 0)
             {
                 _isPaused = false;
-                TimeController.UndoTimeScale();
+                TimeController.UndoTimeScale(ETimeLayer.PauseUI);
                 _inputReader.PlayerActive(true);
             }
         }

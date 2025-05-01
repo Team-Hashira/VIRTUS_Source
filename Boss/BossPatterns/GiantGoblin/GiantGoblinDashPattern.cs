@@ -1,10 +1,14 @@
+using DG.Tweening;
 using Hashira.Bosses.BillboardClasses;
 using Hashira.Combat;
+using Hashira.MainScreen;
+using Hashira.Pathfind;
 using System.Collections;
 using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
+    [System.Serializable]
     public class GiantGoblinDashPattern : BossPattern
     {
         [SerializeField] private float _dashDelay = 0.5f;
@@ -65,7 +69,14 @@ namespace Hashira.Bosses.Patterns
         {
             RaycastHit2D hit = Physics2D.Raycast(Transform.position, Vector2.right * _dashDirection, _wallCheckdistance, _whatIsGround);
             if (hit.transform != null)
-                OnGroggy(3f);
+            {
+                Groggy(3f);
+                Sequence seq = DOTween.Sequence();
+                seq.Append(MainScreenEffect.OnLocalMoveScreenSide(_dashDirection > 0 ? DirectionType.Right : DirectionType.Left));
+                seq.JoinCallback(()=>CameraManager.Instance.ShakeCamera(10, 30, 2.8f, Ease.InCirc));
+                seq.AppendInterval(0.02f);
+                seq.AppendCallback(() => MainScreenEffect.OnLocalMoveScreenSide(0));
+            }
         }
 
         public override void OnEnd()

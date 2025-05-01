@@ -78,23 +78,20 @@ namespace Hashira.CanvasUI
 
         public void OnCursorEnter()
         {
-            if (_setDefaultTween != null && _setDefaultTween.IsActive())
-                _setDefaultTween.Kill();
-            if (_glitchTween != null && _glitchTween.IsActive())
-                _glitchTween.Kill();
-            _childMaterialController.SetValue(_glitchValueHash, 0.6f);
-            _glitchTween = DOTween.To(() => _childMaterialController.GetValue(_glitchValueHash),
+            _glitchTween.Clear();
+            _glitchTween = DOTween.To(() => 0.6f,
                 v => _childMaterialController.SetValue(_glitchValueHash, v), 0f, 0.15f);
+
+            _hoverSequence.Clear();
             _hoverSequence = DOTween.Sequence();
             _hoverSequence.Append(RectTransform.DOScale(_defaultScale * new Vector2(1.3f, 1.3f), 0.2f));
         }
 
         public void OnCursorExit()
         {
-            if (_hoverSequence != null && _hoverSequence.IsActive())
-                _hoverSequence.Kill();
-            _setDefaultTween = DOTween.Sequence();
-            _setDefaultTween.Append(RectTransform.DOScale(_defaultScale, 0.3f));
+            _hoverSequence.Clear();
+            _hoverSequence = DOTween.Sequence();
+            _hoverSequence.Append(RectTransform.DOScale(_defaultScale, 0.3f));
         }
 
         public void Wipe(int direction)

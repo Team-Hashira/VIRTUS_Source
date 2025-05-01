@@ -1,3 +1,4 @@
+using Hashira.Bosses.Patterns.GiantGolem;
 using Hashira.Entities;
 using System;
 using UnityEngine;
@@ -8,35 +9,35 @@ namespace Hashira.Bosses.BillboardClasses
     /// <summary>
     /// Core Class
     /// </summary>
-    [Serializable]
     public class BillboardValue {  }
 
     //<Unity>/////////////////////////////////////////////////////////////////////////////////////////
-    public class GameObjectValue : BillboardValue { public GameObject Value; }
-    public class TransformValue : BillboardValue { public Transform Value; }
-    public class LayerMaskValue : BillboardValue { public LayerMask Value; }
-    public class ContactFilter2DValue : BillboardValue { public ContactFilter2D Value; }
-    public class UnityEventValue : BillboardValue { public UnityEvent Value; }
+    [Serializable]public class GameObjectValue : BillboardValue { public GameObject Value; }
+    [Serializable]public class TransformValue : BillboardValue { public Transform Value; }
+    [Serializable]public class LayerMaskValue : BillboardValue { public LayerMask Value; }
+    [Serializable]public class ContactFilter2DValue : BillboardValue { public ContactFilter2D Value; }
+    [Serializable]public class UnityEventValue : BillboardValue { public UnityEvent Value; }
     //<Unity>/////////////////////////////////////////////////////////////////////////////////////////
 
     
     //<Type>//////////////////////////////////////////////////////////////////////////////////////////
-    public class FloatValue : BillboardValue { public float Value; }
-    public class IntValue : BillboardValue { public int Value; }
-    public class BoolValue : BillboardValue { public bool Value; }
-    public class StringValue : BillboardValue { public string Value; }
-    public class Vector3Value : BillboardValue { public Vector3 Value; }
-    public class Vector2Value : BillboardValue { public Vector2 Value; }
+    [Serializable]public class FloatValue : BillboardValue { public float Value; }
+    [Serializable]public class IntValue : BillboardValue { public int Value; }
+    [Serializable]public class BoolValue : BillboardValue { public bool Value; }
+    [Serializable]public class StringValue : BillboardValue { public string Value; }
+    [Serializable]public class Vector3Value : BillboardValue { public Vector3 Value; }
+    [Serializable]public class Vector2Value : BillboardValue { public Vector2 Value; }
     //<Type>//////////////////////////////////////////////////////////////////////////////////////////
 
     
     //<Entity>////////////////////////////////////////////////////////////////////////////////////////
-    public class EntityValue : BillboardValue { public Entity Value; }
-    public class BossValue : BillboardValue { public BossValue Value; }
+    [Serializable]public class EntityValue : BillboardValue { public Entity Value; }
+    [Serializable]public class BossValue : BillboardValue { public Boss Value; }
     //<Entity>////////////////////////////////////////////////////////////////////////////////////////
     
     
     //<Boss>//////////////////////////////////////////////////////////////////////////////////////////
-    public class GiantGolemEyeValue : BillboardValue { public GiantGolemEye Value; }
+    [Serializable]public class GiantGolemEyeValue : BillboardValue { public GiantGolemEye Value; }
+    [Serializable]public class GiantGolemPlatformListValue : BillboardValue { public GiantGolemPlatformList Value; }
     //<Boss>//////////////////////////////////////////////////////////////////////////////////////////
 }

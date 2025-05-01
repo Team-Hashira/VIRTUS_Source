@@ -7,7 +7,9 @@ namespace Hashira.Cards
     {
         Bullet,
         Stat,
-        Magic
+        Magic,
+        SubAttack,
+        Spawn
     }
 
     [CreateAssetMenu(fileName = "Card", menuName = "SO/Card/Card")]
@@ -15,10 +17,9 @@ namespace Hashira.Cards
     {
         [Header("==========CardSO==========")]
         public ECardType cardType;
-        public Sprite cardborderSprite;
         [TextArea]
         public string[] cardDescriptions;
-        public int needCost;
+        public int[] needCost;
         public int maxOverlapCount;
 
         public override string Description { get => PlayerDataManager.Instance.GetCardDescription(this); }

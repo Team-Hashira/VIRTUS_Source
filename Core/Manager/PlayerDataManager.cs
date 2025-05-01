@@ -20,6 +20,7 @@ namespace Hashira
 
         public int Health { get; private set; } = 6;
         public int MaxHealth { get; private set; } = 6;
+        public int DefaultMaxHealth { get; private set; } = 6;
 
         public int KillCount { get; private set; }
         public int BossKillCount { get; private set; }
@@ -27,7 +28,7 @@ namespace Hashira
         protected override void Awake()
         {
             base.Awake();
-            SetHealth(6, 6);
+            SetHealth(DefaultMaxHealth, DefaultMaxHealth);
         }
 
         public void AddKillCount(bool isBoss = false)
@@ -108,18 +109,6 @@ namespace Hashira
                 Debug.Log($"{cardSO.className} was not found");
         }
 
-        public int GetAdditionalNeedCost(CardSO cardSO)
-        {
-            foreach (CardEffect cardEffect in CardEffectList)
-            {
-                if (cardEffect.CardSO == cardSO)
-                {
-                    return cardEffect.GetAdditionalNeedCost();
-                }
-            }
-            return 0;
-        }
-
         public string GetCardDescription(CardSO cardSO)
         {
             foreach (CardEffect cardEffect in CardEffectList)
@@ -144,11 +133,25 @@ namespace Hashira
             return 0;
         }
 
+        public int GetCardNeedCost(CardSO cardSO)
+        {
+            foreach (CardEffect cardEffect in CardEffectList)
+            {
+                if (cardEffect.CardSO == cardSO)
+                {
+                    if (cardEffect.IsMaxStack == false)
+                        return cardSO.needCost[cardEffect.stack];
+                    else
+                        return 0;
+                }
+            }
+            return cardSO.needCost[0];
+        }
+
         public void ResetData()
         {
-            SetHealth(6, 6);
+            SetHealth(DefaultMaxHealth, DefaultMaxHealth);
             ResetPlayerData();
-            ResetPlayerCardEffect(useDisable: true);
             CardManager.Instance.ClearCardList();
             Cost.ResetCost();
             Accessory.ResetAccessory();
@@ -157,6 +160,7 @@ namespace Hashira
         public void ResetPlayerData()
         {
             KillCount = 0;
+            BossKillCount = 0;
 
             //bool isInGame = PlayerManager.Instance != null;
 
@@ -170,6 +174,7 @@ namespace Hashira
                 foreach (CardEffect cardEffect in CardEffectList)
                 {
                     cardEffect.Disable();
+                    cardEffect.stack = 0;
                 }
             }
 
@@ -182,6 +187,8 @@ namespace Hashira
                 {
                     if (exceptionCardSO.Contains(cardEffect.CardSO))
                         exceptionCardEffectList.Add(cardEffect);
+                    else
+                        cardEffect.stack = 0;
                 }
 
                 CardEffectList = new List<CardEffect>();
@@ -190,6 +197,13 @@ namespace Hashira
                 {
                     CardEffectList.Add(cardEffect);
                 }
+            }
+        }
+        public void CardDisable()
+        {
+            foreach (CardEffect cardEffect in CardEffectList)
+            {
+                cardEffect.Disable();
             }
         }
     }

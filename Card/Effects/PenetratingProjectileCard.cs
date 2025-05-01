@@ -7,11 +7,8 @@ namespace Hashira.Cards.Effects
 {
     public class PenetratingProjectileCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
-        private float[] _penetratingPercentByStack = { 30f, 40f, 50f };
-        private float[] _damageDownByStack = { 30f, 15f, 0f };
+        [SerializeField] private float[] _penetratingPercentByStack = { 30f, 40f, 50f };
+        [SerializeField] private float[] _damageDownByStack = { 30f, 15f, 0f };
 
         public override void Enable()
         {

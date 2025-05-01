@@ -1,3 +1,4 @@
+using DG.Tweening;
 using Hashira.StageSystem;
 using System;
 using TMPro;
@@ -13,6 +14,21 @@ namespace Hashira.CanvasUI
 
         private Stage _currentStage;
 
+        private CanvasGroup _canvasGroup;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            _canvasGroup = GetComponent<CanvasGroup>();
+        }
+
+        private void SetVisable(bool visable, float duration = 1f)
+        {
+            _canvasGroup.interactable = visable;
+            _canvasGroup.blocksRaycasts = visable;
+            _canvasGroup.DOFade(visable ? 1 : 0, duration);
+        }
+        
         private void Start()
         {
             Open();
@@ -20,14 +36,14 @@ namespace Hashira.CanvasUI
 
         public void Close()
         {
-            gameObject.SetActive(false);
+            SetVisable(false);
             StageGenerator.Instance.OnNextStageEvent -= HandleNextStageEvent;
             if (_currentStage != null) _currentStage.OnWaveChanged -= StageTextUpdate;
         }
 
         public void Open()
         {
-            gameObject.SetActive(true);
+            SetVisable(true);
             StageGenerator.Instance.OnNextStageEvent += HandleNextStageEvent;
             _currentStage = StageGenerator.Instance.GetCurrentStage();
             if (_currentStage != null) _currentStage.OnWaveChanged += StageTextUpdate;

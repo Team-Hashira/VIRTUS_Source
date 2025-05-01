@@ -56,7 +56,7 @@ namespace Hashira.Bosses.Patterns.GiantGolem
 
             CameraManager.Instance.ShakeCamera(10, 50, 0.5f);
             
-            _attackVisualizer.SetDamageCastSignValue(0);
+            _attackVisualizer.SetDamageCastValue(0);
         }
 
         public void ApplyDamage(AttackInfo attackInfo, RaycastHit2D raycastHit, bool popUpText = true)
@@ -86,8 +86,8 @@ namespace Hashira.Bosses.Patterns.GiantGolem
             // Rigidbody2D에 impulse 방식으로 힘을 가함
             _rigidbody.AddForce(force, ForceMode2D.Impulse);
             
-            _attackVisualizer.ResetDamageCastVisualSign();
-            _attackVisualizer.SetDamageCastSignValue(1, 0.45f);
+            _attackVisualizer.InitDamageCastVisualSign();
+            _attackVisualizer.SetDamageCastValue(1, 0.45f);
         }
         
         private void Blink(float duration, Ease ease = Ease.Linear)

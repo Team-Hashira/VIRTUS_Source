@@ -7,11 +7,8 @@ namespace Hashira.Cards.Effects
 {
     public class ChargeAttackCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
-        private float[] _maxChargeTimeByStack = { 2.5f, 2.3f, 2.1f };
-        private float[] _speedDownByStack = { 10f, 10f, 0f };
+        [SerializeField] private float[] _maxChargeTimeByStack = { 2.5f, 2.3f, 2.1f };
+        [SerializeField] private float[] _speedDownByStack = { 10f, 10f, 0f };
 
         private StatElement _speedStat;
 
@@ -31,7 +28,7 @@ namespace Hashira.Cards.Effects
             }
             else
             {
-                _speedStat.RemoveModify("ChargeAttackCard", EModifyLayer.Default);
+                _speedStat.RemoveModifyOverlap("ChargeAttackCard", EModifyLayer.Default);
             }
         }
 

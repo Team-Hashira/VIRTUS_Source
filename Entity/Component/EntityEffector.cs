@@ -3,21 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Hashira.Entities
 {
     public class EntityEffector : MonoBehaviour, IEntityComponent
     {
-        private Entity _entity;
+        public Entity Entity { get; private set; }
         public event Action<Effect> EffectAddedEvent;
         public event Action<Effect> EffectRemovedEvent;
-        Dictionary<Type, List<Effect>> _effectDictionary = new Dictionary<Type, List<Effect>>();
+        protected Dictionary<Type, List<Effect>> _effectDictionary = new Dictionary<Type, List<Effect>>();
 
         public IEnumerable<List<Effect>> EffectLists => _effectDictionary.Values;
 
-        public void Initialize(Entity entity)
+        public virtual void Initialize(Entity entity)
         {
-            _entity = entity;
+            Entity = entity;
         }
 
         private void Update()
@@ -25,7 +26,7 @@ namespace Hashira.Entities
             UpdateEffects();
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             InitEffectDict();
             ClearEffect();
@@ -40,9 +41,9 @@ namespace Hashira.Entities
 
             Type type = effect.GetType();
             effect.name = type.Name;
-            effect.entity = _entity;
+            effect.entity = Entity;
             effect.entityEffector = this;
-            effect.entityStat = _entity.GetEntityComponent<EntityStat>();
+            effect.entityStat = Entity.GetEntityComponent<EntityStat>();
 
             if (_effectDictionary.ContainsKey(type))
             {
@@ -101,7 +102,7 @@ namespace Hashira.Entities
             }
         }
 
-        private void InitEffectDict()
+        protected void InitEffectDict()
         {
             _effectDictionary = _effectDictionary
                 .Where(x => x.Key != null)
@@ -147,6 +148,12 @@ namespace Hashira.Entities
         // Effect들의 초기화(죽음)
         private void OnEndEffect(Effect effect)
         {
+            if (effect is ICoolTimeEffect coolTimeEffect)
+            {
+                coolTimeEffect.OnTimeOut();
+                coolTimeEffect.OnTimeOutEvent?.Invoke(effect);
+            }
+            
             // ILoopEffect는 Effect의 사이클 자체를 담당하는 특별한 인터페이스이기 때문에 얘만 이렇게 따로 빼둘 필요가 있음
             if (effect is ILoopEffect loopEffect)
             {

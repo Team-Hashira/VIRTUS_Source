@@ -1,4 +1,6 @@
 using DG.Tweening;
+using Hashira.Cards.Effects;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,7 +16,21 @@ namespace Hashira.CanvasUI.CardUseScene
         private void Start()
         {
             _rerollCostText.text = $"{_HealNeedCost}";
+            PlayerDataManager.Instance.EffectAddedEvent += HandleEffectAddedEvent;
             PlayerHealthUpdate();
+        }
+
+        private void HandleEffectAddedEvent(CardEffect effect)
+        {
+            if (effect is HealthStatCard healthStatCard)
+            {
+                int addedHealth = 1 + healthStatCard.stack;
+                addedHealth = PlayerDataManager.Instance.DefaultMaxHealth + addedHealth - PlayerDataManager.Instance.MaxHealth;
+                PlayerDataManager.Instance.SetHealth(
+                    PlayerDataManager.Instance.Health + addedHealth,
+                    PlayerDataManager.Instance.MaxHealth + addedHealth);
+                PlayerHealthUpdate();
+            }
         }
 
         public void PlayerHealthUpdate()
@@ -47,6 +63,11 @@ namespace Hashira.CanvasUI.CardUseScene
         public void OnClickEnd(bool isLeft)
         {
 
+        }
+
+        private void OnDestroy()
+        {
+            if (PlayerDataManager.Instance != null) PlayerDataManager.Instance.EffectAddedEvent -= HandleEffectAddedEvent;
         }
     }
 }

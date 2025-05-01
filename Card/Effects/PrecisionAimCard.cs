@@ -9,14 +9,11 @@ namespace Hashira.Cards.Effects
 {
     public class PrecisionAimCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
         private StatElement _attackPowerStat;
 
-        private float[] _attackPowerUpByStack = { 20, 40, 60, 60 };
-        private float[] _criticalDamageUpByStack = { 2f, 2f, 2.5f, 2.5f };
-        private float[] _damageUpPercentByStack = { 3f, 3f, 3f, 10f };
+        [SerializeField] private float[] _attackPowerUpByStack = { 20, 40, 60, 60 };
+        [SerializeField] private float[] _criticalDamageUpByStack = { 2f, 2f, 2.5f, 2.5f };
+        [SerializeField] private float[] _damageUpPercentByStack = { 3f, 3f, 3f, 10f };
 
         public override void Enable()
         {
@@ -37,7 +34,7 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
-            _attackPowerStat.RemoveModify("PrecisionAimEffect", EModifyLayer.Default);
+            _attackPowerStat.RemoveModifyOverlap("PrecisionAimEffect", EModifyLayer.Default);
             GameEventChannel.RemoveListener<ProjectileShootEvent>(HandleShootEvent);
         }
 

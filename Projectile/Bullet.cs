@@ -15,6 +15,7 @@ namespace Hashira.Projectiles
             base.Init(whatIsTarget, direction, speed, damage, owner, isEventSender, gravity);
             Owner = owner;
             IsParryingable = true;
+
         }
 
         protected override void OnHited(HitInfo hitInfo)
@@ -31,6 +32,8 @@ namespace Hashira.Projectiles
 
                 if (damageable is EntityHealth health && health.TryGetComponent(out Entity entity))
                 {
+                    //gameObject.Pop(EffectPoolType.BulletShootSparkleEffect, transform.position, transform.rotation);
+
                     ParticleSystem[] bulletHitEffects = gameObject.Pop(EffectPoolType.BulletHitEffect, hit.point + hit.normal * 0.1f, 
                         Quaternion.Euler(0, 0, -90) * transform.rotation).gameObject.GetComponentsInChildren<ParticleSystem>();
                     foreach (ParticleSystem bulletHitEffect in bulletHitEffects)

@@ -1,7 +1,5 @@
-using Crogen.CrogenPooling;
 using DG.Tweening;
 using Hashira.Cards.Effects;
-using Hashira.EffectSystem;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,20 +17,18 @@ namespace Hashira.CanvasUI
         [SerializeField]
         private Transform _contentTransform;
 
-        private Dictionary<Type, AppliedCardUI> _appliedCardDict;
+        [SerializeField]
+        private SetupCardVisual _setupCardVisual;
+
+        private Dictionary<Type, SetupCardVisual> _appliedCardDict;
 
         private PlayerDataManager _playerEffectManager;
 
         protected override void Awake()
         {
             base.Awake();
-            _appliedCardDict = new Dictionary<Type, AppliedCardUI>();
-        }
-
-        private void Start()
-        {
+            _appliedCardDict = new Dictionary<Type, SetupCardVisual>();
             _playerEffectManager = PlayerDataManager.Instance;
-            Close();
         }
 
         public void SetActive(bool isActive, float duration = 0.5f)
@@ -53,8 +49,9 @@ namespace Hashira.CanvasUI
             {
                 if (cardEffect.stack <= 0)
                     continue;
-                AppliedCardUI cardUI = gameObject.Pop(UIPoolType.AppliedCardUI, _contentTransform) as AppliedCardUI;
-                cardUI.Initialize(cardEffect);
+                SetupCardVisual cardUI = Instantiate(_setupCardVisual, _contentTransform);
+                cardUI.VisualSetup(cardEffect.CardSO);
+                cardUI.transform.localScale = Vector3.one * 0.9f;
                 _appliedCardDict.Add(cardEffect.GetType(), cardUI);
             }
         }
@@ -65,12 +62,13 @@ namespace Hashira.CanvasUI
             if (_appliedCardDict.TryGetValue(effectType, out var ui))
             {
                 int count = cardEffect.stack;
-                ui.UpdateCount(count);
+                ui.VisualSetup(cardEffect.CardSO);
             }
             else
             {
-                AppliedCardUI cardUI = gameObject.Pop(UIPoolType.AppliedCardUI, _contentTransform) as AppliedCardUI;
-                cardUI.Initialize(cardEffect);
+                SetupCardVisual cardUI = Instantiate(_setupCardVisual, _contentTransform);
+                cardUI.VisualSetup(cardEffect.CardSO);
+                cardUI.transform.localScale = Vector3.one * 0.9f;
                 _appliedCardDict.Add(cardEffect.GetType(), cardUI);
             }
         }
@@ -81,15 +79,18 @@ namespace Hashira.CanvasUI
             if (_playerEffectManager != null) _playerEffectManager.EffectAddedEvent -= HandleEffectAddedEvent;
             foreach (var card in _appliedCardDict.Values)
             {
-                card?.Push();
+                if (card != null)
+                {
+                    Destroy(card.gameObject);
+                }
             }
             _appliedCardDict.Clear();
         }
 
         private void OnDestroy()
         {
-            Close();
             _canvasGroup.DOKill();
+            Close();
         }
     }
 }

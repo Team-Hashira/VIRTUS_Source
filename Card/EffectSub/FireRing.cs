@@ -90,12 +90,16 @@ namespace Hashira
                 _ringParticle.Stop();
                 if (_visual.enabled)
                 {
-                    foreach (Enemy enemy in StageGenerator.Instance.GetCurrentStage().GetEnabledEnemies())
+                    Enemy[] enemies = StageGenerator.Instance.GetCurrentStage().GetEnabledEnemies();
+                    if (enemies != null)
                     {
-                        if (enemy.TryGetEntityComponent(out EntityHealth health))
+                        foreach (Enemy enemy in enemies)
                         {
-                            AttackInfo attackInfo = new AttackInfo(_burstDamage, Vector2.zero, EAttackType.Fire);
-                            health.ApplyDamage(attackInfo);
+                            if (enemy.TryGetEntityComponent(out EntityHealth health))
+                            {
+                                AttackInfo attackInfo = new AttackInfo(_burstDamage, Vector2.zero, EAttackType.Fire);
+                                health.ApplyDamage(attackInfo);
+                            }
                         }
                     }
                     _endBurstParticle.Play();

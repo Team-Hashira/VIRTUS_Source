@@ -20,6 +20,12 @@ namespace Hashira.Bosses.States
 
         public override void OnEnter()
         {
+            if (_boss.CurrentBossPattern.CanStart() == false)
+            {
+                _entityStateMachine.ChangeState("Idle");
+                return;
+            }
+            
             _stringBuilder.Clear();
             // ex) "GiantGoblin" + "DashPattern"<---필요한 건 뒤쪽 부분
             _stringBuilder.Append(_boss.CurrentBossPattern.GetType().Name);
@@ -28,7 +34,7 @@ namespace Hashira.Bosses.States
 
             _entityAnimator?.ClearAnimationTriggerDictionary();
             _entityAnimator?.SetParam(_currentPatternHash, true);
-            Debug.Log(_boss.CurrentBossPattern.GetType().Name);
+            Debug.Log(_stringBuilder.ToString() + "Start");
             _boss.CurrentBossPattern?.OnStart();
         }
 
@@ -36,7 +42,7 @@ namespace Hashira.Bosses.States
         {
             _boss.CurrentBossPattern?.OnEnd();
             Debug.Log(_stringBuilder.ToString() + "Exit");
-            _entityAnimator?.SetParam(_currentPatternHash, false);
+            _entityAnimator?.SetParam(_currentPatternHash, false);    
         }
 
         public override void OnUpdate()

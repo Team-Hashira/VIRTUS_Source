@@ -29,7 +29,7 @@ namespace Hashira.CanvasUI
 
             List<CardSO> cardList
                 = PlayerDataManager.Instance.CardEffectList.Select(cardEffect => cardEffect.CardSO).ToList();
-            _cardSpreader.CreateCard(cardList, true);
+            _cardSpreader.CreateCard(cardList, false);
             _setupCardVisualList = _cardSpreader.GetCardList();
             _lastRandomIndex = _setupCardVisualList.Count;
 
@@ -37,7 +37,7 @@ namespace Hashira.CanvasUI
             _nextFloorBtn.OnClickEvent += HandleNextFloorEvent;
 
             int floor = StageGenerator.currentFloorIdx;
-            _floorText.text = $"{floor - 1}  >>  {floor}";
+            _floorText.text = $"{floor + 1}  >>  {floor + 2}";
         }
 
         public void UpdateCardSendCostText(int cost)

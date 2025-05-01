@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
+    [System.Serializable]
     public class GiantGoblinAttackPattern : BossPattern
     {
         [SerializeField] private float _attackDelay = 0.1f;

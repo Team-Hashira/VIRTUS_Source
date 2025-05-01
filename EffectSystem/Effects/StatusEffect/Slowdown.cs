@@ -1,4 +1,6 @@
 using Hashira.Core.StatSystem;
+using Hashira.Entities;
+using System;
 using UnityEngine;
 
 namespace Hashira.EffectSystem.Effects
@@ -7,6 +9,7 @@ namespace Hashira.EffectSystem.Effects
     {
         public float Duration { get; private set; }
         public float LifeTime { get; set; }
+        public Action<Effect> OnTimeOutEvent { get; set; }
 
         private StatModifier _slowStatModifier;
         private static int _ID;
@@ -28,7 +31,7 @@ namespace Hashira.EffectSystem.Effects
         public override void Disable()
         {
             base.Disable();
-            entityStat.StatDictionary[StatName.Speed].RemoveModify($"{name}_{_id}", EModifyLayer.Default);
+            entityStat.StatDictionary[StatName.Speed].RemoveModifyOverlap($"{name}_{_id}", EModifyLayer.Default);
         }
 
         public void OnTimeOut()

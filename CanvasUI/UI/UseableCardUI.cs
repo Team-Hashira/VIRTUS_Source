@@ -1,4 +1,3 @@
-using Crogen.CrogenPooling;
 using DG.Tweening;
 using Hashira.Cards;
 using Hashira.Cards.Effects;
@@ -12,15 +11,16 @@ namespace Hashira.CanvasUI
         private readonly static int _GlitchValueHash = Shader.PropertyToID("_Value");
 
         private UseableCardDrawer _useableCardDrawer;
-        private Image _cardImage;
         private CanvasGroup _canvasGroup;
 
         [Header("=====UseableCardUI setting=====")]
+        [SerializeField] private Image _lockImage;
         [SerializeField] private InputReaderSO _inputReader;
-        [SerializeField] private CustomButton _useButton, _cancelButton;
-        [field: SerializeField] public ChildrenMaterialController ChildrenMaterialController { get; private set; }
         [SerializeField] private float _useDistance = 14;
+        [SerializeField] private Image _lockIcon;
         private float _useDistanceSqr;
+
+        public int Index { get; private set; }
 
         private bool _isSelected;
         private bool _isFixationCard;
@@ -32,13 +32,9 @@ namespace Hashira.CanvasUI
 
         private void Awake()
         {
-            _cardImage = GetComponent<Image>();
             _canvasGroup = GetComponent<CanvasGroup>();
             _useDistanceSqr = _useDistance * _useDistance;
 
-            _useButton.OnClickEvent += CardUse;
-            _cancelButton.OnClickEvent += () => ActiveSelectMode(false);
-            ActiveSelectMode(false, false);
 
             transform.localScale = Vector3.one;
             _canvasGroup.alpha = 1;
@@ -47,23 +43,20 @@ namespace Hashira.CanvasUI
             Vector2 anchor = new Vector2(0.5f, 0.5f);
             RectTransform.anchorMin = anchor;
             RectTransform.anchorMax = anchor;
+
+            ActiveLockIcon(false);
+            _targetScale = Vector3.one;
         }
 
-        private void ActiveSelectMode(bool active, bool setCardDrawer = true)
+        public void ActiveLockIcon(bool active)
         {
-            _isSelected = active;
-            _useButton.gameObject.SetActive(active);
-            _cancelButton.gameObject.SetActive(active);
-            if (active)
-            {
-                _targetScale = Vector3.one * 1.6f;
-                if (setCardDrawer) _useableCardDrawer.CardSelect(this);
-            }
-            else
-            {
-                _targetScale = Vector3.one;
-                if (setCardDrawer) _useableCardDrawer.CardSelectCancel(this);
-            }
+            _lockIcon.gameObject.SetActive(active);
+        }
+
+        public void ShakeLockIcon()
+        {
+            _lockIcon.transform.DOKill();
+            _lockIcon.transform.DOShakePosition(0.25f, 12f, 20).SetEase(Ease.OutCubic);
         }
 
         private void LockToggle()
@@ -116,16 +109,16 @@ namespace Hashira.CanvasUI
             RectTransform.anchoredPosition = Vector3.Lerp(RectTransform.anchoredPosition, new Vector2(0, 100), Time.deltaTime * 10);
         }
 
-        public void SetCard(UseableCardDrawer useableCardDrawer)
+        public void SetCard(UseableCardDrawer useableCardDrawer, int index)
         {
+            Index = index;
             _useableCardDrawer = useableCardDrawer;
-            _needCost = CardSO.needCost + PlayerDataManager.Instance.GetAdditionalNeedCost(CardSO);
+            _needCost = PlayerDataManager.Instance.GetCardNeedCost(CardSO);
             SetFixationCard(false);
         }
 
-        private void CardUse()
+        public void CardUse()
         {
-            ActiveSelectMode(false, false);
             if (Cost.TryRemoveCost(_needCost))
             {
                 PlayerDataManager.Instance.AddEffect(CardSO.GetEffectInstance<CardEffect>());
@@ -134,7 +127,7 @@ namespace Hashira.CanvasUI
                 _useableCardDrawer.CardDraw();
                 if (_useSeq != null && _useSeq.IsActive()) _useSeq.Kill();
                 _useSeq = DOTween.Sequence();
-                _useSeq.Append(DOTween.To(() => 0f, value => ChildrenMaterialController.SetValue(_GlitchValueHash, value), 1f, 0.05f).SetEase(Ease.OutQuad));
+                _useSeq.Append(DOTween.To(() => 0f, value => MaterialController.SetValue(_GlitchValueHash, value), 1f, 0.05f).SetEase(Ease.OutQuad));
                 _useSeq.Append(DOTween.To(() => 1f, value => _canvasGroup.alpha = value, 0f, 0.05f).SetEase(Ease.InSine));
                 _useSeq.AppendCallback(() => Destroy(gameObject));
             }
@@ -144,6 +137,12 @@ namespace Hashira.CanvasUI
                 _useableCardDrawer.CardSelectCancel(this);
                 transform.SetParent(_useableCardDrawer.transform);
             }
+        }
+
+        public void ActiveSelectMode(bool active)
+        {
+            _targetScale = active ? Vector3.one * 1.6f : Vector3.one;
+            _isSelected = active;
         }
 
         public void OnClick(bool isLeft)
@@ -159,6 +158,7 @@ namespace Hashira.CanvasUI
 
             if (isLeft)
             {
+                _useableCardDrawer.CardSelect(this);
                 ActiveSelectMode(true);
             }
         }
@@ -170,7 +170,7 @@ namespace Hashira.CanvasUI
                 _targetScale = Vector3.one;
             }
             _isFixationCard = isOn;
-            _cardImage.color = isOn ? Color.gray : Color.white;
+            _lockImage.color = new Color(0, 0, 0, isOn ? 0.5f : 0f);
         }
 
         public void OnClickEnd(bool isLeft)
@@ -182,6 +182,12 @@ namespace Hashira.CanvasUI
             if (_isFixationCard) return;
             if (_isSelected) return;
 
+            if (_useableCardDrawer.IsLockMode)
+            {
+                ShakeLockIcon();
+                ActiveLockIcon(true);
+            }
+
             _targetScale = Vector3.one * 1.1f;
         }
 
@@ -190,18 +196,21 @@ namespace Hashira.CanvasUI
             if (_isFixationCard) return;
             if (_isSelected) return;
 
+            if (_useableCardDrawer.IsLockMode)
+                ActiveLockIcon(false);
+
             _targetScale = Vector3.one;
         }
 
         private void HandleEffectAddedEvent(CardEffect effect)
         {
             VisualSetup(CardSO);
-            _needCost = CardSO.needCost + PlayerDataManager.Instance.GetAdditionalNeedCost(CardSO);
+            _needCost = PlayerDataManager.Instance.GetCardNeedCost(CardSO);
         }
 
         private void OnDestroy()
         {
-            PlayerDataManager.Instance.EffectAddedEvent -= HandleEffectAddedEvent;
+            if (PlayerDataManager.Instance != null) PlayerDataManager.Instance.EffectAddedEvent -= HandleEffectAddedEvent;
         }
     }
 }

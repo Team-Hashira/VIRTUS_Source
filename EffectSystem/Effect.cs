@@ -1,4 +1,5 @@
 using Hashira.Entities;
+using System;
 
 namespace Hashira.EffectSystem
 {

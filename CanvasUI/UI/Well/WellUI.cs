@@ -76,7 +76,7 @@ namespace Hashira.CanvasUI.Wells
             if (effectList.Count != 0)
             {
                 _cardScrollView.ActiveGrid(true);
-                _cardScrollView.CreateCard(effectList.Select(cardEffect => cardEffect.CardSO).ToList(), true, true);
+                _cardScrollView.CreateCard(effectList.Select(cardEffect => cardEffect.CardSO).ToList(), true);
                 StartCoroutine(CreateCardCoroutine());
             }
 

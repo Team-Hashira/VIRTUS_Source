@@ -14,7 +14,9 @@ namespace Hashira
             {
                 { ECardType.Bullet, new Color(212/255f,25/255f,60/255f) },
                 { ECardType.Magic, new Color(233/255f,126/255f,22/255f) },
-                { ECardType.Stat, new Color(70/255f,25/255f,212/255f) }
+                { ECardType.Stat, new Color(70/255f,25/255f,212/255f) },
+                { ECardType.SubAttack, new Color(35/255f,191/255f,196/255f) },
+                { ECardType.Spawn, new Color(0/255f,103/255f,42/255f) }
             };
         }
 

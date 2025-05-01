@@ -13,7 +13,7 @@ namespace Hashira.MainScreen
         private static Material _mainScreenMat;
         private static Transform _levelTransform;
         private static Transform _transform;
-        private static Stage _currentStage;
+        private static Stage CurrentStage => StageGenerator.Instance.GetCurrentStage();
         private static MainScreenEffect _mainScreenEffect;
 
         public static Transform GetLevelTransform() => _levelTransform;
@@ -22,10 +22,10 @@ namespace Hashira.MainScreen
         private static Vector3 _originScale;
         private static Vector2 _originPos;
         private static Vector2 _scaleMulipler = Vector2.one;
-        private static Vector2 _movableAreaMin => Camera.main.ViewportToWorldPoint(Vector2.zero) + (Vector3)(_currentStage.Scale * _scaleMulipler) - (Vector3)_currentStage.Center;
-        private static Vector2 _movabletAreaMax => Camera.main.ViewportToWorldPoint(Vector2.one) - (Vector3)(_currentStage.Scale * _scaleMulipler) - (Vector3)_currentStage.Center;
-        public static Vector2 worldScreenPositionMin => _currentStage.Center - _currentStage.Scale;
-        public static Vector2 worldScreenPositionMax => _currentStage.Center + _currentStage.Scale;
+        private static Vector2 _movableAreaMin => Camera.main.ViewportToWorldPoint(Vector2.zero) + (Vector3)(CurrentStage.Scale * _scaleMulipler) - (Vector3)CurrentStage.Center;
+        private static Vector2 _movabletAreaMax => Camera.main.ViewportToWorldPoint(Vector2.one) - (Vector3)(CurrentStage.Scale * _scaleMulipler) - (Vector3)CurrentStage.Center;
+        public static Vector2 worldScreenPositionMin => CurrentStage.Center - CurrentStage.Scale;
+        public static Vector2 worldScreenPositionMax => CurrentStage.Center + CurrentStage.Scale;
 
         private static readonly int _playerPos = Shader.PropertyToID("_PlayerPos");
 
@@ -60,7 +60,6 @@ namespace Hashira.MainScreen
 
         private void Start()
         {
-            _currentStage = StageGenerator.Instance.GetCurrentStage();
             _originScale = _transform.localScale;
 
             _mainScreenMat.SetFloat(_glitch_ValueID, 1f);
@@ -84,11 +83,12 @@ namespace Hashira.MainScreen
 
         public static Vector3 OriginPositionConvert(Vector3 position)
         {
-            Vector3 offsetPos = position - _transform.position + (Vector3)_currentStage.Center;
+            if (_transform == null) return Vector3.zero;
+            Vector3 offsetPos = position - _transform.position + (Vector3)CurrentStage.Center;
             Vector3 rotatedPos = Quaternion.Inverse(_transform.rotation) * offsetPos;
             Vector3 scaledPosx= new Vector3(
-                rotatedPos.x / (_transform.localScale.x / _currentStage.ScreenCamera.orthographicSize),
-                rotatedPos.y / (_transform.localScale.y / _currentStage.ScreenCamera.orthographicSize));
+                rotatedPos.x / (_transform.localScale.x / CurrentStage.ScreenCamera.orthographicSize),
+                rotatedPos.y / (_transform.localScale.y / CurrentStage.ScreenCamera.orthographicSize));
 
             return scaledPosx;
         }
@@ -219,7 +219,7 @@ namespace Hashira.MainScreen
 
             if (Mathf.Approximately(direction.sqrMagnitude, 0f) == false)
             {
-                direction = direction.normalized * float.MaxValue;
+                direction *= float.MaxValue;
                 Vector2 curViewportPos = Camera.main.WorldToViewportPoint(_transform.position);
                 finalViewport = new Vector2(
                     Mathf.Clamp01(curViewportPos.x + direction.x),
@@ -262,12 +262,26 @@ namespace Hashira.MainScreen
         public static void OnReverseX()
         {
             _reverseXTween?.Kill();
-            _reverseXTween = _transform.DOScaleX(_transform.localScale.x * -1, 0.25f);
+            _reverseXTween = _transform.DOScaleX(_transform.localScale.x * -1, 0.25f).OnKill(() =>
+            {
+                _transform.localScale = new Vector3(
+                    Mathf.Sign(_transform.localScale.x) * _originScale.x, 
+                    _transform.localScale.y, 
+                    _transform.localScale.z
+                );
+            });
         }
         public static void OnReverseY()
         {
             _reverseYTween?.Kill();
-            _reverseYTween = _transform.DOScaleY(_transform.localScale.y * -1, 0.25f);
+            _reverseYTween = _transform.DOScaleY(_transform.localScale.y * -1, 0.25f).OnKill(() =>
+            {
+                _transform.localScale = new Vector3(
+                    _transform.localScale.x, 
+                    Mathf.Sign(_transform.localScale.y) * _originScale.y,
+                    _transform.localScale.z
+                );
+            });
         }
 
         public static void OnGlitch(float value)

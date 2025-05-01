@@ -1,18 +1,24 @@
+using Crogen.CrogenPooling;
 using DG.Tweening;
 using Hashira.Entities.Components;
-using System;
+using Hashira.LightingControl;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
+    [System.Serializable]
     public class GiantGolemHorribleShriekPattern : GiantGolemPattern
     {
+        [SerializeField] private EffectPoolType _waveEffectPoolType;
+        [SerializeField] private float _waveEffectDelay = 0.1f;
+        private float _waveEffectTimer = 0;
         [SerializeField] private float _playerPushStrength = 5;
         private bool IsKnockback { get; set; }
         public float knockbackTime = 0.2f;
         private float _currentknockbackTime = 0;
         private Vector2 _knockbackDirection;
-        
+
         public override void OnStart()
         {
             base.OnStart();
@@ -27,12 +33,16 @@ namespace Hashira.Bosses.Patterns
                     break;
                 case EAnimationTriggerType.Trigger:
                 {
+                    SoundManager.Instance.PlaySFX("GiantGolemStamp", Transform.position, 1);
+                    SoundManager.Instance.PlaySFX("GiantGolemScream", Transform.position, 1);
                     Vector2 dir = (Player.transform.position - Transform.position).normalized;
                     Player.Mover.StopImmediately();
                     Player.Mover.isManualMove = false;
                     _knockbackDirection = dir.normalized * _playerPushStrength;
                     IsKnockback = true;
+                    _waveEffectTimer = Time.time;
                     CameraManager.Instance.ShakeCamera(100, 100, knockbackTime + 1, Ease.OutBack);
+                    LightingController.Aberration(1f, 0.3f);
                 }
                 break;
                 case EAnimationTriggerType.End:
@@ -48,6 +58,12 @@ namespace Hashira.Bosses.Patterns
             base.OnUpdate();
             if (IsKnockback)
             {
+                if (_waveEffectTimer + _waveEffectDelay < Time.time)
+                {
+                    GameObject.Pop(_waveEffectPoolType, Transform.position, quaternion.identity);
+                    _waveEffectTimer = Time.time;
+                }
+                
                 Player.Mover.SetMovement(_knockbackDirection, true);
 
                 _currentknockbackTime += Time.deltaTime;
@@ -65,6 +81,15 @@ namespace Hashira.Bosses.Patterns
         {
             EntityAnimator.OnAnimationTriggeredEvent -= OnAnimationTriggeredHandle;
             base.OnEnd();
+        }
+
+        public override void OnDie()
+        {
+            _currentknockbackTime = 0;
+            IsKnockback = false;
+            Player.Mover.isManualMove = true;
+            Player.Mover.StopImmediately();
+            base.OnDie();
         }
     }
 }

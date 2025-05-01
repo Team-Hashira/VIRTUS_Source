@@ -15,11 +15,10 @@ namespace Hashira
         {
             _toggleDomain = Hashira.CanvasUI.UIManager.Instance.GetDomain<ToggleDomain>();
             _inputReader.PlayerActive(false);
-            if (CardManager.Instance.HasAllCard)
-                StartCardUse();
-            else
-                StartCardSelect();
+            StartCardUse();
 
+            if (PlayerDataManager.Instance.Health > PlayerDataManager.Instance.MaxHealth)
+                PlayerDataManager.Instance.SetHealth(PlayerDataManager.Instance.MaxHealth, PlayerDataManager.Instance.MaxHealth);
         }
 
         public void StartCardUse()
@@ -27,10 +26,10 @@ namespace Hashira
             _toggleDomain.OpenUI("CardUsingUI");
             _toggleDomain.OpenUI("AppliedCardPanel");
         }
-        public void StartCardSelect()
-        {
-            _toggleDomain.OpenUI("RewardCardPanel");
-        }
+        //public void StartCardSelect()
+        //{
+        //    _toggleDomain.OpenUI("RewardCardPanel");
+        //}
 
         public void StartStage()
         {

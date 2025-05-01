@@ -13,12 +13,9 @@ namespace Hashira.Cards.Effects
 {
     public class TaserGunCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 2 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
-        private int _currentShootCount = 0;
-        private int _needShootCount = 9;
-        private int _damage = 50;
+        [SerializeField] private int _currentShootCount = 0;
+        [SerializeField] private int _needShootCount = 9;
+        [SerializeField] private int _damage = 50;
 
         private List<Projectile> _projectileList;
 

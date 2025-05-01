@@ -1,16 +1,17 @@
+using Hashira.Bosses.BillboardClasses;
 using Hashira.Core;
 using Hashira.Entities;
 using Hashira.Entities.Components;
 using Hashira.Players;
+using Hashira.StageSystem;
 using System;
 using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
-    [Serializable]
     public class BossPattern
     {
-        [Range(1, 10)] public int phase = 1;
+        public Vector2Int phase = new Vector2Int(-1, -1);
 
         protected Boss Boss { get; private set; }
         protected Player Player { get; private set; }
@@ -22,8 +23,11 @@ namespace Hashira.Bosses.Patterns
         protected Rigidbody2D Rigidbody { get; private set; }
         protected Transform Transform { get; private set; }
         protected GameObject GameObject { get; private set; }
-
-        public virtual void Init(Boss boss)
+        protected Stage CurrentStage => StageGenerator.Instance.GetCurrentStage();
+        
+        public T BillboardValue<T>(string valueName) where T : BillboardValue => Boss.BillboardValue<T>(valueName);
+        
+        public virtual void Initialize(Boss boss)
         {
             this.Boss = boss;
             Player = PlayerManager.Instance.Player;
@@ -37,7 +41,7 @@ namespace Hashira.Bosses.Patterns
             GameObject = boss.gameObject;
         }
 
-        protected void EndPattern()
+        public void EndPattern()    
         {
             StateMachine.ChangeState("Idle");
         }
@@ -48,13 +52,13 @@ namespace Hashira.Bosses.Patterns
             Boss.SetCurrentBossPattern(nextPattern);
         }
 
-        public void OnGroggy(float groggyDuration)
-        {
-            Boss.CurrentMaxGroggyTime = groggyDuration;
-            Mover.StopImmediately();
-            StateMachine.ChangeState("Groggy");
-        }
+        public void Groggy(float groggyDuration) => Boss.OnGroggy(groggyDuration);
 
+        public virtual bool CanStart()
+        {
+            return true;
+        }
+        
         public virtual void OnStart()
         {
             Boss.OnPatternStartEvent?.Invoke();    
@@ -65,5 +69,7 @@ namespace Hashira.Bosses.Patterns
         }
         public virtual void OnUpdate() { }
         public virtual void OnDrawGizmos(Transform transform) { }
+        
+        public virtual void OnDie() {}
     }
 }

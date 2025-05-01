@@ -8,9 +8,6 @@ namespace Hashira.Cards.Effects
 {
     public class MagicStoneCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
         private StatDictionary _statDictionary;
         private StatElement _attackPowerStat;
         private StatElement _attackSpeedStat;
@@ -51,8 +48,8 @@ namespace Hashira.Cards.Effects
         public override void Disable()
         {
             GameEventChannel.RemoveListener<ProjectileAfterHitEvent>(HandleHitEvent);
-            _attackPowerStat.RemoveModify("MagicStoneCard", EModifyLayer.Default);
-            _attackSpeedStat.RemoveModify("MagicStoneCard", EModifyLayer.Default);
+            _attackPowerStat.RemoveModifyOverlap("MagicStoneCard", EModifyLayer.Default);
+            _attackSpeedStat.RemoveModifyOverlap("MagicStoneCard", EModifyLayer.Default);
             foreach (CardEffect cardEffect in PlayerDataManager.Instance.CardEffectList)
             {
                 if (cardEffect is MagicCardEffect magicCardEffect)

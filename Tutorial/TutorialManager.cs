@@ -1,5 +1,6 @@
 using Crogen.AttributeExtension;
 using Crogen.CrogenPooling;
+using Hashira.StageSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace Hashira.Tutorials
     public class TutorialManager : MonoBehaviour
     {
         [SerializeField]
+        private Stage _tutorialStage;
+        [SerializeField]
         private Transform _canvasTrm;
 
         private List<TutorialStep> _stepList;
@@ -18,20 +21,17 @@ namespace Hashira.Tutorials
         [SerializeField]
         private List<TutorialStep> _currentStepList;
         private int _currentStepIndex = 0;
-
         private int _lastIndex = 0;
 
         private Dictionary<string, TutorialPanel> _tutorialPanelDict;
 
-
         [Header("=====DEBUG=====")]
         [SerializeField]
         private TutorialStep _startStep;
-        [SerializeField]
-        private int _startIndex;
 
         private void Awake()
         {
+            StageGenerator.Instance.SetCurrentStage(_tutorialStage);
             _stepList = new List<TutorialStep>();
             _currentStepList = new List<TutorialStep>();
 
@@ -45,9 +45,7 @@ namespace Hashira.Tutorials
                 step.Initialize(this);
                 step.gameObject.SetActive(false);
             });
-            _startIndex = _stepList.IndexOf(_startStep);
-            _currentStepIndex = _startIndex;
-            _lastIndex = _currentStepIndex;
+            _lastIndex = _stepList.IndexOf(_startStep);
         }
 
         private void Start()

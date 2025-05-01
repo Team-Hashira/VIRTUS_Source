@@ -8,6 +8,7 @@ namespace Hashira.EffectSystem
         public float Duration { get; }
         public float LifeTime { get; set; }
 
+        public Action<Effect> OnTimeOutEvent { get; set; }
         public void OnTimeOut();
     }
 }

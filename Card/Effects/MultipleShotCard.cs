@@ -1,18 +1,11 @@
 using Hashira.Core.EventSystem;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Hashira.Cards.Effects
 {
     public class MultipleShotCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
-        public float Duration { get; set; } = 5;
-        public float Time { get; set; }
-
         private int _shootCount;
         private int _needShootCount = 4;
 

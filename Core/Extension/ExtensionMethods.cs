@@ -1,4 +1,6 @@
+using Hashira.Combat;
 using Hashira.Core;
+using Hashira.Entities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -100,5 +102,15 @@ public static class ExtensionMethods
     private static Coroutine StartCoroutine(IEnumerator coroutine)
     {
         return GameManager.Instance.StartCoroutine(coroutine);
+    }
+
+    public static AttackInfo MakeAttackInfo(this IAttackable attacker, int damage = 1, EAttackType type = EAttackType.Default, Vector2 knockback = default)
+    {
+        AttackInfo info = new AttackInfo();
+        info.attacker = attacker;
+        info.damage = damage;
+        info.attackType = type;
+        info.knockback = knockback;
+        return info;
     }
 }

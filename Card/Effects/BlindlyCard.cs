@@ -6,9 +6,6 @@ namespace Hashira.Cards.Effects
 {
     public class BlindlyCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
         private StatDictionary _statDictionary;
         private StatElement _attackPowerStat;
         private StatElement _attackSpeedStat;
@@ -24,8 +21,8 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
-            _attackPowerStat.RemoveModify("BlindlyCard", EModifyLayer.Last);
-            _attackSpeedStat.RemoveModify("BlindlyCard", EModifyLayer.Default);
+            _attackPowerStat.RemoveModifyOverlap("BlindlyCard", EModifyLayer.Last);
+            _attackSpeedStat.RemoveModifyOverlap("BlindlyCard", EModifyLayer.Default);
         }
 
         public override void Update()

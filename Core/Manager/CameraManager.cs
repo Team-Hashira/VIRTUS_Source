@@ -7,7 +7,7 @@ public class CameraManager : MonoSingleton<CameraManager>
 {
     [SerializeField] private AYellowpaper.SerializedCollections.SerializedDictionary<string, CinemachineCamera> _cameraDictionary = new AYellowpaper.SerializedCollections.SerializedDictionary<string, CinemachineCamera>();
 
-    private Sequence _shakeSequence;
+    private DG.Tweening.Sequence _shakeSequence;
     
     private CinemachineVirtualCameraBase _currentCamera;
     public CinemachineVirtualCameraBase CurrentCamera

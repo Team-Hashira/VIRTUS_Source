@@ -37,14 +37,14 @@ namespace Hashira.CanvasUI
             return _setupCardVisualList;
         }
 
-        public void CreateCard(List<CardSO> cardList, bool isCurrent = false, bool isExceptMaxStack = false)
+        public void CreateCard(List<CardSO> cardList, bool isExceptMaxStack = false)
         {
             foreach (CardSO cardSO in cardList)
             {
                 if (isExceptMaxStack && PlayerDataManager.Instance.IsMaxStackEffect(cardSO))
                     continue;
                 SetupCardVisual setupCardVisual = Instantiate(_setupCardVisual, _cardContent);
-                setupCardVisual.VisualSetup(cardSO, isCurrent);
+                setupCardVisual.VisualSetup(cardSO);
                 setupCardVisual.transform.position = transform.position;
                 _setupCardVisualList.Add(setupCardVisual);
             }

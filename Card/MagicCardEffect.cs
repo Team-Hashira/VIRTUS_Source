@@ -5,8 +5,6 @@ namespace Hashira.Cards.Effects
 {
     public class MagicCardEffect : CardEffect
     {
-        protected override int[] _NeedCostByStack { get; }
-
         protected float _delayMultiplier = 1f;
 
         protected virtual float DelayTime { get; }

@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
+    [System.Serializable]
     public class GiantGoblinJumpPattern : BossPattern
     {
         [SerializeField] private float _jumpPower = 2f;

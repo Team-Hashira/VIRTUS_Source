@@ -7,11 +7,9 @@ namespace Hashira.Cards.Effects
     public abstract class CardEffect : ItemEffect
     {
         public CardSO CardSO { get; private set; }
-        public int stack;
+        [HideInInspector] public int stack;
 
-        protected abstract int[] _NeedCostByStack { get; }
-
-        public Player player;
+        [HideInInspector] public Player player;
 
         public bool IsMaxStack => stack == CardSO.maxOverlapCount;
 
@@ -20,19 +18,6 @@ namespace Hashira.Cards.Effects
             base.Initialize(itemSO);
             CardSO = itemSO as CardSO;
             stack = 0;
-        }
-
-        public int GetAdditionalNeedCost()
-        {
-            int needCost = 0;
-            for (int i = 0; i < stack; i++)
-            {
-                if (i < _NeedCostByStack.Length)
-                    needCost += _NeedCostByStack[i];
-                else
-                    needCost += _NeedCostByStack[^1];
-            }
-            return needCost;
         }
 
         public virtual string GetCardDescription()

@@ -1,3 +1,4 @@
+using Hashira.Combat;
 using Hashira.Entities;
 using System;
 using UnityEngine;
@@ -8,13 +9,12 @@ namespace Hashira.Core.DamageHandler
     {
         public event Action OnHandlerCalledEvent;
 
-        public override EDamageHandlerStatus Calculate(int damage, EAttackType attackType, out int calculatedDamage)
+        public override EDamageHandlerStatus Calculate(ref AttackInfo attackInfo)
         {
-            calculatedDamage = damage;
-            int sub = _owner.GetEntityComponent<EntityHealth>().Health - damage;
+            int sub = _owner.GetEntityComponent<EntityHealth>().Health - attackInfo.damage;
             if (sub <= 0)
             {
-                calculatedDamage += sub - 1;
+                attackInfo.damage += sub - 1;
                 OnHandlerCalledEvent?.Invoke();
                 return EDamageHandlerStatus.Stop;
             }

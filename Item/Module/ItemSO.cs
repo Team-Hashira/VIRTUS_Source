@@ -39,10 +39,11 @@ namespace Hashira.Items
                 }
                 catch (Exception ex)
                 {
+                    _effectInstance = null;
                     Debug.LogError($"ItemSO의 className이 유효하지 않지롱 : {ex.Message}");
                 }
             }
-            if (_effectInstance == null)
+            if (_effectInstance == null && _classType != null)
                 CreateInstance();
 
         }

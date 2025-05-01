@@ -5,6 +5,7 @@ using Hashira.Entities;
 using Hashira.MainScreen;
 using Hashira.Players;
 using Hashira.StageSystem;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Hashira.Core
@@ -19,17 +20,13 @@ namespace Hashira.Core
 
         private Sequence _gameOverSeq;
         public bool IsGameOver { get; private set; }
-        
-        private void Awake()
-        {
-            _stageGenerator.GenerateStage();
-            IsGameOver = false;
-        }
 
         private void Start()
         {
+            _stageGenerator.GenerateStage();
+            IsGameOver = false;
             _toggleDomain = Hashira.CanvasUI.UIManager.Instance.GetDomain<ToggleDomain>();
-            _playerMover = PlayerManager.Instance.Player.GetEntityComponent<EntityMover>(true);
+            _playerMover = PlayerManager.Instance.Player.GetEntityComponent<PlayerMover>();
         }
 
         public void ClearStage()
@@ -45,13 +42,14 @@ namespace Hashira.Core
         {
             if (IsGameOver) return;
 
-
             IsGameOver = true;
             _gameOverSeq = DOTween.Sequence();
             _gameOverSeq
                 .AppendCallback(() =>
                 {
                     MainScreenEffect.OnGlitch(1, 1.25f);
+                    PlayerDataManager.Instance.CardDisable();
+                    PlayerManager.Instance.SetCardEffectList(PlayerDataManager.Instance.CardEffectList, false);
                     _inputReader.PlayerActive(false);
                 })
                 .AppendInterval(1f)
@@ -63,7 +61,6 @@ namespace Hashira.Core
                 .AppendCallback(() =>
                 {
                     Destroy(StageGenerator.Instance.GetCurrentStage().gameObject);
-                    PlayerDataManager.Instance.ResetData();
                 })
                 .AppendInterval(0.25f)
                 .AppendCallback(() =>
@@ -71,9 +68,10 @@ namespace Hashira.Core
                     IToggleUI toggleUI = Hashira.CanvasUI.UIManager.Instance.GetDomain<ToggleDomain>().OpenUI("GameEndStatistics");
                     GameEndStatistics gameEndStatistics = toggleUI as GameEndStatistics;
                     gameEndStatistics.Init(StageGenerator.currentFloorIdx + 1, StageGenerator.currentStageIdx + 1, PlayerDataManager.Instance.KillCount, PlayerDataManager.Instance.BossKillCount, 
-                        PlayerDataManager.Instance.CardEffectList);
+                        CardManager.Instance.GetCardList());
 
-                    //Hashira.CanvasUI.UIManager.Instance.GetDomain<ToggleDomain>().CloseUI("GameDataUIPanel");
+                    PlayerDataManager.Instance.ResetData();
+                    PlayerDataManager.Instance.ResetPlayerCardEffect();
                 });
         }
     }

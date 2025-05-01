@@ -1,3 +1,6 @@
+using Hashira.Core;
+using Hashira.StageSystem;
+using System;
 using UnityEngine;
 
 namespace Hashira.Accessories
@@ -9,15 +12,40 @@ namespace Hashira.Accessories
 
         [Header("====DEBUG====")]
         [SerializeField]
-        private AccessorySO _accessory;
+        private AccessorySO _passiveAccessory;
         [SerializeField]
-        private EAccessoryType _type;
+        private AccessorySO _activeAccessory;
 
         private void Awake()
         {
-            Accessory.EquipAccessory(_type, _accessory);
+#if UNITY_EDITOR
+            if (_passiveAccessory != null)
+                Accessory.EquipAccessory(EAccessoryType.Passive, _passiveAccessory);
+            if (_activeAccessory != null)
+                Accessory.EquipAccessory(EAccessoryType.Active, _activeAccessory);
+#endif
 
             _inputReader.OnAccessoryActiveEvent += ActiveSkill;
+            StageGenerator.Instance.OnGeneratedStageEvent += HandleOnGeneratedStage;
+            StageGenerator.Instance.OnNextStageEvent += HandleOnNextStage;
+        }
+
+        private void HandleOnNextStage()
+        {
+            foreach (var accessory in Accessory.Accessories)
+            {
+                if (accessory != null && accessory.CurrentEffect is IInitializeOnNextStage nextStage)
+                    nextStage.OnNextStage();
+            }
+        }
+
+        private void HandleOnGeneratedStage()
+        {
+            foreach (var accessory in Accessory.Accessories)
+            {
+                if (accessory != null && accessory.CurrentEffect is IInitializeOnNextStage nextStage)
+                    nextStage.OnNextStage();
+            }
         }
 
         private void Update()
@@ -32,6 +60,11 @@ namespace Hashira.Accessories
 
         private void OnDestroy()
         {
+            if (StageGenerator.Instance != null)
+            {
+                StageGenerator.Instance.OnNextStageEvent -= HandleOnNextStage;
+                StageGenerator.Instance.OnGeneratedStageEvent -= HandleOnGeneratedStage;
+            }
             _inputReader.OnAccessoryActiveEvent -= ActiveSkill;
         }
     }

@@ -1,11 +1,13 @@
 using DG.Tweening;
 using Hashira.Accessories;
 using Hashira.Core;
+using Hashira.Core.EventSystem;
 using Hashira.Core.StatSystem;
 using Hashira.Entities;
 using Hashira.Entities.Components;
 using Hashira.LightingControl;
 using Hashira.MainScreen;
+using Hashira.StageSystem;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -20,6 +22,7 @@ namespace Hashira.Players
 
         public Attacker Attacker { get; private set; }
         public PlayerMover Mover { get; private set; }
+        public EntityHealth EntityHealth { get; private set; }
 
         protected EntityStateMachine _stateMachine;
         protected EntityRenderer _renderCompo;
@@ -30,6 +33,7 @@ namespace Hashira.Players
 
         [Header("=====Stamina setting=====")]
         [field: SerializeField] public int MaxStamina { get; private set; }
+        public int CurrentStamina => _currentStamina;
         [SerializeField] private float _staminaRecoveryDelay;
         private float _lastStaminaChangedTime;
         private int _currentStamina;
@@ -45,7 +49,6 @@ namespace Hashira.Players
         private bool _isRightMousePress;
         private bool _isChargingParrying;
 
-        private EntityHealth _entityHealth;
 
         [Header("=====Evasion Setting=====")]
         [SerializeField]
@@ -55,13 +58,13 @@ namespace Hashira.Players
         {
             base.Awake();
 
-            _entityHealth = GetEntityComponent<EntityHealth>();
+            EntityHealth = GetEntityComponent<EntityHealth>();
 
             int prevStageHealth = PlayerDataManager.Instance.Health;
-            if (prevStageHealth != -1) _entityHealth.SetHealth(prevStageHealth);
+            if (prevStageHealth != -1) EntityHealth.SetHealth(prevStageHealth);
 
-            _entityHealth.OnHitEvent += HandleOnHitEvent;
-            _entityHealth.OnDieEvent += HandleOnDieEvent;
+            EntityHealth.OnHitEvent += HandleOnHitEvent;
+            EntityHealth.OnDieEvent += HandleOnDieEvent;
             InputReader.OnDashEvent += HandleDashEvent;
             InputReader.OnInteractEvent += HandleInteractEvent;
 
@@ -74,18 +77,21 @@ namespace Hashira.Players
         {
             PlayerManager.Instance.SetCardEffectList(PlayerDataManager.Instance.CardEffectList, true);
             Accessory.ApplyAll(this);
-            _currentStamina = MaxStamina;
+            StageGenerator.Instance.OnGeneratedStageEvent += HandleStageChangedEvent;
+            HandleStageChangedEvent();
         }
 
-        private void OnDisable()
+        private void HandleStageChangedEvent()
         {
-            //if (TargetPointManager.Instance != null)
-            //    TargetPointManager.Instance.CloseTargetPoint(transform);
+            _currentStamina = MaxStamina;
         }
 
         #region Handles
         private void HandleOnHitEvent(int hp)
         {
+            var hitEvent = InGameEvents.PlayerHitEvent;
+            GameEventChannel.RaiseEvent(hitEvent);
+
             SoundManager.Instance.PlaySFX("PlayerHit", transform.position, 1f);
             CameraManager.Instance.ShakeCamera(5, 5, 0.3f);
             StartCoroutine(EvasionCoroutine());
@@ -105,17 +111,17 @@ namespace Hashira.Players
             while (percent < 1)
             {
                 percent += Time.deltaTime * 5f;
-                TimeController.SetTimeScale(percent);
+                TimeController.SetTimeScale(ETimeLayer.InGame, percent);
                 yield return null;
             }
-            TimeController.ResetTimeScale();
+            TimeController.ResetTimeScale(ETimeLayer.InGame);
         }
 
         private IEnumerator EvasionCoroutine()
         {
-            _entityHealth.ModifyEvasion(true);
+            EntityHealth.ModifyEvasion(true);
             yield return new WaitForSeconds(_evasionTime);
-            _entityHealth.ModifyEvasion(false);
+            EntityHealth.ModifyEvasion(false);
         }
 
         private void HandleInteractEvent(bool isDown)
@@ -192,30 +198,31 @@ namespace Hashira.Players
                 _lastRightClickTime + _chargingParryingStartDelay < Time.time)
             {
                 _isChargingParrying = true;
-                TimeController.SetTimeScale(_slowTimeScale);
+                TimeController.SetTimeScale(ETimeLayer.InGame, _slowTimeScale);
             }
             if (_isChargingParrying)
             {
                 //차징중...
             }
-            
+
             // 데미지업 디버그
-////#if UNITY_EDITOR
-//            if (Input.GetKeyDown(KeyCode.O))
-//            {
-//                _damageStat.AddModify("DebugDamageUp", 100, EModifyMode.Add, EModifyLayer.Default);
-//            }
-////#endif
+            //#if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.O))
+            {
+                _damageStat.AddModify("DebugDamageUp", 100, EModifyMode.Add, EModifyLayer.Default);
+            }
+            //#endif
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
 
-            _entityHealth.OnHitEvent -= HandleOnHitEvent;
-            _entityHealth.OnDieEvent -= HandleOnDieEvent;
+            EntityHealth.OnHitEvent -= HandleOnHitEvent;
+            EntityHealth.OnDieEvent -= HandleOnDieEvent;
             InputReader.OnDashEvent -= HandleDashEvent;
             InputReader.OnInteractEvent -= HandleInteractEvent;
+            if (StageGenerator.Instance) StageGenerator.Instance.OnGeneratedStageEvent -= HandleStageChangedEvent;
 
             //InputReader.OnReloadEvent -= _weaponGunHolderCompo.Reload; //재장전시 구현
             InputReader.OnAttackEvent -= HandleAttackEvent;

@@ -46,7 +46,7 @@ namespace Hashira.CanvasUI.Wells
                     {
                         // 성공
                         PlayerDataManager.Instance.AddEffect(_selecrableCard.CardSO.GetEffectInstance<CardEffect>());
-                        _selecrableCard.VisualSetup(_selecrableCard.CardSO, true);
+                        _selecrableCard.VisualSetup(_selecrableCard.CardSO);
                         _percent -= 10;
                         UpdatePercentText();
                     }
@@ -95,7 +95,7 @@ namespace Hashira.CanvasUI.Wells
         public void UpdateNeedCost()
         {
             CardSO cardSO = _selecrableCard.CardSO;
-            _upgradeCost = Mathf.CeilToInt(cardSO.needCost + PlayerDataManager.Instance.GetAdditionalNeedCost(cardSO) / 2);
+            _upgradeCost = Mathf.CeilToInt(PlayerDataManager.Instance.GetCardNeedCost(cardSO) / 2);
 
             if (PlayerDataManager.Instance.IsMaxStackEffect(_selecrableCard.CardSO) || _percentText.color == Color.red)
             {

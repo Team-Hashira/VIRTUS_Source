@@ -1,14 +1,12 @@
 using Hashira.Core.StatSystem;
 using Hashira.Entities;
+using UnityEngine;
 
 namespace Hashira.Cards.Effects
 {
     public class AttackDamageStatCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1, 1, 2 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
-        private readonly float[] _damageUpValue = { 20f, 35f, 50f, 100f };
+        [SerializeField] private readonly float[] _damageUpValue = { 20f, 35f, 50f, 100f };
 
         private StatElement _attackPowerStat;
 
@@ -20,7 +18,7 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
-            _attackPowerStat.RemoveModify("AttackPowerStatCard", EModifyLayer.Default);
+            _attackPowerStat.RemoveModifyOverlap("AttackPowerStatCard", EModifyLayer.Default);
         }
 
         public override void Update()

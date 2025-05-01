@@ -14,7 +14,7 @@ namespace Hashira.Bosses.States
         public override void OnEnter()
         {
             base.OnEnter();
-            
+            (_entity as Boss)?.CurrentBossPattern?.EndPattern();
             _entityAnimator.OnAnimationTriggeredEvent += OnAnimationTriggeredHandle;
         }
 
@@ -23,7 +23,6 @@ namespace Hashira.Bosses.States
             if (triggertype == EAnimationTriggerType.End)
             {
                 _entityAnimator.OnAnimationTriggeredEvent -= OnAnimationTriggeredHandle;
-                UnityEngine.Object.Destroy(_entity);
             }
         }
     }

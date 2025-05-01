@@ -15,7 +15,7 @@ namespace Hashira.Players
         public PlayerGroundState(Entity entity, StateSO stateSO) : base(entity, stateSO)
         {
             _player = entity as Player;
-			_playerMover = entity.GetEntityComponent<PlayerMover>(true);
+			_playerMover = entity.GetEntityComponent<PlayerMover>();
 			_entityRenderer = entity.GetEntityComponent<EntityRenderer>();
 		}
 
@@ -24,20 +24,11 @@ namespace Hashira.Players
             base.OnEnter();
 
             _player.InputReader.OnJumpEvent += HandleJumpEvent;
-            _player.InputReader.OnCrouchEvent += HandleCrouchEvent;
         }
 
         private void HandleDashEvent()
         {
             _entityStateMachine.ChangeState("Dash");
-        }
-
-        private void HandleCrouchEvent(bool isOn)
-        {
-            if (isOn)
-                _entityStateMachine.ChangeState("Crouch");
-            else
-                _entityStateMachine.ChangeState("Idle");
         }
 
         protected virtual void HandleJumpEvent()
@@ -62,7 +53,6 @@ namespace Hashira.Players
             base.OnExit();
 
             _player.InputReader.OnJumpEvent -= HandleJumpEvent;
-            _player.InputReader.OnCrouchEvent -= HandleCrouchEvent;
             _player.InputReader.OnDashEvent -= HandleDashEvent;
         }
     }

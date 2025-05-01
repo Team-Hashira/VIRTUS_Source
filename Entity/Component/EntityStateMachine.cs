@@ -1,16 +1,10 @@
-using Crogen.AttributeExtension;
-using Doryu.CustomAttributes;
 using Hashira.Core.AnimationSystem;
-using Hashira.Core.StatSystem;
-using Hashira.Entities;
 using Hashira.FSM;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.Serialization;
 
 namespace Hashira.Entities.Components
 {
@@ -65,6 +59,11 @@ namespace Hashira.Entities.Components
             ChangeState(StartState.stateName);
         }
 
+        private void OnDestroy()
+        {
+            CurrentState?.OnExit();
+        }
+        
         private void Update()
         {
             CurrentState.OnUpdate();

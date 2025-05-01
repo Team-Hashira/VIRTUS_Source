@@ -13,7 +13,7 @@ namespace Hashira.Bosses.Patterns.GiantGolem
         [SerializeField] private LayerMask _whatIsGround;
         [SerializeField] private Transform _visaulizer;
         public string OriginPoolType { get; set; }
-        public GameObject gameObject { get; set; }
+        GameObject IPoolingObject.gameObject { get; set; }
 
         private DamageCaster2D _damageCaster;
 

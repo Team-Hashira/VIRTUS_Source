@@ -67,9 +67,12 @@ namespace Hashira.Enemies.Bee.CommonBee
             _target = _entityStateMachine.GetShareVariable<Player>("Target");
 
             _direction = _target.transform.position - _entity.transform.position;
+
+            float mag = _direction.magnitude;
             _direction.Normalize();
 
-            _destination = (Vector2)_target.transform.position + _direction * 2f;
+            RaycastHit2D hitInfo = Physics2D.Raycast(_target.transform.position, _direction, mag, _bee.WhatIsWall);
+            _destination = _target.transform.position + (Vector3)(_direction * Mathf.Clamp(hitInfo.distance - 0.7f, 0.1f, float.MaxValue));
 
             _entityAnimator.OnAnimationTriggeredEvent += HandleOnAnimationTriggeredEvent;
 
@@ -98,15 +101,16 @@ namespace Hashira.Enemies.Bee.CommonBee
             base.OnUpdate();
             if (_isDashStarted)
             {
-                _bee.DamageCaster.CastDamage(_attackPowerElement.IntValue, false);
-            }
-            float distSqr = (_entity.transform.position - (Vector3)_destination).sqrMagnitude;
-            if (distSqr < _distanceThresholdSqr)
-            {
-                var stun = new Stun();
-                stun.Setup(1f);
-                _entityEffector.AddEffect(stun);
-                _isDashStarted = false;
+                _bee.DamageCaster.CastDamage(_bee.MakeAttackInfo(_attackPowerElement.IntValue), popupText: false);
+                Vector2 dir = (_entity.transform.position - (Vector3)_destination);
+                float distSqr = dir.sqrMagnitude;
+                if (distSqr < _distanceThresholdSqr)
+                {
+                    var stun = new Stun();
+                    stun.Setup(1f);
+                    _entityEffector.AddEffect(stun);
+                    _isDashStarted = false;
+                }
             }
         }
 

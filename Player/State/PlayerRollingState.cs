@@ -2,6 +2,7 @@ using Hashira.Core.StatSystem;
 using Hashira.Entities;
 using Hashira.Entities.Components;
 using Hashira.FSM;
+using System.Collections;
 using UnityEngine;
 
 namespace Hashira.Players
@@ -19,7 +20,7 @@ namespace Hashira.Players
         public PlayerRollingState(Entity entity, StateSO stateSO) : base(entity, stateSO)
         {
             _player = entity as Player;
-            _playerMover = entity.GetEntityComponent<PlayerMover>(true);
+            _playerMover = entity.GetEntityComponent<PlayerMover>();
             _entityRenderer = entity.GetEntityComponent<EntityRenderer>();
             _entityHealth = entity.GetEntityComponent<EntityHealth>();
             _dashSpeedStat = entity.GetEntityComponent<EntityStat>().StatDictionary[StatName.DashSpeed];
@@ -65,6 +66,12 @@ namespace Hashira.Players
             base.OnExit();
             _entityAnimator.OnAnimationTriggeredEvent -= HandleAnimationTriggerEvent;
             _entityRenderer.SetArmActive(true);
+            _entity.StartCoroutine(EvasionDisableCoroutine());
+        }
+
+        private IEnumerator EvasionDisableCoroutine()
+        {
+            yield return new WaitForSeconds(0.1f);
             _entityHealth.ModifyEvasion(false);
         }
     }

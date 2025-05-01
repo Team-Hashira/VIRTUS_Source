@@ -2,7 +2,6 @@ using Hashira.Bosses;
 using Hashira.Cards;
 using Hashira.Core;
 using Hashira.Entities;
-using Hashira.MainScreen;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,6 +14,7 @@ namespace Hashira.StageSystem
     {
         public static int currentFloorIdx = 0;
         public static int currentStageIdx = 0;
+        public static int CurrentStageCount => Instance.floors[currentFloorIdx].stages.Length;
 
         [SerializeField] private FloorSO[] floors;
         private Stage _currentStage;
@@ -24,15 +24,33 @@ namespace Hashira.StageSystem
         public event Action OnGeneratedStageEvent;
 
         public Stage GetCurrentStage() => _currentStage;
+        public void SetCurrentStage(Stage stage) => _currentStage = stage;
         public int GetCurrentEnemiesCount() => _currentStage.CurrentEnemiesCount;
 
         public void GenerateStage(StageTypeSO stages = null)
         {
             if (floors.Length == 0) return;
-            _currentStage = Instantiate(stages == null ? GetCurrentStageData().GetRandomStageType(1)[0].GetRandomStage() : stages.GetRandomStage(), transform);
+            if (stages == null)
+            {
+                StageTypeSO stageSO = GetCurrentStageData().GetRandomStageType(1)[0];
+                if (stageSO.isSceneChange)
+                {
+                    EntityHealth entityHealth = PlayerManager.Instance.Player.GetEntityComponent<EntityHealth>();
+                    PlayerDataManager.Instance.SetHealth(entityHealth.Health, entityHealth.MaxHealth);
+                    SceneLoadingManager.LoadScene(stageSO.sceneName);
+                }
+                else
+                {
+                    _currentStage = Instantiate(stageSO.GetRandomStage(), transform);
+                }
+            }
+            else
+            {
+                _currentStage = Instantiate(stages.GetRandomStage(), transform);
+            }
 
             PlayerManager.Instance.Player.Rotate(0, 0);
-            
+
             //_currentStage.OnAllClearEvent.AddListener(() =>
             //{
             //    if (currentFloorIdx == floors.Length - 1 && currentStageIdx == floors[currentFloorIdx].Length - 1)
@@ -84,6 +102,7 @@ namespace Hashira.StageSystem
             {
                 OnFloorUpEvent?.Invoke();
                 currentFloorIdx++;
+
                 currentStageIdx = 0;
                 if (currentFloorIdx >= floors.Length)
                 {
@@ -97,6 +116,7 @@ namespace Hashira.StageSystem
             }
             if (isNextFloor)
             {
+                ResetStage();
                 SceneLoadingManager.LoadScene(SceneName.CardSendScene);
             }
             else
@@ -119,11 +139,9 @@ namespace Hashira.StageSystem
             Destroy(_currentStage.gameObject);
             yield return new WaitForEndOfFrame();
             GenerateStage(stages);
-            PlayerManager.Instance.ReEnableCardEffect();
             yield return null;
             List<CardSO> cardSOList = PlayerDataManager.Instance.CardEffectList.Select(cardEffect => cardEffect.CardSO).ToList();
-            PlayerDataManager.Instance.ResetPlayerCardEffect(cardSOList, useDisable: true);
-            PlayerManager.Instance.SetCardEffectList(PlayerDataManager.Instance.CardEffectList, true);
+            PlayerManager.Instance.ReEnableCardEffect();
         }
 
         //private IEnumerator ClearStageCoroutine()

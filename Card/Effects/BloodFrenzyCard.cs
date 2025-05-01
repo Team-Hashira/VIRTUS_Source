@@ -10,17 +10,14 @@ namespace Hashira.Cards.Effects
 {
     public class BloodFrenzyCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1, 2, 3 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
         private int _killCount;
-        private int[] _needKillCountByStack = new int[] { 7, 6, 4, 4 };
+        [SerializeField] private int[] _needKillCountByStack = new int[] { 7, 6, 4, 4 };
 
         private bool _isBloodFrenzy;
-        private const float _BloodFrenzyDuration = 10f;
+        [SerializeField] private float _bloodFrenzyDuration = 10f;
         private float _lastEnableBloodFrenzyTime;
 
-        private int[] _bleedingDamageByStack = new int[] { 5, 5, 5, 10 };
+        [SerializeField] private int[] _bleedingDamageByStack = new int[] { 5, 5, 5, 10 };
 
         private IPoolingObject _bloodFrenzyModeEffect;
 
@@ -61,13 +58,13 @@ namespace Hashira.Cards.Effects
 
         public override void Update()
         {
-            if (_isBloodFrenzy && _lastEnableBloodFrenzyTime + _BloodFrenzyDuration < Time.time)
+            if (_isBloodFrenzy && _lastEnableBloodFrenzyTime + _bloodFrenzyDuration < Time.time)
             {
                 // 피의 축제 시작
                 _isBloodFrenzy = false;
                 BloodFrenzyEnable(false);
             }
-            else if (_isBloodFrenzy == false && _lastEnableBloodFrenzyTime + _BloodFrenzyDuration > Time.time)
+            else if (_isBloodFrenzy == false && _lastEnableBloodFrenzyTime + _bloodFrenzyDuration > Time.time)
             {
                 // 피의 축제 끝
                 _isBloodFrenzy = true;
@@ -87,8 +84,8 @@ namespace Hashira.Cards.Effects
             }
             else
             {
-                _speedStat.RemoveModify("BloodParty", EModifyLayer.Default);
-                _attackSpeedStat.RemoveModify("BloodParty", EModifyLayer.Default);
+                _speedStat.RemoveModifyOverlap("BloodParty", EModifyLayer.Default);
+                _attackSpeedStat.RemoveModifyOverlap("BloodParty", EModifyLayer.Default);
                 GameEventChannel.RemoveListener<ProjectileAfterHitEvent>(HandleHitEvent);
                 GameEventChannel.RemoveListener<ProjectileShootEvent>(HandleShootEvent);
                 _bloodFrenzyModeEffect.Push();

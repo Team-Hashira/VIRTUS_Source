@@ -37,7 +37,7 @@ namespace Hashira.Entities.Components
 
         public void AfterInit()
         {
-            _mover = _entity.GetEntityComponent<PlayerMover>();
+            _mover = _entity.GetEntityComponent<EntityMover>();
             _renderer = _entity.GetEntityComponent<EntityRenderer>();
         }
 
@@ -64,15 +64,54 @@ namespace Hashira.Entities.Components
         }
 
         #region Param Funcs
-        public void SetParam(int hash, float value) => Animator?.SetFloat(hash, value);
-        public void SetParam(int hash, int value) => Animator?.SetInteger(hash, value);
-        public void SetParam(int hash, bool value) => Animator?.SetBool(hash, value);
-        public void SetParam(int hash) => Animator?.SetTrigger(hash);
+        public void SetParam(int hash, float value)
+        {
+            if (this != null && Animator != null)
+                Animator.SetFloat(hash, value);
+        }
 
-        public void SetParam(AnimatorParamSO param, float value) => Animator?.SetFloat(param.hash, value);
-        public void SetParam(AnimatorParamSO param, int value) => Animator?.SetInteger(param.hash, value);
-        public void SetParam(AnimatorParamSO param, bool value) => Animator?.SetBool(param.hash, value);
-        public void SetParam(AnimatorParamSO param) => Animator?.SetTrigger(param.hash);
+        public void SetParam(int hash, int value)
+        {
+            if (this != null && Animator != null)
+                Animator.SetInteger(hash, value);
+        }
+
+        public void SetParam(int hash, bool value)
+        {
+            if (this != null && Animator != null)
+                Animator.SetBool(hash, value);
+        }
+
+        public void SetParam(int hash)
+        {
+            if (this != null && Animator != null)
+                Animator.SetTrigger(hash);
+        }
+
+        public void SetParam(AnimatorParamSO param, float value)
+        {
+            if (this != null && Animator != null)
+                Animator?.SetFloat(param.hash, value);
+        }
+
+        public void SetParam(AnimatorParamSO param, int value)
+        {
+            if (this != null && Animator != null)
+                Animator.SetInteger(param.hash, value);
+        }
+
+        public void SetParam(AnimatorParamSO param, bool value)
+        {
+            if (this != null && Animator != null)
+                Animator.SetBool(param.hash, value);
+        }
+
+        public void SetParam(AnimatorParamSO param)
+        {
+            if (this != null && Animator != null)
+                Animator.SetTrigger(param.hash);
+        }
+
         #endregion
     }
 }

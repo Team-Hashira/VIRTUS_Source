@@ -1,10 +1,5 @@
 using DG.Tweening;
-using Hashira.Cards;
-using Hashira.StageSystem;
-using System;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Hashira.CanvasUI
 {
@@ -17,14 +12,12 @@ namespace Hashira.CanvasUI
         [SerializeField] private PlayerImage _playerImage;
         [field: SerializeField] public string Key { get; set; }
 
-        [SerializeField] private TextMeshProUGUI _stageProgressText;
         [SerializeField] private ChildrenMaterialController _cardAreaGlitchController;
         private CanvasGroup _cardAreaGroup;
 
         [SerializeField] private CardRerollButton _rerollBtn;
         [SerializeField] private CustomButton _stageBtn;
 
-        [SerializeField] private Transform _backgroundTrm;
         [SerializeField] private SpriteRenderer _backgroundGlitchRenderer;
 
         private Sequence _openSeq;
@@ -70,21 +63,13 @@ namespace Hashira.CanvasUI
             _canvasGroup.alpha = 0;
             _canvasGroup.interactable = false;
             _canvasGroup.blocksRaycasts = false;
-            _backgroundTrm.gameObject.SetActive(false);
         }
 
         public void Open()
         {
-            _backgroundTrm.gameObject.SetActive(true);
             _backgroundGlitchRenderer.gameObject.SetActive(true);
 
-            int currentStageIdx = StageGenerator.currentStageIdx;
-            string prevStageText = currentStageIdx == 0 ? "출발 구역" : $"{currentStageIdx}번 구역";
-            string nextStageText = $"{currentStageIdx + 1}번 구역";
-            _stageProgressText.text =   $"{StageGenerator.currentFloorIdx + 1}층\n " +
-                                        $"{prevStageText}  >>  {nextStageText}";
-
-            if (_openSeq != null && _openSeq.IsActive()) _openSeq.Kill();
+            _openSeq.Clear();
             _openSeq = DOTween.Sequence();
             _openSeq.Append(DOTween.To(() => 1f, value => _backgroundGlitchRenderer.material
                 .SetFloat(_GlitchValueHash, value), 0, 0.5f).SetEase(Ease.Linear));

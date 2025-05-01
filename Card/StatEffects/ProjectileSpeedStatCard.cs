@@ -7,9 +7,7 @@ namespace Hashira.Cards.Effects
 {
     public class ProjectileSpeedStatCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-        protected readonly float[] _projectileSpeedUpValue = { 30f, 50f, 70f };
+        [SerializeField] protected readonly float[] _projectileSpeedUpValue = { 30f, 50f, 70f };
 
         private StatElement _projectileSpeedStat;
 
@@ -21,7 +19,7 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
-            _projectileSpeedStat?.RemoveModify("ProjectileSpeedStatEffect", EModifyLayer.Default);
+            _projectileSpeedStat?.RemoveModifyOverlap("ProjectileSpeedStatEffect", EModifyLayer.Default);
         }
 
         public override void Update()

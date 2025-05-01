@@ -1,6 +1,5 @@
 using Hashira.Bosses;
 using Hashira.Entities;
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,9 +10,7 @@ namespace Hashira.UI
     {
         private bool _isInitialized = false;
         
-        [SerializeField] private TextMeshProUGUI _bossNameText;
         private Slider _slider;
-
         public Boss Boss { get; private set; }
         private EntityHealth _entityHealth;
         
@@ -22,9 +19,8 @@ namespace Hashira.UI
             Boss = boss;
             _entityHealth = boss.GetEntityComponent<EntityHealth>();
             
-            _bossNameText.text = boss.BossDisplayName;
             _slider = GetComponentInChildren<Slider>();
-
+            
             _isInitialized = true;
             
             _entityHealth.OnHealthChangedEvent += HandleHealthChanged;

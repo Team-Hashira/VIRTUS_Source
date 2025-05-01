@@ -4,6 +4,7 @@ using Hashira.Entities;
 using Hashira.Projectiles;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -21,13 +22,13 @@ namespace Hashira.Enemies.Goblin.BoomerangGoblin
 
         public event Action OnReturnEvent;
 
-        [SerializeField] 
+        [SerializeField]
         private ProjectileCollider2D _projectileCollider;
-        [SerializeField] 
+        [SerializeField]
         private float _throwSpeed = 1.5f;
-        [SerializeField] 
+        [SerializeField]
         private float _returnSpeed = 1.5f;
-        [SerializeField] 
+        [SerializeField]
         private int _damage = 1;
 
         private enum EBoomerangState
@@ -45,6 +46,13 @@ namespace Hashira.Enemies.Goblin.BoomerangGoblin
         [SerializeField]
         private float _rotatePerSecond = 180f;
 
+        [SerializeField]
+        private List<TrailRenderer> _trailRendererList;
+
+        private void Awake()
+        {
+        }
+
         public void Initialize(BoomerangGoblin boomerangGoblin, Vector2 destination)
         {
             _boomerangGoblin = boomerangGoblin;
@@ -53,6 +61,11 @@ namespace Hashira.Enemies.Goblin.BoomerangGoblin
             _lastGoblinPosition = _goblinTrm.position;
             _currentState = EBoomerangState.Throwing;
             _hasDealtDamage = false;
+
+            _trailRendererList.ForEach(trail =>
+            {
+                trail.Clear();
+            });
 
             StartCoroutine(MovementCoroutine());
         }
@@ -67,8 +80,7 @@ namespace Hashira.Enemies.Goblin.BoomerangGoblin
                 var health = entity.GetEntityComponent<EntityHealth>();
                 if (health != null)
                 {
-                    AttackInfo attackInfo = new AttackInfo(_damage);
-                    health.ApplyDamage(attackInfo, popUpText: false);
+                    health.ApplyDamage(_boomerangGoblin.MakeAttackInfo(_damage), popUpText: false);
                     _hasDealtDamage = true;
                 }
             }

@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Hashira.Bosses.Patterns
 {
+    [System.Serializable]
     public class GiantGolemHomingProjectilePattern : GiantGolemPattern
     {
         [SerializeField] private ProjectilePoolType _homingProjectilePoolType;
@@ -16,6 +17,7 @@ namespace Hashira.Bosses.Patterns
         public override void OnStart()
         {
             base.OnStart();
+            _giantGolemEye.LookAtPlayerDirection = true;
             EntityAnimator.OnAnimationTriggeredEvent += OnAnimationTriggeredHandle;
         }
 

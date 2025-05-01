@@ -6,9 +6,6 @@ namespace Hashira.Cards.Effects
 {
     public class SpiritCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1, 1, 1, 2 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
         private SpiritFamiliar _spiritFamiliar;
         private StatElement _attackPowerStat;
 

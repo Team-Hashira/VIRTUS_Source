@@ -1,3 +1,4 @@
+using Hashira.Combat;
 using Hashira.Core.MoveSystem;
 using Hashira.Enemies.PublicStates;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace Hashira.Enemies.Bee.CommonBee
         private bool _showDebug = true;
         [field: SerializeField]
         public DamageCaster2D DamageCaster { get; private set; }
+        [field: SerializeField]
+        public LayerMask WhatIsWall;
 
         protected override void AfterIntiialize()
         {

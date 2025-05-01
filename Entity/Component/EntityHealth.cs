@@ -37,7 +37,6 @@ namespace Hashira.Entities
     public class EntityHealth : MonoBehaviour, IEntityComponent, IAfterInitialzeComponent, IDamageable
     {
         public int Health { get; private set; }
-        public Stack<Shield> Shields { get; set; } = new Stack<Shield>();
 
         public Entity Owner { get; private set; }
         private StatElement _maxHealth;
@@ -52,10 +51,8 @@ namespace Hashira.Entities
         private EntityMover _entityMover;
         private EntityStateMachine _entityStateMachine;
         private EntityRenderer _entityRenderer;
-        
+
         public bool canKnockback = true;
-        [Obsolete]
-        public bool IsEvasion { get; set; }
         public bool IsKnockback { get; private set; }
         [HideInInspectorByCondition(nameof(canKnockback))]
         public float knockbackTime = 0.2f;
@@ -79,10 +76,10 @@ namespace Hashira.Entities
         public virtual void AfterInit()
         {
             _maxHealth = Owner.GetEntityComponent<EntityStat>().StatDictionary[StatName.Health];
-            _entityMover = Owner.GetEntityComponent<EntityMover>(true);
+            _entityMover = Owner.GetEntityComponent<EntityMover>();
             _entityStateMachine = Owner.GetEntityComponent<EntityStateMachine>();
             Owner.TryGetEntityComponent<EntityRenderer>(out _entityRenderer, true);
-            
+
             _isInvincible = _maxHealth == null;
             Health = MaxHealth;
         }
@@ -93,38 +90,22 @@ namespace Hashira.Entities
 
             int shieldValue = 0;
 
-            while (shieldValue < attackInfo.damage && Shields.Count() > 0)
-            {
-                // 감쇠시킬 쉴드 값 더해주기
-                Shield shield = Shields.Pop();
-                shieldValue += shield.value;
-
-                // 받은 데미지보다 쉴드값이 더 클 때
-                if (shieldValue > attackInfo.damage)
-                {
-                    Shields.Push(new Shield(shieldValue - attackInfo.damage, shield.guid));
-
-                    // 아예 상쇄시키기
-                    return;
-                }
-            }
-
             // 데미지 감쇠
             attackInfo.damage -= shieldValue;
 
             int prev = Health;
-            int finalDamage = CalculateDamage(attackInfo.damage, attackInfo.attackType);
+            CalculateDamage(ref attackInfo);
 
             if (popUpText)
             {
                 Vector3 textPos = raycastHit != default ? raycastHit.point : Owner.transform.position;
-                CreateDamageText(finalDamage, textPos, attackInfo.attackType);
+                CreateDamageText(attackInfo.damage, textPos, attackInfo.attackType);
             }
 
-            Health -= finalDamage;
-            if (finalDamage > 0)
+            Health -= attackInfo.damage;
+            if (attackInfo.damage > 0)
                 _entityRenderer?.Blink(0.1f);
-            
+
             if (Health < 0)
                 Health = 0;
             OnHitEvent?.Invoke(Health);
@@ -137,7 +118,7 @@ namespace Hashira.Entities
 
             return;
         }
-        
+
         public void SetHealth(int health)
         {
             Health = health;
@@ -151,26 +132,23 @@ namespace Hashira.Entities
             damageText.Init(damage, color);
         }
 
-        protected virtual int CalculateDamage(int damage, EAttackType attackType)
+        protected virtual void CalculateDamage(ref AttackInfo attackInfo)
         {
             //int finalDamage = attackType == EAttackType.HeadShot ? damage * 2 : damage;
-            int finalDamage = damage;
             for (int i = 0; i < DamageHandlerOrder.OrderList.Count; i++)
             {
-                List<DamageHandler> handler = _damageHandlerDict[DamageHandlerOrder.OrderList[i]];
-                EDamageHandlerStatus status = CalculateDamageHandlerList(finalDamage, attackType, handler, out finalDamage);
+                List<DamageHandler> handlerList = _damageHandlerDict[DamageHandlerOrder.OrderList[i]];
+                EDamageHandlerStatus status = CalculateDamageHandlerList(ref attackInfo, handlerList);
                 if (status == EDamageHandlerStatus.Stop)
                     break;
             }
-            return finalDamage;
         }
 
-        public EDamageHandlerStatus CalculateDamageHandlerList(int damage, EAttackType attackType, List<DamageHandler> handlerList, out int finalDamage)
+        public EDamageHandlerStatus CalculateDamageHandlerList(ref AttackInfo attackInfo, List<DamageHandler> handlerList)
         {
-            finalDamage = damage;
             foreach (DamageHandler handler in handlerList)
             {
-                EDamageHandlerStatus status = handler.Calculate(damage, attackType, out finalDamage);
+                EDamageHandlerStatus status = handler.Calculate(ref attackInfo);
                 if (status == EDamageHandlerStatus.Stop)
                     return EDamageHandlerStatus.Stop;
             }
@@ -196,24 +174,7 @@ namespace Hashira.Entities
                 _evasionCount--;
         }
 
-        #region Shield
-
-        public Shield GetShield(Guid guid)
-            => Shields.FirstOrDefault(x => x.guid.Equals(guid));
-
-        public void AddShield(int value, Guid guid)
-        {
-            Shields.Push(new Shield(value, guid));
-        }
-
-        public Guid AddShield(int value)
-        {
-            Guid guid = Guid.NewGuid();
-            Shields.Push(new Shield(value, guid));
-            return guid;
-        }
-
-        #endregion
+        public int GetEvasion() => _evasionCount;
 
         public void Resurrection()
         {
@@ -260,16 +221,23 @@ namespace Hashira.Entities
                 _damageHandlerDict[layer] = new List<DamageHandler>();
             handler.Initialize(Owner);
             _damageHandlerDict[layer].Add(handler);
+            _damageHandlerDict[layer].OrderBy(h => h.OrderInLayer);
         }
 
-        public void RemoveDamageHandler(DamageHandler handler)
+        public bool RemoveDamageHandler(DamageHandler handler)
         {
             foreach (var list in _damageHandlerDict.Values)
             {
                 bool isRemoved = list.Remove(handler);
                 if (isRemoved)
-                    break;
+                    return isRemoved;
             }
+            return false;
+        }
+
+        public void RemoveDamageHandler(EDamageHandlerLayer layer, DamageHandler handler)
+        {
+            _damageHandlerDict[layer].Remove(handler);
         }
     }
 }

@@ -8,14 +8,8 @@ namespace Hashira.Cards.Effects
 {
     public class RubberBulletCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
-        public float Duration { get; set; } = 5;
-        public float Amount { get; set; }
-
-        private int[] _redirectionCountByStack = { 1, 1, 2 };
-        private float[] _attackDamageDownByStack = { 20f, 10f, 10f };
+        [SerializeField] private int[] _redirectionCountByStack = { 1, 1, 2 };
+        [SerializeField] private float[] _attackDamageDownByStack = { 20f, 10f, 10f };
 
         private StatElement _attackPower;
 
@@ -53,7 +47,7 @@ namespace Hashira.Cards.Effects
         {
             GameEventChannel.RemoveListener<ProjectileAfterHitEvent>(HandleProjectileHitEvent);
             GameEventChannel.RemoveListener<ProjectileShootEvent>(HandleProjectileShootEvent);
-            _attackPower.RemoveModify("RubberBulletCard", EModifyLayer.Default);
+            _attackPower.RemoveModifyOverlap("RubberBulletCard", EModifyLayer.Default);
         }
 
         public override void Update()

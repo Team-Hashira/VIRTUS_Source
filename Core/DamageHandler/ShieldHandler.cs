@@ -1,19 +1,60 @@
+using Hashira.Combat;
 using Hashira.Entities;
+using System;
 using UnityEngine;
 
 namespace Hashira.Core.DamageHandler
 {
     public class ShieldHandler : DamageHandler
     {
-        public int Shield { get; private set; } 
+        public bool IsCountShield { get; private set; }
+        public int Shield { get; private set; }
 
-        public override EDamageHandlerStatus Calculate(int damage, EAttackType attackType, out int calculatedDamage)
+        public event Action<AttackInfo> OnBreakEvent;
+
+        private int _currentShield;
+
+        public ShieldHandler(int shieldValue, bool isCountShield)
         {
-            calculatedDamage = damage - Shield;
-            if (calculatedDamage < 0)
-                calculatedDamage = 0;
+            Shield = shieldValue;
+            IsCountShield = isCountShield;
+            _currentShield = Shield;
+        }
 
-            return EDamageHandlerStatus.Continue;
+        public void Reset()
+            => _currentShield = Shield;
+
+        public override EDamageHandlerStatus Calculate(ref AttackInfo attackInfo)
+        {
+            if (IsCountShield)
+            {
+                _currentShield--;
+                attackInfo.damage = 0;
+                if (_currentShield <= 0)
+                {
+                    _owner.GetEntityComponent<EntityHealth>().RemoveDamageHandler(this);
+                    OnBreakEvent?.Invoke(attackInfo);
+                    Reset();
+                }
+                return EDamageHandlerStatus.Stop;
+            }
+            else
+            {
+                _currentShield -= attackInfo.damage;
+                if (_currentShield <= 0)
+                {
+                    attackInfo.damage = -_currentShield;
+                    _owner.GetEntityComponent<EntityHealth>().RemoveDamageHandler(this);
+                    OnBreakEvent?.Invoke(attackInfo);
+                    Reset();
+                    return EDamageHandlerStatus.Continue;
+                }
+                else
+                {
+                    attackInfo.damage = 0;
+                    return EDamageHandlerStatus.Stop;
+                }
+            }
         }
     }
 }

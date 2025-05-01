@@ -1,10 +1,8 @@
-using Hashira.Accessories;
 using Hashira.Cards.Effects;
-using Hashira.Entities.Components;
 using Hashira.Players;
 using System;
 using System.Collections.Generic;
-using UnityEngine.UIElements;
+using UnityEngine;
 
 namespace Hashira.Core
 {
@@ -23,9 +21,9 @@ namespace Hashira.Core
             }
         }
 
-        private List<CardEffect> _cardEffectList;
+        private List<CardEffect> _cardEffectList = new();
 
-        public event Action OnCardEffectEnableEvent;
+        public event Action<bool> OnCardEffectEnableEvent;
 
         public void SetCardEffectList(List<CardEffect> cardEffects, bool isEventSender = false)
         {
@@ -37,7 +35,7 @@ namespace Hashira.Core
             }
 
             if (isEventSender)
-                OnCardEffectEnableEvent?.Invoke();
+                OnCardEffectEnableEvent?.Invoke(false);
         }
 
         public void ReEnableCardEffect()
@@ -47,6 +45,7 @@ namespace Hashira.Core
                 _cardEffectList[i].Disable();
                 _cardEffectList[i].Enable();
             }
+            OnCardEffectEnableEvent?.Invoke(true);
         }
 
         private void Update()

@@ -19,7 +19,7 @@ namespace Hashira.Players
         public PlayerAirState(Entity entity, StateSO stateSO) : base(entity, stateSO)
         {
             _player = entity as Player;
-            _entityMover = entity.GetEntityComponent<EntityMover>(true);
+            _entityMover = entity.GetEntityComponent<EntityMover>();
             _speedStat = entity.GetEntityComponent<EntityStat>().StatDictionary[StatName.Speed];
 		}
 

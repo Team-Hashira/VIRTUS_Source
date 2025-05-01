@@ -9,6 +9,7 @@ using Hashira.Projectiles.Player;
 using Hashira.StageSystem;
 using System;
 using UnityEngine;
+using PlayerBullet = Hashira.Projectiles.Player.PlayerBullet;
 
 namespace Hashira
 {
@@ -68,13 +69,17 @@ namespace Hashira
             float minDistance = 1000000f;
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(_player.InputReader.MousePosition);
             mousePos.z = 0;
-            foreach (Enemy enemy in StageGenerator.Instance.GetCurrentStage().GetEnabledEnemies())
+            Entity[] entities = StageGenerator.Instance.GetCurrentStage().GetEnabledEnemies();
+            if (entities != null)
             {
-                float distance = Vector3.Distance(mousePos, enemy.transform.position);
-                if (minDistance > distance)
+                foreach (Enemy enemy in entities)
                 {
-                    minDistance = distance;
-                    nearEnemy = enemy;
+                    float distance = Vector3.Distance(mousePos, enemy.transform.position);
+                    if (minDistance > distance)
+                    {
+                        minDistance = distance;
+                        nearEnemy = enemy;
+                    }
                 }
             }
             if (nearEnemy != null)

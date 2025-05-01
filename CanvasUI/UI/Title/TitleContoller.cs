@@ -9,7 +9,7 @@ namespace Hashira.CanvasUI.Title
 
         private void Awake()
         {
-            _gameBtn.OnClickEvent += () => SceneLoadingManager.LoadScene(SceneName.GameScene);
+            _gameBtn.OnClickEvent += () => SceneLoadingManager.LoadScene(SceneName.CardSelectScene);
             _tutorialBtn.OnClickEvent += () => SceneLoadingManager.LoadScene(SceneName.TutorialScene);
             _optionBtn.OnClickEvent += () => UIManager.Instance.GetDomain<ToggleDomain>().OpenUI("Option");
             _gameQuitBtn.OnClickEvent += () => Application.Quit();

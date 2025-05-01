@@ -42,7 +42,6 @@ namespace Hashira.Bosses.States
         
         private void SetBossPattern()
         {
-            Debug.Log(_boss.BossDisplayName);
             _boss.SetCurrentBossPattern(_nextPattern);
         }
     }

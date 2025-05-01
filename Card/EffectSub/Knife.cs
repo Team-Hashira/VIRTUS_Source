@@ -3,7 +3,6 @@ using Hashira.Combat;
 using Hashira.Entities;
 using Hashira.MainScreen;
 using Hashira.StageSystem;
-using System;
 using UnityEngine;
 
 namespace Hashira
@@ -22,19 +21,25 @@ namespace Hashira
 
         private int _damage;
         private Entity _owner;
-        private bool _isPenetrable;
+        private bool _isMaxStack;
         private Vector3 _positionOffset;
         private bool _isShooted;
         private bool _isHited;
 
-        public void Init(int damage, int index, int maxIndex, Entity owner, bool isPenetrable)
+        private Transform _target;
+
+        private float _spawnTime;
+
+        public void Init(int damage, int index, int maxIndex, Entity owner, bool isMaxStack)
         {
             _damage = damage;
             _owner = owner;
-            _isPenetrable = isPenetrable;
+            _isMaxStack = isMaxStack;
             _isShooted = false;
             _isHited = false;
             _trailRenderer.enabled = false;
+
+            _spawnTime = Time.time;
 
             float indexForCenter = index - (maxIndex - 1) / 2;
             float angle = 20f;
@@ -51,7 +56,7 @@ namespace Hashira
             else if (_isHited == false)
             {
                 Vector3 movement = transform.up * _speed * Time.deltaTime;
-                RaycastHit2D raycastHit2D = Physics2D.BoxCast(transform.position + transform.rotation * _offset, _size, transform.eulerAngles.z, movement.normalized, movement.magnitude, _isPenetrable ? _whatIsOnlyTarget : _whatIsTarget);
+                RaycastHit2D raycastHit2D = Physics2D.BoxCast(transform.position + transform.rotation * _offset, _size, transform.eulerAngles.z, movement.normalized, movement.magnitude, _isMaxStack ? _whatIsOnlyTarget : _whatIsTarget);
                 if (raycastHit2D)
                 {
                     _isHited = true;
@@ -67,11 +72,24 @@ namespace Hashira
                 }
                 else
                     transform.position += movement;
+
+                if (_isMaxStack)
+                {
+                    if (_target == null || _target.gameObject.activeSelf == false)
+                    {
+                        Collider2D collider2D = Physics2D.OverlapCircle(transform.position, 15f, _whatIsOnlyTarget);
+                        if (collider2D != null)
+                            _target = collider2D.transform;
+                    }
+                    else
+                        transform.up = (_target.position - transform.position).normalized + transform.up * (5f / (2 * (Time.time - _spawnTime) + 1));
+                }
             }
         }
 
         public void Shoot(Transform target)
         {
+            _target = target;
             SoundManager.Instance.PlaySFX("StackKnifeThrow", transform, 1f);
             if (target != null)
                 transform.up = target.position - transform.position;
@@ -81,7 +99,7 @@ namespace Hashira
                 mousePos = MainScreenEffect.OriginPositionConvert(mousePos);
                 transform.up = mousePos - transform.position;
             }
-                _isShooted = true;
+            _isShooted = true;
             _trailRenderer.enabled = true;
         }
 

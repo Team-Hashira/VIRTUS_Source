@@ -11,10 +11,10 @@ namespace Hashira.Cards.Effects
 {
     public class AbsenceCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
         private Dictionary<Entity, int> _attackCountDictionary;
+
+        [SerializeField] private float[] _damageMultiplier = { 0.5f, 0.7f, 1f };
+        [SerializeField] private float[] _damageComdition = { 60f, 60f, 40f };
 
         public override void Enable()
         {
@@ -27,7 +27,7 @@ namespace Hashira.Cards.Effects
             if (projectileHitEvent.hitInfo.raycastHit.transform.TryGetComponent(out Entity entity) &&
                 entity.TryGetEntityComponent(out EntityHealth health))
             {
-                if ((float)health.Health / health.MaxHealth >= 0.6f)
+                if ((float)health.Health / health.MaxHealth >= _damageComdition[stack - 1] / 100)
                 {
                     if (_attackCountDictionary.ContainsKey(entity))
                         _attackCountDictionary[entity]++;
@@ -53,7 +53,7 @@ namespace Hashira.Cards.Effects
                     point = hitPos
                 };
                 PopCore.Pop(EffectPoolType.AbsenceSlice, raycastHit.point, Quaternion.identity);
-                int damage = Mathf.CeilToInt(Mathf.Log(health.Health / projectile.damage + 1, 10) * projectile.damage);
+                int damage = Mathf.CeilToInt(Mathf.Log(health.Health / projectile.damage + 1, 10) * projectile.damage * _damageMultiplier[stack - 1]);
                 AttackInfo attackInfo = new AttackInfo(damage);
                 health.ApplyDamage(attackInfo, raycastHit);
 

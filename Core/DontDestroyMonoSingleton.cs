@@ -12,8 +12,11 @@ public class DontDestroyMonoSingleton<T> : MonoBehaviour where T : DontDestroyMo
             if (_Instance == null)
             {
                 _Instance = FindFirstObjectByType<T>(FindObjectsInactive.Include);
-                DontDestroyOnLoad(_Instance.gameObject);
-                _Instance.OnCreateInstance();
+                if (_Instance != null)
+                {
+                    DontDestroyOnLoad(_Instance.gameObject);
+                    _Instance.OnCreateInstance();
+                }
             }
             return _Instance;
         }

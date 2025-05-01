@@ -6,9 +6,6 @@ namespace Hashira.Cards.Effects
 {
     public class HealthStatCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
         private StatElement _healthStat;
 
         public override void Enable()
@@ -19,7 +16,7 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
-            _healthStat.RemoveModify("HealthStatEffect", EModifyLayer.Default);
+            _healthStat.RemoveModifyOverlap("HealthStatEffect", EModifyLayer.Default);
         }
 
         public override void Update()

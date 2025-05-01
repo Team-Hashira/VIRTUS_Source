@@ -1,6 +1,7 @@
 using Hashira.CanvasUI;
 using Hashira.CanvasUI.Option;
 using Hashira.Core;
+using Hashira.Players;
 using UnityEngine;
 
 namespace Hashira
@@ -44,8 +45,8 @@ namespace Hashira
 
         private void HandleTitleEvent()
         {
-            TimeController.UndoTimeScale();
             PlayerDataManager.Instance.ResetData();
+            PlayerDataManager.Instance.ResetPlayerCardEffect(useDisable: PlayerManager.Instance != null);
             SceneLoadingManager.LoadScene(SceneName.TitleScene);
         }
 

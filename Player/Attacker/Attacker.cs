@@ -4,7 +4,6 @@ using Hashira.Core.EventSystem;
 using Hashira.Core.StatSystem;
 using Hashira.Entities;
 using Hashira.Entities.Components;
-using Hashira.MainScreen;
 using Hashira.Players;
 using Hashira.Projectiles;
 using System;
@@ -19,6 +18,7 @@ namespace Hashira
         [SerializeField] private InputReaderSO _input;
         [SerializeField] private LayerMask _whatIsTarget;
         [SerializeField] private RingIcon _ringIcon;
+        [SerializeField] private float _wallChecker;
         private float _lastAttackTime;
         private int _burstBulletCount = 1;
         private ProjectilePoolType _projectilePoolType = ProjectilePoolType.Bullet;
@@ -126,6 +126,8 @@ namespace Hashira
 
         public void Shoot(bool isPlayerInput = false, int damage = -1)
         {
+            RaycastHit2D wallHit = Physics2D.Raycast(transform.parent.position, transform.right, _wallChecker, _whatIsTarget);
+            Vector3 shootPoint = wallHit == default ? transform.position : (Vector3)wallHit.point - transform.right * 0.3f;
             float angle = _burstBulletCount * 5;
             List<Projectile> createdProjectileList = new List<Projectile>();
             for (int i = 0; i < _burstBulletCount; i++)
@@ -133,8 +135,13 @@ namespace Hashira
                 Vector2 direction = Quaternion.Euler(0, 0, -angle / 2 + angle * (i + 0.5f) / _burstBulletCount) * transform.right;
                 if (damage == -1)
                     damage = _attackPowerStat.IntValue;
-                Projectile projectile = gameObject.Pop(_projectilePoolType, transform.position, Quaternion.identity) as Projectile;
+                Projectile projectile = gameObject.Pop(_projectilePoolType, shootPoint, Quaternion.identity) as Projectile;
                 projectile.Init(_whatIsTarget, direction, _bulletSpeedStat.Value, damage, _player.transform, true, 5);
+
+                // 사격 이펙트
+                ParticleSystem particleSystem = gameObject.Pop(EffectPoolType.BulletShootSparkleEffect, shootPoint, projectile.transform.rotation).gameObject.GetComponent<ParticleSystem>();
+                var mianModule = particleSystem.main;
+                mianModule.startRotation = -transform.eulerAngles.z * Mathf.Deg2Rad;
 
                 // 이벤트 발행
                 var evt = InGameEvents.ProjectileShootEvent;
@@ -142,7 +149,7 @@ namespace Hashira
                 evt.isPlayerInput = isPlayerInput;
                 GameEventChannel.RaiseEvent(evt);
 
-                CameraManager.Instance.ShakeCamera(5f, 6, 0.15f);
+                CameraManager.Instance.ShakeCamera(Mathf.Log10(projectile.damage * 10) * 4f, Mathf.Log10(projectile.damage * 10) * 4f, 0.15f);
 
                 createdProjectileList.Add(projectile);
             }
@@ -160,6 +167,12 @@ namespace Hashira
         private void OnDestroy()
         {
             _input.OnAttackEvent -= HandleAttackEvent;
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(transform.parent.position, transform.parent.position + transform.right * _wallChecker);
         }
     }
 }

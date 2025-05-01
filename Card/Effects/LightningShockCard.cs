@@ -12,23 +12,28 @@ namespace Hashira.Cards.Effects
 {
     public class LightningShockCard : MagicCardEffect
     {
-        private int[] _needCostByStack = new int[] { 1, 1, 1, 3 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
         protected override float DelayTime => 8;
 
-        private int[] _lightningCountByStack = { 4, 5, 6, 8, 8 };
-        private int[] _damageByStack = { 20, 20, 20, 30, 30 };
+        [SerializeField] private int[] _lightningCountByStack = { 4, 5, 6, 8, 8 };
+        [SerializeField] private int[] _damageByStack = { 20, 20, 20, 30, 30 };
+
+        private Coroutine _lightningCoroutine;
 
         public override void Enable()
         {
             base.Enable();
         }
 
+        public override void Disable()
+        {
+            base.Disable();
+            if (_lightningCoroutine != null) player.StopCoroutine(_lightningCoroutine);
+        }
+
         public override void Use()
         {
             base.Use();
-            player.StartCoroutine(CoroutineCreateLightnings());
+            _lightningCoroutine = player.StartCoroutine(CoroutineCreateLightnings());
         }
 
         private IEnumerator CoroutineCreateLightnings()
@@ -43,11 +48,11 @@ namespace Hashira.Cards.Effects
 
         private void CreateLightning(Dictionary<Enemy, int> enemyHitCount)
         {
-            Enemy[] enemieList = StageGenerator.Instance.GetCurrentStage().GetEnabledEnemies();
+            Enemy[] enemies = StageGenerator.Instance.GetCurrentStage().GetEnabledEnemies();
 
-            if (enemieList.Length == 0) return;
+            if (enemies != null && enemies.Length == 0) return;
 
-            Enemy enemy = enemieList[Random.Range(0, enemieList.Length)];
+            Enemy enemy = enemies[Random.Range(0, enemies.Length)];
 
             if (enemyHitCount.ContainsKey(enemy))
                 enemyHitCount[enemy]++;

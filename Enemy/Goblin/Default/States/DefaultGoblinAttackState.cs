@@ -43,7 +43,7 @@ namespace Hashira.Enemies.Goblin.DefaultGoblin
         {
             if (trigger == EAnimationTriggerType.Trigger)
             {
-                _damageCaster.CastDamage(_damageElement.IntValue, false);
+                _damageCaster.CastDamage(_entity.MakeAttackInfo(_damageElement.IntValue), popupText: false);
             }
             if (trigger == EAnimationTriggerType.End)
             {

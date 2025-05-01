@@ -1,6 +1,7 @@
 using Crogen.CrogenPooling;
 using Doryu.CustomAttributes;
 using Hashira.Bosses;
+using Hashira.CanvasUI;
 using Hashira.Core;
 using Hashira.Enemies;
 using Hashira.Entities;
@@ -12,7 +13,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace Hashira.StageSystem
 {
@@ -31,7 +32,6 @@ namespace Hashira.StageSystem
         [HideInInspector] public string name;
         public float delay = 1;
         public EnemyPair[] enemyPairs;
-        [FormerlySerializedAs("ClearEvent")]
         public UnityEvent ClearEvent;
 
         private int _enemyCount = 0;
@@ -114,9 +114,13 @@ namespace Hashira.StageSystem
         [Space]
         [SerializeField] private Transform _playerSpawnPoint;
         [SerializeField] private Portal[] _portals;
+        [field: SerializeField] public Transform[] EventTrms { get; private set; }
         public Wave[] waves;
         [SerializeField] private bool _useCanvas;
         [ToggleField(nameof(_useCanvas)), SerializeField] private Transform _stagePanel;
+        public UnityEvent StartEvent;
+
+        private float _cardSelectEventPercent = 20f;
 
         public int CurrentEnemiesCount => EnemyList.Count;
         public int CurrentWaveCount { get; private set; } = 0;
@@ -140,7 +144,7 @@ namespace Hashira.StageSystem
 
         public Enemy[] GetEnabledEnemies()
         {
-            return EnemyList.Where(x => x.gameObject.activeSelf.Equals(true)).ToArray();
+            return EnemyList?.Where(x => x != null && x.gameObject.activeSelf && x.IsEnable)?.ToArray();
         }
 
         private void Awake()
@@ -157,9 +161,13 @@ namespace Hashira.StageSystem
 
             foreach (var portal in _portals)
                 portal.gameObject.SetActive(false);
+            foreach (var eventTrm in EventTrms)
+                eventTrm.gameObject.SetActive(false);
 
             if (_useCanvas)
                 UIManager.Instance.AddGameCanvas(_stagePanel);
+            
+            StartEvent?.Invoke();
         }
 
         private void Update()
@@ -217,11 +225,31 @@ namespace Hashira.StageSystem
 
         private void ClearStage()
         {
+            StartCoroutine(DelayClearStageCoroutine(1f));
+        }
+
+        private IEnumerator DelayClearStageCoroutine(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            float cardSelectRandomValue = Random.Range(0f, 100f);
+            if (cardSelectRandomValue < _cardSelectEventPercent)
+                Hashira.CanvasUI.UIManager.Instance.GetDomain<ToggleDomain>().OpenUI(nameof(StageCardSelectUI));
+            else
+                OpenPortalAndEvent();
+        }
+
+        public void OpenPortalAndEvent()
+        {
             List<StageTypeSO> stageTypeSOList = StageGenerator.Instance.GetNextStageData().GetRandomStageType(_portals.Length);
             for (int i = 0; i < stageTypeSOList.Count; i++)
             {
                 _portals[i].gameObject.SetActive(true);
                 _portals[i].Init(stageTypeSOList[i]);
+            }
+            for (int i = 0; i < EventTrms.Length; i++)
+            {
+                EventTrms[i].gameObject.SetActive(true);
             }
         }
 

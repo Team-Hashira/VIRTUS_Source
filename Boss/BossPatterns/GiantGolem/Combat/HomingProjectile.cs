@@ -1,7 +1,5 @@
 using Crogen.CrogenPooling;
 using Hashira.Combat;
-using Hashira.Projectiles;
-using System;
 using UnityEngine;
 
 namespace Hashira.Bosses.Patterns.GiantGolem
@@ -9,16 +7,16 @@ namespace Hashira.Bosses.Patterns.GiantGolem
     public class HomingProjectile : MonoBehaviour, IPoolingObject
     {
         [SerializeField] private EffectPoolType _dieEffectPoolType;
-        
+
         public string OriginPoolType { get; set; }
-        public GameObject gameObject { get; set; }
+        GameObject IPoolingObject.gameObject { get; set; }
 
         private DamageCaster2D _damageCaster;
         private Vector2 _direction;
         private float _speed;
         private float _duration;
         private float _currentTime = 0;
-        
+
         private void Awake()
         {
             _damageCaster = GetComponent<DamageCaster2D>();
@@ -43,18 +41,18 @@ namespace Hashira.Bosses.Patterns.GiantGolem
             _duration = duration;
             _currentTime = Time.time;
         }
-        
+
         public void OnPop()
         {
         }
 
         private void FixedUpdate()
         {
-            _damageCaster.CastDamage(AttackInfo.defaultOneDamage, popupText:false);
+            _damageCaster.CastDamage(AttackInfo.defaultOneDamage, popupText: false);
             transform.position += (Vector3)_direction * _speed * Time.fixedDeltaTime;
             if (_currentTime + _duration < Time.time)
             {
-                this.Push();   
+                this.Push();
             }
         }
 

@@ -22,7 +22,7 @@ namespace Hashira.Enemies.Bee.QueenBee
         protected override void AfterIntiialize()
         {
             base.AfterIntiialize();
-            _entityHealth.OnDieEvent += HandleOnDieEvent;
+            EntityHealth.OnDieEvent += HandleOnDieEvent;
 
             _enemyMover.GetMoveProcessor<XYSmoothProcessor>().Speed = 6f;
             _enemyMover.GetMoveProcessor<XYSmoothProcessor>().OnlyOut = true;

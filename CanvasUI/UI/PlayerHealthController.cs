@@ -3,6 +3,7 @@ using Hashira.Entities;
 using Hashira.Players;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Hashira.CanvasUI
@@ -14,20 +15,22 @@ namespace Hashira.CanvasUI
         private Player _player;
 
         private List<PlayerHealthUI> _healthImageList;
+        private bool _isFirst;
 
         private void Awake()
         {
             _healthImageList = new List<PlayerHealthUI>();
             _player = PlayerManager.Instance.Player;
-            PlayerManager.Instance.OnCardEffectEnableEvent += HandleCardEffectEnableEvent;
-        }
-
-        private void HandleCardEffectEnableEvent()
-        {
-            PlayerManager.Instance.OnCardEffectEnableEvent -= HandleCardEffectEnableEvent;
+            _isFirst = true;
             _playerHealth = _player.GetEntityComponent<EntityHealth>();
             _playerHealth.OnHealthChangedEvent += HandleHealthChangedEvent;
-            SetMaxHealth(_playerHealth.MaxHealth);
+            PlayerManager.Instance.OnCardEffectEnableEvent += HandleCardEffectEnableEvent;
+            SetMaxHealth(_playerHealth.MaxHealth, false);
+        }
+
+        private void HandleCardEffectEnableEvent(bool isReEnable)
+        {
+            SetMaxHealth(_playerHealth.MaxHealth, isReEnable);
         }
 
         public void HandleHealthChangedEvent(int prev, int current)
@@ -39,19 +42,31 @@ namespace Hashira.CanvasUI
         {
             for (int i = 0; i < _healthImageList.Count; i++)
             {
-                _healthImageList[i].SetLevel(Mathf.Clamp(health - i * 2, 0, 2), isAnimation);
+                _healthImageList[i]?.SetLevel(Mathf.Clamp(health - i * 2, 0, 2), isAnimation);
             }
         }
 
-        public void SetMaxHealth(int maxHealth)
+        public void SetMaxHealth(int maxHealth, bool isReEnable)
         {
+            List<PlayerHealthUI> playerHealthUI = _healthImageList.ToList();
+            foreach (PlayerHealthUI healthUI in playerHealthUI)
+            {
+                Destroy(healthUI.gameObject);
+            }
+            _healthImageList.Clear();
+
             while (_healthImageList.Count * 2 < maxHealth)
             {
                 PlayerHealthUI healthImage = Instantiate(_healthUI, transform);
                 _healthImageList.Add(healthImage);
             }
-            int addedMaxHealth = Mathf.Clamp(maxHealth - PlayerDataManager.Instance.MaxHealth, 0, int.MaxValue);
-            _playerHealth.ApplyRecovery(addedMaxHealth);
+
+            if (isReEnable == false)
+            {
+                int addedMaxHealth = Mathf.Clamp(maxHealth - PlayerDataManager.Instance.MaxHealth, 0, int.MaxValue);
+                _playerHealth.ApplyRecovery(addedMaxHealth);
+            }
+
             SetHealthImage(_playerHealth.Health, false);
         }
 
@@ -59,6 +74,7 @@ namespace Hashira.CanvasUI
         {
             if (_playerHealth != null)
                 _playerHealth.OnHealthChangedEvent -= HandleHealthChangedEvent;
+            if (PlayerManager.Instance) PlayerManager.Instance.OnCardEffectEnableEvent -= HandleCardEffectEnableEvent;
         }
     }
 }

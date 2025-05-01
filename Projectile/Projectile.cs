@@ -2,13 +2,10 @@ using Crogen.CrogenPooling;
 using Hashira.Combat;
 using Hashira.Core.EventSystem;
 using Hashira.Entities;
-using System;
-using System.Collections.Generic;
-using System.Collections;
-using UnityEngine;
-using NUnit.Framework.Constraints;
-using TMPro;
 using Hashira.StageSystem;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Hashira.Projectiles
 {
@@ -26,15 +23,14 @@ namespace Hashira.Projectiles
         penetration
     }
 
-    public class Projectile : MonoBehaviour, IPoolingObject
+    public class Projectile : ProjectileBase, IPoolingObject
     {
         public bool IsDead { get; set; } = false;
         public bool IsEventSender { get; private set; }
+        public float MoveDistance { get; set; }
         public LayerMask WhatIsTarget { get; protected set; }
         [SerializeField] protected float _pushDelay;
         [SerializeField] protected bool _canMultipleAttacks;
-        [SerializeField] protected Vector2 _castSize;
-        [SerializeField] protected Vector2 _castOffset;
         [SerializeField] protected SpriteRenderer _spriteRenderer;
         [SerializeField] protected TrailRenderer _trailRenderer;
         protected float _gravity = 3f;
@@ -123,14 +119,19 @@ namespace Hashira.Projectiles
             }
         }
 
-        protected virtual void FixedUpdate()
+        protected override void FixedUpdate()
+        {
+            base.FixedUpdate();
+        }
+
+        protected override void Move()
         {
             if (IsDead) return;
             // 중력
             movement -= Owner.up * _gravity * Time.fixedDeltaTime * 25f;
             transform.right = movement.normalized;
 
-            _currentHit2D = Physics2D.BoxCastAll(transform.position + transform.rotation * ((Vector2)transform.localScale * _castOffset), (Vector2)transform.localScale * _castSize, transform.eulerAngles.z, movement.normalized, movement.magnitude * Time.fixedDeltaTime, WhatIsTarget);
+            _projectileCollider2D.CheckCollision(WhatIsTarget, out _currentHit2D, movement * Time.fixedDeltaTime);
 
             HashSet<Transform> prevTransformSet = _stayTransformSet;
             _stayTransformSet = new HashSet<Transform>(_currentHit2D.Length);
@@ -141,6 +142,7 @@ namespace Hashira.Projectiles
             if (_currentHit2D.Length > 0)
             {
                 float moveDistance = movement.magnitude * Time.fixedDeltaTime;
+                MoveDistance += moveDistance;
                 Vector3 startPos = transform.position;
                 foreach (RaycastHit2D raycastHit in _currentHit2D)
                 {
@@ -152,6 +154,7 @@ namespace Hashira.Projectiles
                     bool isStayTransform = prevTransformSet.Contains(raycastHit.transform);
                     if (isStayTransform == false || hitInfo.damageable == null)
                     {
+                        MoveDistance += raycastHit.distance - moveDistance;
                         // 데미지
                         BeginDamageCast(hitInfo);
                         int finalDamage = CalculateDamage(damage);
@@ -194,6 +197,7 @@ namespace Hashira.Projectiles
             {
                 // 이동
                 transform.position += movement * Time.fixedDeltaTime;
+                MoveDistance += movement.magnitude * Time.fixedDeltaTime;
             }
         }
 
@@ -231,6 +235,7 @@ namespace Hashira.Projectiles
             this.damage = damage;
             IsEventSender = isEventSender;
             WhatIsTarget = whatIsTarget;
+            MoveDistance = 0;
             _gravity = gravity;
 
             transform.right = direction;
@@ -247,7 +252,7 @@ namespace Hashira.Projectiles
                 { EProjectileUndyingMode.penetration, 0},
             };
 
-            SetVisual(_defaultSpriteColor, _defaultTrailData, _defaultSprite, 1);
+            SetVisual(_defaultSpriteColor, _defaultTrailData, _defaultSprite, 2);
         }
 
         public void SetVisual(Color? bulletColor = null, TrailData trailData = null, Sprite bulletSprite = null, float scaleMultiplier = 1)
@@ -272,18 +277,8 @@ namespace Hashira.Projectiles
         }
 
 
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.localScale);
-            Gizmos.DrawWireCube(_castOffset, _castSize);
-        }
-
-
         #region Pooling
-        public string OriginPoolType { get; set; }
-        GameObject IPoolingObject.gameObject { get; set; }
-        public virtual void OnPop()
+        public override void OnPop()
         {
             IsDead = false;
             StageGenerator.Instance.OnNextStageEvent += HandleNextStage;
@@ -294,7 +289,7 @@ namespace Hashira.Projectiles
             this.Push();
         }
 
-        public virtual void OnPush()
+        public override void OnPush()
         {
             StageGenerator.Instance.OnNextStageEvent -= HandleNextStage;
         }

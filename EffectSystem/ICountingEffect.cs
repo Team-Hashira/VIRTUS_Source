@@ -1,3 +1,5 @@
+using System;
+
 namespace Hashira.EffectSystem
 {
     public interface ICountingEffect

@@ -120,6 +120,8 @@ namespace Hashira.Visualizers
                 StopCoroutine(_lifeTimeCoroutine);
             if (_foldCoroutine != null)
                 return;
+            if (gameObject.activeSelf == false)
+                return;
             StartCoroutine(FoldCoroutine(transform.position, _endPos, duration));
         }
 
@@ -199,6 +201,7 @@ namespace Hashira.Visualizers
         {
             _directionMarkList.ForEach(mark => mark.Push());
             _directionMarkList.Clear();
+            StopAllCoroutines();
         }
     }
 }

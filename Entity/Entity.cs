@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Hashira.Combat;
 using Hashira.Core;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using UnityEngine;
 
 namespace Hashira.Entities
 {
-    public class Entity : MonoBehaviour
+    public class Entity : MonoBehaviour, IAttackable
     {
         private Dictionary<Type, IEntityComponent> _componentDict;
 
@@ -51,14 +52,12 @@ namespace Hashira.Entities
                 .ForEach(component => component.Dispose());
         }
 
-        public T GetEntityComponent<T>(bool isDerived = false) where T : class, IEntityComponent
+        public T GetEntityComponent<T>() where T : class, IEntityComponent
         {
             if (_componentDict.TryGetValue(typeof(T), out IEntityComponent compo))
             {
                 return compo as T;
             }
-
-            if (!isDerived) return default;
 
             Type findType = _componentDict.Keys.FirstOrDefault(x => x.IsSubclassOf(typeof(T)));
             if (findType != null)

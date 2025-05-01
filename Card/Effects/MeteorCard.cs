@@ -11,23 +11,28 @@ namespace Hashira.Cards.Effects
 {
     public class MeteorCard : MagicCardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
         protected override float DelayTime => 5;
 
-        private int[] _meteorCountByStack = { 1, 1, 2 };
-        private int[] _meteorDamageByStack = { 20, 30, 30 };
+        [SerializeField] private int[] _meteorCountByStack = { 1, 1, 2 };
+        [SerializeField] private int[] _meteorDamageByStack = { 20, 30, 30 };
+
+        private Coroutine _meteorCoroutine;
 
         public override void Enable()
         {
             base.Enable();
         }
 
+        public override void Disable()
+        {
+            base.Disable();
+            if (_meteorCoroutine != null) player.StopCoroutine(_meteorCoroutine);
+        }
+
         public override void Use()
         {
             base.Use();
-            player.StartCoroutine(MeteorGenerateCoroutine());
+            _meteorCoroutine = player.StartCoroutine(MeteorGenerateCoroutine());
         }
 
         private IEnumerator MeteorGenerateCoroutine()
@@ -41,11 +46,11 @@ namespace Hashira.Cards.Effects
 
         private void CreateMeteor()
         {
-            Enemy[] enemieList = StageGenerator.Instance.GetCurrentStage().GetEnabledEnemies();
+            Enemy[] enemies = StageGenerator.Instance.GetCurrentStage().GetEnabledEnemies();
 
-            if (enemieList.Length == 0) return;
+            if (enemies != null && enemies.Length == 0) return;
 
-            Enemy enemy = enemieList[Random.Range(0, enemieList.Length)];
+            Enemy enemy = enemies[Random.Range(0, enemies.Length)];
 
             Vector3 pos;
             if (enemy.TryGetEntityComponent(out EntityPartsCollider entityPartsCollider))

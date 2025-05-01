@@ -1,6 +1,9 @@
 using Hashira.Accessories.Effects;
 using Hashira.Entities;
+using Hashira.StageSystem;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Hashira.Accessories
 {
@@ -11,14 +14,18 @@ namespace Hashira.Accessories
         Active,
     }
 
+    public delegate void OnAccessoryChangeEvent(EAccessoryType previous, EAccessoryType current);
+
     public static class Accessory
     {
-        private static Dictionary<EAccessoryType, AccessoryEffect> _AccessoryDict;
-        public static IEnumerable<AccessoryEffect> Accessories => _AccessoryDict.Values;
+        private static Dictionary<EAccessoryType, AccessoryEffector> _AccessoryDict;
+        public static IEnumerable<AccessoryEffector> Accessories => _AccessoryDict.Values;
+
+        public static event OnAccessoryChangeEvent OnAccessoryChangeEvent;
 
         static Accessory()
         {
-            _AccessoryDict = new Dictionary<EAccessoryType, AccessoryEffect>
+            _AccessoryDict = new Dictionary<EAccessoryType, AccessoryEffector>
             {
                 { EAccessoryType.Passive, null },
                 { EAccessoryType.Active, null },
@@ -31,7 +38,7 @@ namespace Hashira.Accessories
         /// </summary>
         /// <param name="type">None을 넣으려 하지마셈. 자꾸 슬롯에 장착이 안된걸 갖고오려하면 곤란함.</param>
         /// <returns></returns>
-        public static AccessoryEffect GetAccessoryEffect(EAccessoryType type)
+        public static AccessoryEffector GetAccessoryEffect(EAccessoryType type)
             => _AccessoryDict[type];
 
         /// <summary>
@@ -39,25 +46,20 @@ namespace Hashira.Accessories
         /// </summary>
         /// <param name="type">Passive나 Active. None은 쓰지 마셈</param>
         /// <param name="accessory">대상 SO</param>
-        /// <param name="broadcastChange">Change됐다는걸 장신구들에게 알려줄거냐는 뜻. 인게임 실시간 변경 아니면 false 유지</param>
-        public static void EquipAccessory(EAccessoryType type, AccessorySO accessory, bool broadcastChange = false)
+        public static void EquipAccessory(EAccessoryType type, AccessorySO accessory)
         {
-            if (broadcastChange)
-                _AccessoryDict[type]?.OnAccessoryTypeChange(EAccessoryType.None);
-            _AccessoryDict[type] = accessory.GetEffectInstance<AccessoryEffect>();
-            if (broadcastChange)
-                _AccessoryDict[type]?.OnAccessoryTypeChange(type);
+            _AccessoryDict[type] = accessory.GetEffectInstance<AccessoryEffector>();
+            OnAccessoryChangeEvent?.Invoke(EAccessoryType.None, type);
         }
 
         /// <summary>
         /// 장신구 장착해제 함수
         /// </summary>
         /// <param name="type">Passive나 Active. None은 쓰지 마셈</param>
-        /// <param name="broadcastChange">Change됐다는걸 장신구들에게 알려줄거냐는 뜻. 인게임 실시간 변경 아니면 false 유지</param>
-        public static void UnequipAccessory(EAccessoryType type, bool broadcastChange = false)
+        public static void UnequipAccessory(EAccessoryType type)
         {
-            if (broadcastChange)
-                _AccessoryDict[type]?.OnAccessoryTypeChange(EAccessoryType.None);
+            OnAccessoryChangeEvent?.Invoke(type, EAccessoryType.None);
+            _AccessoryDict[type]?.OnUnequip();
             _AccessoryDict[type] = null;
         }
 
@@ -70,14 +72,14 @@ namespace Hashira.Accessories
         {
             foreach (var pair in _AccessoryDict)
             {
-                pair.Value?.Initialize(owner);
-                pair.Value?.OnAccessoryTypeChange(pair.Key);
+                Debug.Log(pair.Value);
+                pair.Value?.OnApply(owner, pair.Key);
             }
         }
 
         public static void ResetAccessory()
         {
-            _AccessoryDict = new Dictionary<EAccessoryType, AccessoryEffect>
+            _AccessoryDict = new Dictionary<EAccessoryType, AccessoryEffector>
             {
                 { EAccessoryType.Passive, null },
                 { EAccessoryType.Active, null },

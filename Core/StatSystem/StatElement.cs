@@ -157,7 +157,8 @@ namespace Hashira.Core.StatSystem
 
             SetValue();
         }
-        public void RemoveModify(string key, EModifyLayer eModifyLayer)
+
+        public void RemoveModifyOverlap(string key, EModifyLayer eModifyLayer)
         {
             if (_modifiers[eModifyLayer].ContainsKey(key))
             {
@@ -165,6 +166,16 @@ namespace Hashira.Core.StatSystem
                 if (_modifiers[eModifyLayer][key] == 0)
                     _modifiers[eModifyLayer].Remove(key);
                 SetValue();
+            }
+            else
+                Debug.LogWarning($"[{key}]Key not found for statModifier");
+        }
+        
+        public void RemoveModify(string key, EModifyLayer eModifyLayer)
+        {
+            if (_modifiers[eModifyLayer].ContainsKey(key))
+            {
+                _modifiers[eModifyLayer].Remove(key);
             }
             else
                 Debug.LogWarning($"[{key}]Key not found for statModifier");

@@ -1,8 +1,5 @@
-using Hashira.CanvasUI.Option;
-using Hashira.CanvasUI.Title;
 using Hashira.Cards;
 using Hashira.Cards.Effects;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -36,11 +33,11 @@ namespace Hashira.CanvasUI
             SceneLoadingManager.LoadScene(SceneName.TitleScene);
         }
 
-        public void Init(int floor, int stage, int killCound, int bossKillCound, List<CardEffect> cardEffectList)
+        public void Init(int floor, int stage, int killCound, int bossKillCound, List<CardSO> cardSO)
         {
-            _cardScrollView.CreateCard(cardEffectList.Select(cardEffect => cardEffect.CardSO).ToList());
+            _cardScrollView.CreateCard(cardSO);
             int score = (floor - 1) * 20 + (stage - 1) * 3 + killCound * 2 + bossKillCound * 10;
-            _statisticsText.text =  $"진척도 : {floor}층 {stage}번 구역\n" +
+            _statisticsText.text = $"진척도 : {floor}층 {stage}번 구역\n" +
                                     $"잡은 유해생명체 : {killCound}체\n" +
                                     $"잡은 유해근원체 : {bossKillCound}체\n" +
                                     $"특수 구역 정보수집 : 0회\n" +

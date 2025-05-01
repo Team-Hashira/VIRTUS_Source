@@ -1,8 +1,5 @@
 using Crogen.CrogenPooling;
 using Hashira.Core.EventSystem;
-using Hashira.Entities;
-using NUnit.Framework;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +9,9 @@ namespace Hashira.Cards.Effects
 {
     public class StackKnifeCard : CardEffect
     {
-        private int[] _needCostByStack = new int[] { 1 };
-        protected override int[] _NeedCostByStack => _needCostByStack;
-
         private List<Knife> _knifeList;
-        private int[] _damageByStack = { 10, 15, 15 };
-        private int _maxKnifeStack = 8;
+        [SerializeField] private int[] _damageByStack = { 10, 15, 15 };
+        [SerializeField] private int _maxKnifeStack = 8;
 
         public override void Enable()
         {

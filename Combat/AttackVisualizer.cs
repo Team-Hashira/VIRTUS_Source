@@ -1,6 +1,8 @@
 using Crogen.AttributeExtension;
 using DG.Tweening;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Hashira.Combat
@@ -33,6 +35,7 @@ namespace Hashira.Combat
         private readonly int _damageCastShapeTypeID = Shader.PropertyToID("_DAMAGECASTSHAPETYPE");
         private readonly int _valueID = Shader.PropertyToID("_Value");
         private readonly int _colorID = Shader.PropertyToID("_Color");
+        private readonly int _alphaID = Shader.PropertyToID("_Alpha");
         
         private Color _originalColor;
         private Material DamageCastSignMaterial
@@ -46,21 +49,70 @@ namespace Hashira.Combat
             }
         }
 
+        private bool _isBlink = false;
+        private float _blinkTime = 0;
+        private float _blinkDelay = 0.1f;
+        private float _duration;
+        private float _time = 0f;
+        private readonly float _blinkMaxDelay = 0.075f;
+        
         private void Awake()
         {
             _originalColor = _material.GetColor(_colorID);
         }
 
-        public void SetDamageCastSignValue(float value)
+        public void SetDamageCastValue(float value)
         {
             DamageCastSignMaterial?.DOKill();
-            DamageCastSignMaterial.SetFloat(_valueID, value);
+            DamageCastSignMaterial?.SetFloat(_valueID, value);
         }
-    
-        public Tween SetDamageCastSignValue(float value, float duration)
+        public Tween SetDamageCastValue(float value, float duration)
         {
             DamageCastSignMaterial?.DOKill();
-            return DamageCastSignMaterial.DOFloat(value, _valueID, duration);
+            return DamageCastSignMaterial?.DOFloat(value, _valueID, duration);
+        }
+
+        public void SetAlpha(float alpha)
+        {
+            DamageCastSignMaterial.SetFloat(_alphaID, alpha);    
+        }
+        public float GetAlpha()
+        {
+            return DamageCastSignMaterial.GetFloat(_alphaID);
+        }
+        public Tween Blink(float duration = 1)
+        {
+            _time = 0;
+            _blinkDelay = _blinkMaxDelay;
+            _duration = duration;
+            _blinkTime = Time.time;
+            Sequence seq = DOTween.Sequence();
+            seq.AppendCallback(()=>_isBlink = true);
+            seq.AppendInterval(duration);
+            seq.AppendCallback(()=>
+            {
+                _isBlink = false;
+                SetAlpha(1);
+                _material.SetColor(_colorID, Color.white * 4);
+            });
+            seq.AppendInterval(Time.deltaTime);
+            seq.AppendCallback(()=>_material.SetColor(_colorID, _originalColor));
+            return seq;
+        }
+
+        float EaseInCubic(float x){
+            return x * x * x;
+        }
+        
+        private void Update()
+        {
+            // Blink
+            if (_isBlink)
+            {
+                _time += Time.deltaTime;
+                _blinkDelay = Mathf.Lerp(_blinkMaxDelay, 0, EaseInCubic(_time/_duration));
+                SetAlpha(Mathf.Cos(_time * Mathf.PI * (1/_blinkMaxDelay)) * 0.5f + 0.5f);
+            }
         }
 
         public void SetDamageCastSignColor(Color color)
@@ -70,8 +122,8 @@ namespace Hashira.Combat
         
         public void SetDamageCastSignOriginColor() => DamageCastSignMaterial.SetColor(_colorID, _originalColor);
         
-        [Button("ResetDamageCastVisualSign(Test)")]
-        public void ResetDamageCastVisualSign()
+        [Button("InitDamageCastVisualSign(Test)")]
+        public void InitDamageCastVisualSign()
         {
             Vector2 center = Vector2.zero;
             Vector2 size = Vector2.zero;

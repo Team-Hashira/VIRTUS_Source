@@ -57,7 +57,7 @@ namespace Hashira.Enemies.Slime
             if (_isDashTriggered)
             {
                 _enemyMover.SetMovement(new Vector2(_entityRenderer.FacingDirection * _dashSpeedElement.Value, 0));
-                _slime.DamageCaster.CastDamage(_attackPowerElement.IntValue, false);
+                _slime.DamageCaster.CastDamage(_attackPowerElement.IntValue);
             }
             if (_enemyMover.IsWallOnFront())
             {

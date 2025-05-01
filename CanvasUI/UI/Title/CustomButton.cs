@@ -19,6 +19,7 @@ namespace Hashira.CanvasUI
 
         [FormerlySerializedAs("_isUseSize")]
         public bool isUseSize;
+        [SerializeField, ToggleField(nameof(isUseSize))] private bool _isScale;
         [SerializeField, ToggleField(nameof(isUseSize))] private Vector2 _sizeModify;
         [SerializeField, ToggleField(nameof(isUseSize))] private float _sizeDuration;
 
@@ -37,6 +38,7 @@ namespace Hashira.CanvasUI
         [SerializeField] private bool _isDonUseTimeScale = false;
 
         private Color _defaultColor;
+        private Vector2 _defaultScale;
         private Vector2 _defaultSize;
         private Color _defaultTextColor;
         private Vector2 _defaultAnchoredPos;
@@ -54,13 +56,18 @@ namespace Hashira.CanvasUI
         protected override void Awake()
         {
             base.Awake();
-            _defaultSize = RectTransform.sizeDelta;
             if (isUseLight)
             {
                 _defaultColor = _image.color;
                 if (_text != null) _defaultTextColor = _text.color;
             }
             _defaultAnchoredPos = RectTransform.anchoredPosition;
+        }
+
+        private void Start()
+        {
+            _defaultSize = RectTransform.sizeDelta;
+            _defaultScale = transform.localScale;
         }
 
         public void SetText(string text)
@@ -100,13 +107,16 @@ namespace Hashira.CanvasUI
             OnHoverEvent?.Invoke(true);
             if (isUseMove)
             {
-                if (_moveTween != null && _moveTween.IsActive()) _moveTween.Kill();
+                _moveTween.Clear();
                 _moveTween = RectTransform.DOAnchorPosX(_defaultAnchoredPos.x + _moveDistance, _moveDuration).SetEase(Ease.OutExpo).SetUpdate(_isDonUseTimeScale);
             }
             if (isUseSize)
             {
-                if (_sizeTween != null && _sizeTween.IsActive()) _sizeTween.Kill();
-                _sizeTween = RectTransform.DOSizeDelta(_defaultSize + _sizeModify, _sizeDuration).SetEase(Ease.OutExpo).SetUpdate(_isDonUseTimeScale);
+                _sizeTween.Clear();
+                if (_isScale)
+                    _sizeTween = RectTransform.DOScale(_defaultScale + _sizeModify, _sizeDuration).SetEase(Ease.OutExpo).SetUpdate(_isDonUseTimeScale);
+                else
+                    _sizeTween = RectTransform.DOSizeDelta(_defaultSize + _sizeModify, _sizeDuration).SetEase(Ease.OutExpo).SetUpdate(_isDonUseTimeScale);
             }
 
             Light();
@@ -116,7 +126,7 @@ namespace Hashira.CanvasUI
         private void Light()
         {
             if (isUseLight == false) return;
-            if (_colorSeq != null && _colorSeq.IsActive()) _colorSeq.Kill();
+            _colorSeq.Clear();
             if (_text != null) _text.color = lightColor;
             _image.color = lightColor;
         }
@@ -125,7 +135,7 @@ namespace Hashira.CanvasUI
         {
             if (isUseGlitch == false) return;
             _childrenMaterialController.SetValue(_ValueShaderHash, 1f);
-            if (_materialTween != null && _materialTween.IsActive()) _materialTween.Kill();
+            _materialTween.Clear();
             _materialTween = DOTween.To(() => 1f, value => _childrenMaterialController.SetValue(_ValueShaderHash, value), 0f, _glitchDuration).SetUpdate(_isDonUseTimeScale);
         }
 
@@ -135,7 +145,7 @@ namespace Hashira.CanvasUI
             OnHoverEvent?.Invoke(false);
             if (isUseLight)
             {
-                if (_colorSeq != null && _colorSeq.IsActive()) _colorSeq.Kill();
+                _colorSeq.Clear();
                 _colorSeq = DOTween.Sequence().SetUpdate(_isDonUseTimeScale);
                 _colorSeq.Append(_image.DOColor(_defaultColor, _lightOffDuration));
                 if (_text != null) _colorSeq.Join(_text.DOColor(_defaultTextColor, _lightOffDuration));
@@ -143,23 +153,26 @@ namespace Hashira.CanvasUI
 
             if (isUseMove)
             {
-                if (_moveTween != null && _moveTween.IsActive()) _moveTween.Kill();
+                _moveTween.Clear();
                 _moveTween = RectTransform.DOAnchorPosX(_defaultAnchoredPos.x, _moveDuration).SetUpdate(_isDonUseTimeScale);
             }
 
             if (isUseSize)
             {
-                if (_sizeTween != null && _sizeTween.IsActive()) _sizeTween.Kill();
-                _sizeTween = RectTransform.DOSizeDelta(_defaultSize, _sizeDuration).SetUpdate(_isDonUseTimeScale);
+                _sizeTween.Clear();
+                if (_isScale)
+                    _sizeTween = RectTransform.DOScale(_defaultScale, _sizeDuration).SetUpdate(_isDonUseTimeScale);
+                else
+                    _sizeTween = RectTransform.DOSizeDelta(_defaultSize, _sizeDuration).SetUpdate(_isDonUseTimeScale);
             }
         }
 
         private void OnDestroy()
         {
-            if (_moveTween != null && _moveTween.IsActive()) _moveTween.Kill();
-            if (_colorSeq != null && _colorSeq.IsActive()) _colorSeq.Kill();
-            if (_materialTween != null && _materialTween.IsActive()) _materialTween.Kill();
-            if (_sizeTween != null && _sizeTween.IsActive()) _sizeTween.Kill();
+            _moveTween.Clear();
+            _colorSeq.Clear();
+            _materialTween.Clear();
+            _sizeTween.Clear();
         }
     }
 }

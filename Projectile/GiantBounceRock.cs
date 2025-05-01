@@ -20,7 +20,7 @@ namespace Hashira.Bosses.Patterns
         private Rigidbody2D _rigidbody;
 
         private int _level;
-        private event Action<int> OnDieEvent;
+        private event Action<GiantBounceRock, int> OnDieEvent;
         public float Mass => _rigidbody.mass;
         public float Gravity => _rigidbody.gravityScale;
 
@@ -29,7 +29,7 @@ namespace Hashira.Bosses.Patterns
             _rigidbody = GetComponent<Rigidbody2D>();
         }
 
-        public void Init(int level, Vector2 targetPos, Action<int> dieEvent)
+        public void Init(int level, Vector2 targetPos, Action<GiantBounceRock, int> dieEvent)
         {
             this._level = level;
 
@@ -49,7 +49,7 @@ namespace Hashira.Bosses.Patterns
             transform.localScale = Vector3.one * _level;
             OnDieEvent = dieEvent;
         }
-        public void Init(int level, Vector2 dir, float power, Action<int> dieEvent)
+        public void Init(int level, Vector2 dir, float power, Action<GiantBounceRock, int> dieEvent)
         {
             this._level = level;
             transform.localScale = Vector3.one * _level;
@@ -64,8 +64,11 @@ namespace Hashira.Bosses.Patterns
 
         public void OnPush()
         {
+            OnDieEvent?.Invoke(this, _level);
             gameObject.Pop(_rockDestoryVFXPoolType, transform.position, Quaternion.identity)
                 .gameObject.transform.localScale = Vector3.one * _level;
+
+            OnDieEvent = null;
         }
 
         private void FixedUpdate()
@@ -102,7 +105,6 @@ namespace Hashira.Bosses.Patterns
 
         private void GenerateLowLevelRock(Vector2 dir, Vector2 normal)
         {
-            OnDieEvent?.Invoke(_level);
             if (_level <= 1) return;
             var lowLevelRock = gameObject.Pop(OriginPoolType, transform.position, Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360))) as GiantBounceRock;
 
