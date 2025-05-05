@@ -298,10 +298,10 @@ namespace Hashira.MainScreen
         {
             OnAlpha(value, 0.25f);
         }
-        public static void OnAlpha(float value, float duration=0.25f, Ease ease = Ease.Unset)
+        public static Tween OnAlpha(float value, float duration=0.25f, Ease ease = Ease.Unset)
         {
             _fadeTween?.Kill();
-            _fadeTween = _mainScreenMat.DOFloat(value, _alphaID, duration).SetEase(ease);
+            return _fadeTween = _mainScreenMat.DOFloat(value, _alphaID, duration).SetEase(ease);
         }
     }
 }
