@@ -1,5 +1,5 @@
 # VIRTUS_Soruce
-VIRTUS 소스코드
+## VIRTUS 소스코드
 
 김동률 : 플레이어, 카드 시스템
 
