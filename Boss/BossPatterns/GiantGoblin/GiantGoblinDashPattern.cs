@@ -75,7 +75,7 @@ namespace Hashira.Bosses.Patterns
                 seq.Append(MainScreenEffect.OnLocalMoveScreenSide(_dashDirection > 0 ? DirectionType.Right : DirectionType.Left));
                 seq.JoinCallback(()=>CameraManager.Instance.ShakeCamera(10, 30, 2.8f, Ease.InCirc));
                 seq.AppendInterval(0.02f);
-                seq.AppendCallback(() => MainScreenEffect.OnLocalMoveScreenSide(0));
+                seq.AppendCallback(() => MainScreenEffect.OnLocalMoveScreenSide(0, 0.45f, Ease.OutSine));
             }
         }
 

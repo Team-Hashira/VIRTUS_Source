@@ -60,7 +60,7 @@ namespace Hashira.Bosses.Patterns
             {
                 if (_waveEffectTimer + _waveEffectDelay < Time.time)
                 {
-                    GameObject.Pop(_waveEffectPoolType, Transform.position, quaternion.identity);
+                    PopCore.Pop(_waveEffectPoolType, Transform.position, quaternion.identity);
                     _waveEffectTimer = Time.time;
                 }
                 

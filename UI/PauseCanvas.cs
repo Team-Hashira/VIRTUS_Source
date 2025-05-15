@@ -11,6 +11,8 @@ namespace Hashira.UI
         private CanvasGroup _canvasGroup;
         private bool _isFading = false;
 
+        private Sequence _seq;
+
         private void Awake()
         {
             _canvasGroup = GetComponent<CanvasGroup>();
@@ -22,6 +24,7 @@ namespace Hashira.UI
 
         private void OnDestroy()
         {
+            _seq?.Clear();
             _inputReader.OnPauseEvent -= HandleOnPause;
         }
 
@@ -31,15 +34,15 @@ namespace Hashira.UI
 
             bool fadeIn = gameObject.activeSelf;
             float duration = 0.35f;
-            Sequence seq = DOTween.Sequence();
-            seq.AppendCallback(() =>
+            _seq = DOTween.Sequence();
+            _seq.AppendCallback(() =>
             {
                 _isFading = true;
                 _canvasGroup.interactable = false;
                 gameObject.SetActive(true);
             });
-            seq.Append(_canvasGroup.DOFade(fadeIn ? 0 : 1, duration));
-            seq.AppendCallback(() =>
+            _seq.Append(_canvasGroup.DOFade(fadeIn ? 0 : 1, duration));
+            _seq.AppendCallback(() =>
             {
                 _canvasGroup.interactable = true;
                 gameObject.SetActive(!fadeIn);

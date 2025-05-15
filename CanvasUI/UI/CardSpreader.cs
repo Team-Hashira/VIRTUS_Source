@@ -111,13 +111,13 @@ namespace Hashira
                 float yIndex;
                 if (_horizontalCount == -1)
                 {
-                    xIndex = (i - (cardCount - 1) / 2f);
+                    xIndex = (i - (cardCount - 1) * _pivot.x);
                     yIndex = 0;
                 }
                 else
                 {
-                    xIndex = (i % _horizontalCount - (Mathf.Min(cardCount, _horizontalCount) - 1) / 2f);
-                    yIndex = (float)((cardCount - 1) / _horizontalCount) / 2 - (i / _horizontalCount);
+                    xIndex = (i % _horizontalCount - (Mathf.Min(cardCount, _horizontalCount) - 1) * _pivot.x);
+                    yIndex = (float)((cardCount - 1) / _horizontalCount) * _pivot.y - (i / _horizontalCount);
                 }
 
                 float xPos = xIndex * _interval.x + _offset.x;

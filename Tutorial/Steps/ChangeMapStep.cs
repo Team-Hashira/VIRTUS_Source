@@ -26,7 +26,8 @@ namespace Hashira.Tutorials
             base.OnEnter();
             if(_useGlitch)
             {
-                MainScreenEffect.OnGlitch(0.3f, 0.1f).OnComplete(() => MainScreenEffect.OnGlitch(0, 0.5f));
+                MainScreenEffect.OnGlitch(2.3f, 0.1f).OnComplete(() => MainScreenEffect.OnGlitch(0, 0.5f));
+                CameraManager.Instance.ShakeCamera(6f, 6f, 0.6f);
             }
             _beforeMap.SetActive(false);
             _toChangeMap.SetActive(true);

@@ -11,6 +11,8 @@ namespace Hashira.Cards.Effects
 
         [HideInInspector] public Player player;
 
+        public bool IsEnable { get; private set; } = false;
+
         public bool IsMaxStack => stack == CardSO.maxOverlapCount;
 
         public override void Initialize(ItemSO itemSO)
@@ -33,8 +35,16 @@ namespace Hashira.Cards.Effects
         }
 
 
-        public abstract void Enable();
-        public abstract void Update();
-        public abstract void Disable();
+        public virtual void Enable()
+        {
+            IsEnable = true;
+        }
+        public virtual void Update() { }
+        public virtual void Disable()
+        {
+            IsEnable = false;
+        }
+
+        public virtual void Reset() { }
     }
 }

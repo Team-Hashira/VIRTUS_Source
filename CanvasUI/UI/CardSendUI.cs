@@ -28,7 +28,7 @@ namespace Hashira.CanvasUI
             _sendCardList = new List<CardSO>();
 
             List<CardSO> cardList
-                = PlayerDataManager.Instance.CardEffectList.Select(cardEffect => cardEffect.CardSO).ToList();
+                = PlayerDataManager.Instance.CardEffectDictionary.Keys.ToList();
             _cardSpreader.CreateCard(cardList, false);
             _setupCardVisualList = _cardSpreader.GetCardList();
             _lastRandomIndex = _setupCardVisualList.Count;
@@ -48,13 +48,13 @@ namespace Hashira.CanvasUI
 
         private void HandleCardSendEvent()
         {
-            if (_lastRandomIndex >= 0 && Cost.TryRemoveCost(_currentNeedCost))
+            if (_lastRandomIndex > 0 && Cost.TryRemoveCost(_currentNeedCost))
             {
                 _currentNeedCost += _addNeedCost;
                 UpdateCardSendCostText(_currentNeedCost);
                 int randomIndex = UnityEngine.Random.Range(0, _lastRandomIndex);
                 SetupCardVisual selectedSetupCardVisual = _setupCardVisualList[randomIndex];
-                selectedSetupCardVisual.CardBorderImage.color = Color.yellow;
+                selectedSetupCardVisual.SetOutlineColor(Color.yellow);
                 _sendCardList.Add(selectedSetupCardVisual.CardSO);
 
                 SetupCardVisual temp = _setupCardVisualList[randomIndex];
@@ -66,7 +66,7 @@ namespace Hashira.CanvasUI
 
         private void HandleNextFloorEvent()
         {
-            PlayerDataManager.Instance.ResetPlayerCardEffect(_sendCardList);
+            PlayerDataManager.Instance.ResetCardEffectList(_sendCardList);
             SceneLoadingManager.LoadScene(SceneName.GameScene);
         }
 

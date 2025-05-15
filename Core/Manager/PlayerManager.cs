@@ -1,3 +1,4 @@
+using Hashira.Cards;
 using Hashira.Cards.Effects;
 using Hashira.Players;
 using System;
@@ -21,17 +22,20 @@ namespace Hashira.Core
             }
         }
 
-        private List<CardEffect> _cardEffectList = new();
+        private List<CardEffect> _cardEffectList;
 
         public event Action<bool> OnCardEffectEnableEvent;
 
-        public void SetCardEffectList(List<CardEffect> cardEffects, bool isEventSender = false)
+        public void SetCardEffectList(List<CardEffect> cardEffectList, bool isEventSender)
         {
-            _cardEffectList = cardEffects;
-            for (int i = 0; i < _cardEffectList.Count; i++)
+            _cardEffectList = cardEffectList;
+            if (_cardEffectList != null)
             {
-                _cardEffectList[i].player = Player;
-                _cardEffectList[i].Enable();
+                foreach (var cardEffect in _cardEffectList)
+                {
+                    cardEffect.player = Player;
+                    if (false == cardEffect.IsEnable) cardEffect.Enable();
+                }
             }
 
             if (isEventSender)
@@ -40,27 +44,35 @@ namespace Hashira.Core
 
         public void ReEnableCardEffect()
         {
-            for (int i = 0; i < _cardEffectList.Count; i++)
+            if (_cardEffectList != null)
             {
-                _cardEffectList[i].Disable();
-                _cardEffectList[i].Enable();
+                foreach (var cardEffect in _cardEffectList)
+                {
+                    cardEffect.Disable();
+                    cardEffect.Enable();
+                }
             }
             OnCardEffectEnableEvent?.Invoke(true);
         }
 
         private void Update()
         {
-            for (int i = 0; i < _cardEffectList.Count; i++)
+            if (_cardEffectList != null)
             {
-                _cardEffectList[i].Update();
+                foreach (var cardEffect in _cardEffectList)
+                {
+                    cardEffect.Update();
+                }
             }
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
-            for (int i = 0; i < _cardEffectList.Count; i++)
+            if (_cardEffectList == null) return;
+
+            foreach (var cardEffect in _cardEffectList)
             {
-                _cardEffectList[i].Disable();
+                cardEffect.Disable();
             }
         }
     }

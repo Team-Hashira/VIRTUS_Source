@@ -15,6 +15,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             GameEventChannel.AddListener<ProjectileAfterHitEvent>(HandleHitEvent);
             _knifeList = new List<Knife>();
         }
@@ -49,12 +50,8 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<ProjectileAfterHitEvent>(HandleHitEvent);
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

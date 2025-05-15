@@ -1,6 +1,7 @@
 using Hashira.Core;
 using Hashira.Players;
 using Hashira.StageSystem;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +15,12 @@ namespace Hashira.CanvasUI
         private StageGenerator _stageGenerator;
         private readonly int _valueID = Shader.PropertyToID("_Value");
         private readonly int _splitID = Shader.PropertyToID("_Split");
-        
+
+        private void Awake()
+        {
+            _staminaBar.material = Instantiate(_staminaBar.material);
+        }
+
         private void Start()
         {
             _player = PlayerManager.Instance.Player;
@@ -35,8 +41,12 @@ namespace Hashira.CanvasUI
 
         private void OnDestroy()
         {
-            _player.OnStaminaChangedEvent -= HandleStaminaChangedEvent;
-            _stageGenerator.OnGeneratedStageEvent -= HandleUpdateStageData;
+            if (_player != null)
+                
+                _player.OnStaminaChangedEvent -= HandleStaminaChangedEvent;
+            
+            if (_stageGenerator != null)
+                _stageGenerator.OnGeneratedStageEvent -= HandleUpdateStageData;
         }
     }
 }

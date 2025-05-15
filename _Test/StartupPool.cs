@@ -17,7 +17,7 @@ namespace Hashira
                 if (poolPair.prefab == _poolablePrefab)
                 {
                     string poolType = $"{_poolCategorySO.name}.{poolPair.poolType}";
-                    IPoolingObject poolingObject = gameObject.Pop(poolType, transform);
+                    IPoolingObject poolingObject = PopCore.Pop(poolType, transform);
                     T popedObject = poolingObject.gameObject.GetComponent<T>();
                     PopObjectSetting(popedObject);
                     break;

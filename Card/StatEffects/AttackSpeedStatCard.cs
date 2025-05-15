@@ -13,17 +13,15 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             _attackSpeedStat = player.GetEntityComponent<EntityStat>().StatDictionary[StatName.AttackSpeed];
             _attackSpeedStat.AddModify("AttackSpeedStatEffect", _attackSpeedUpValue[stack - 1], EModifyMode.Percent, EModifyLayer.Default);
         }
 
         public override void Disable()
         {
+            base.Disable();
             _attackSpeedStat.RemoveModifyOverlap("AttackSpeedStatEffect", EModifyLayer.Default);
-        }
-
-        public override void Update()
-        {
         }
     }
 }

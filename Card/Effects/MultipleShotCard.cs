@@ -13,6 +13,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             _attacker = player.Attacker;
             GameEventChannel.AddListener<ProjectileShootEvent>(HandleAttackerShootEvnet);
             _shootCount = 0;
@@ -39,12 +40,9 @@ namespace Hashira.Cards.Effects
             _attacker?.Shoot();
         }
 
-        public override void Update()
-        {
-        }
-
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<ProjectileShootEvent>(HandleAttackerShootEvnet);
         }
     }

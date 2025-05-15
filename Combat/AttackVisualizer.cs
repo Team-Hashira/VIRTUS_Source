@@ -1,8 +1,6 @@
 using Crogen.AttributeExtension;
 using DG.Tweening;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Hashira.Combat
@@ -37,13 +35,15 @@ namespace Hashira.Combat
         private readonly int _colorID = Shader.PropertyToID("_Color");
         private readonly int _alphaID = Shader.PropertyToID("_Alpha");
         
-        private Color _originalColor;
         private Material DamageCastSignMaterial
         {
             get
             {
-                if (MeshRenderer == null || MeshRenderer.material == null) 
-                    MeshRenderer.material = _material;
+                if (MeshRenderer == null || MeshRenderer.material == null)
+                {
+                    MeshRenderer.material = Instantiate(_material);
+                    _originalColor = _material.GetColor(_colorID);
+                }
                 
                 return MeshRenderer.material.HasInt(_damageCastShapeTypeID) ? MeshRenderer.material : null;
             }
@@ -55,10 +55,14 @@ namespace Hashira.Combat
         private float _duration;
         private float _time = 0f;
         private readonly float _blinkMaxDelay = 0.075f;
+        private Color _originalColor;
         
-        private void Awake()
+        private Sequence _blinkSequence;
+
+        private void OnDestroy()
         {
-            _originalColor = _material.GetColor(_colorID);
+            DamageCastSignMaterial?.DOKill();
+            _blinkSequence?.Kill();
         }
 
         public void SetDamageCastValue(float value)
@@ -74,7 +78,7 @@ namespace Hashira.Combat
 
         public void SetAlpha(float alpha)
         {
-            DamageCastSignMaterial.SetFloat(_alphaID, alpha);    
+            DamageCastSignMaterial?.SetFloat(_alphaID, alpha);    
         }
         public float GetAlpha()
         {
@@ -86,18 +90,18 @@ namespace Hashira.Combat
             _blinkDelay = _blinkMaxDelay;
             _duration = duration;
             _blinkTime = Time.time;
-            Sequence seq = DOTween.Sequence();
-            seq.AppendCallback(()=>_isBlink = true);
-            seq.AppendInterval(duration);
-            seq.AppendCallback(()=>
+            _blinkSequence = DOTween.Sequence();
+            _blinkSequence.AppendCallback(()=>_isBlink = true);
+            _blinkSequence.AppendInterval(duration);
+            _blinkSequence.AppendCallback(()=>
             {
                 _isBlink = false;
                 SetAlpha(1);
-                _material.SetColor(_colorID, Color.white * 4);
+                DamageCastSignMaterial.SetColor(_colorID, Color.white * 4);
             });
-            seq.AppendInterval(Time.deltaTime);
-            seq.AppendCallback(()=>_material.SetColor(_colorID, _originalColor));
-            return seq;
+            _blinkSequence.AppendInterval(Time.deltaTime);
+            _blinkSequence.AppendCallback(SetOriginColor);
+            return _blinkSequence;
         }
 
         float EaseInCubic(float x){
@@ -115,12 +119,15 @@ namespace Hashira.Combat
             }
         }
 
+        public void SetOriginColor()
+        {
+            DamageCastSignMaterial?.SetColor(_colorID, _originalColor);
+        }
+        
         public void SetDamageCastSignColor(Color color)
         {
             DamageCastSignMaterial.SetColor(_colorID, color);
         }
-        
-        public void SetDamageCastSignOriginColor() => DamageCastSignMaterial.SetColor(_colorID, _originalColor);
         
         [Button("InitDamageCastVisualSign(Test)")]
         public void InitDamageCastVisualSign()
@@ -139,6 +146,11 @@ namespace Hashira.Combat
                 size = Vector2.one * circleDamageCaster.radius;
             }
             CreateMesh(center, size);
+        }
+
+        private void OnDisable()
+        {
+            _blinkSequence?.Kill();
         }
 
         private void CreateMesh(Vector2 center, Vector2 size)
@@ -175,7 +187,8 @@ namespace Hashira.Combat
             mesh.SetUVs(0, uvs);
             mesh.SetNormals(normals);
 
-            MeshRenderer.material = _material;
+            MeshRenderer.material = Instantiate(_material);
+            _originalColor = _material.GetColor(_colorID);
             MeshFilter.mesh = mesh;
         }
     }

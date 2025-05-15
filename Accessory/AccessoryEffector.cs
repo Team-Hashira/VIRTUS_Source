@@ -66,14 +66,6 @@ namespace Hashira.Accessories.Effects
         }
 
         /// <summary>
-        /// Accessory를 가지고 있는 주체에서 Update 사이클에 맞춰 실행하는 함수입니다.
-        /// </summary>
-        public virtual void PassiveSkill()
-        {
-            _accessoryPassiveEffect.OnUpdate();
-        }
-
-        /// <summary>
         /// Accessory를 가지고 있는 주체에서 Active 스킬 키를 눌렀을떄 실행하는 함수입니다.
         /// </summary>
         public virtual void ActiveSkill()

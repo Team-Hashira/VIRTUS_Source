@@ -121,5 +121,12 @@ namespace Hashira.CanvasUI
             }
             OnComplete?.Invoke();
         }
+
+        private void OnDestroy()
+        {
+            _setDefaultTween?.Kill(true);
+            _hoverSequence?.Kill(true);
+            _selectSequence?.Kill(true);
+        }
     }
 }

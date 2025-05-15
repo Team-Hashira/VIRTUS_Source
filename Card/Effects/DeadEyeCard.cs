@@ -15,6 +15,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             GameEventChannel.AddListener<ProjectileBeginHitEvent>(HandleProjectileBeginHitEvent);
             _attackDamageStat = player.GetEntityComponent<EntityStat>().StatDictionary[StatName.AttackPower];
         }
@@ -28,12 +29,8 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<ProjectileBeginHitEvent>(HandleProjectileBeginHitEvent);
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

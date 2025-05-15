@@ -32,9 +32,9 @@ namespace Hashira.Projectiles
 
                 if (damageable is EntityHealth health && health.TryGetComponent(out Entity entity))
                 {
-                    //gameObject.Pop(EffectPoolType.BulletShootSparkleEffect, transform.position, transform.rotation);
+                    //PopCore.Pop(EffectPoolType.BulletShootSparkleEffect, transform.position, transform.rotation);
 
-                    ParticleSystem[] bulletHitEffects = gameObject.Pop(EffectPoolType.BulletHitEffect, hit.point + hit.normal * 0.1f, 
+                    ParticleSystem[] bulletHitEffects = PopCore.Pop(EffectPoolType.BulletHitEffect, hit.point + hit.normal * 0.1f, 
                         Quaternion.Euler(0, 0, -90) * transform.rotation).gameObject.GetComponentsInChildren<ParticleSystem>();
                     foreach (ParticleSystem bulletHitEffect in bulletHitEffects)
                     {
@@ -46,7 +46,7 @@ namespace Hashira.Projectiles
             else
             {
                 //Effect
-                ParticleSystem hitSparkleEffect = gameObject.Pop(EffectPoolType.HitSparkleEffect, hit.point + hit.normal * 0.1f, 
+                ParticleSystem hitSparkleEffect = PopCore.Pop(EffectPoolType.HitSparkleEffect, hit.point + hit.normal * 0.1f, 
                     Quaternion.LookRotation(Vector3.back, hit.normal)).gameObject.GetComponent<ParticleSystem>();
                 var mainModule = hitSparkleEffect.main;
                 mainModule.startColor = _trailRenderer.startColor;

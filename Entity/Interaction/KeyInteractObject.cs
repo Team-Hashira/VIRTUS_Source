@@ -1,3 +1,4 @@
+using DG.Tweening;
 using Hashira.Players;
 using System;
 using TMPro;
@@ -18,6 +19,8 @@ namespace Hashira.Entities.Interacts
 
         public bool CanInteraction { get; set; } = true;
 
+        private Sequence _seq;
+
         protected virtual void Awake()
         {
             _keyGuideObject.SetActive(false);
@@ -32,7 +35,10 @@ namespace Hashira.Entities.Interacts
 
         public virtual void OffInteractable()
         {
-			_keyGuideObject.SetActive(false);
+            _seq.Clear();
+            _seq = DOTween.Sequence();
+            _seq.Append(_keyGuideObject.transform.DOScale(new Vector3(1.2f, 0, 1), 0.1f).SetEase(Ease.InQuad))
+                .AppendCallback(() => _keyGuideObject.SetActive(false));
         }
 
         public virtual void OnInteractable()
@@ -40,6 +46,15 @@ namespace Hashira.Entities.Interacts
 			if (CanInteraction == false) return;
 			_keyText.text = _inputReader.InteractKey;
             _keyGuideObject.SetActive(true);
+            _seq.Clear();
+            _seq = DOTween.Sequence();
+            _seq.OnStart(() => _keyGuideObject.transform.localScale = new Vector3(1.2f, 0, 1))
+                .Append(_keyGuideObject.transform.DOScale(new Vector3(1, 1, 1), 0.1f).SetEase(Ease.OutBack));
+        }
+
+        protected virtual void OnDestroy()
+        {
+            _seq.Clear();
         }
     }
 }

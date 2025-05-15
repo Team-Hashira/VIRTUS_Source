@@ -3,11 +3,12 @@ using UnityEngine;
 
 namespace Hashira.Accessories
 {
-    [CreateAssetMenu(fileName = "AccessorySO", menuName = "SO/AccessorySO")]
+    [CreateAssetMenu(fileName = "AccessorySO", menuName = "SO/Accessory/AccessorySO")]
     public class AccessorySO : ItemSO
     {
-        [field: TextArea]
-        [field: SerializeField]
-        public override string Description { get; set; }
+        [TextArea]
+        public string passiveDescription, activeDescription;
+        public override string Description { get; }
+
     }
 }

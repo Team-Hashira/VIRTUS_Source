@@ -88,11 +88,6 @@ namespace Hashira.Entities
         {
             if (IsDie || _evasionCount > 0) return;
 
-            int shieldValue = 0;
-
-            // 데미지 감쇠
-            attackInfo.damage -= shieldValue;
-
             int prev = Health;
             CalculateDamage(ref attackInfo);
 
@@ -128,7 +123,7 @@ namespace Hashira.Entities
         {
             Color color = EnumUtility.AttackTypeColorDict[attackType];
 
-            DamageText damageText = gameObject.Pop(WorldUIPoolType.DamageText, textPos, Quaternion.identity).gameObject.GetComponent<DamageText>();
+            DamageText damageText = PopCore.Pop(WorldUIPoolType.DamageText, textPos, Quaternion.identity).gameObject.GetComponent<DamageText>();
             damageText.Init(damage, color);
         }
 

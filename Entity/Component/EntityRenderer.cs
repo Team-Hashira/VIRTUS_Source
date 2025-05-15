@@ -70,7 +70,7 @@ namespace Hashira.Entities
                 LookTarget(UsualFacingTarget);
             }
 
-            if (RotationTrm != null && GameManager.Instance.IsGameOver == false)
+            if (Time.timeScale > 0 &&  RotationTrm != null && GameManager.Instance.IsGameOver == false)
             {
                 Vector3 center = RotationTrm.position;
 

@@ -71,6 +71,7 @@ namespace Hashira
             if (_visual.enabled && _lastDamageTime + _damageDelay < Time.time)
             {
                 _lastDamageTime = Time.time;
+                SoundManager.Instance.PlaySFX("FireRing", null, 0.8f);
                 RaycastHit2D[] raycastHits = Physics2D.CircleCastAll(transform.position, _radius, Vector2.zero, 0, _whatIsTarget);
                 foreach (RaycastHit2D raycastHit in raycastHits)
                 {
@@ -103,6 +104,8 @@ namespace Hashira
                         }
                     }
                     _endBurstParticle.Play();
+
+                    SoundManager.Instance.PlaySFX("FireRingExplosion", null, 1f);
                     CameraManager.Instance.ShakeCamera(8, 12, 0.3f);
                     LightingController.Aberration(1, 0.4f);
                 }

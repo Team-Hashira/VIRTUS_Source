@@ -6,6 +6,7 @@ using Hashira.Core;
 using Hashira.Enemies;
 using Hashira.Entities;
 using Hashira.Entities.Interacts;
+using Hashira.GimmickSystem;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,26 +14,28 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
 namespace Hashira.StageSystem
 {
     [Serializable]
-    public class Wave
+    public class Wave : IGimmickObject
     {
         [Serializable]
         public struct EnemyPair
         {
             public Enemy enemy;
-            public Transform Transform => enemy.transform;  
-            public GameObject GameObject => enemy.gameObject;  
+            public Transform Transform => enemy.transform;
+            public GameObject GameObject => enemy.gameObject;
             public bool ignore;
         }
-        
+
         [HideInInspector] public string name;
         public float delay = 1;
         public EnemyPair[] enemyPairs;
         public UnityEvent ClearEvent;
+        [field: SerializeField] public GimmickSO GimmickSO { get; set; }
 
         private int _enemyCount = 0;
         private Stage _owner;
@@ -48,11 +51,13 @@ namespace Hashira.StageSystem
                 _owner.AddWaveCount();
                 return;
             }
-            
+
             foreach (EnemyPair pair in enemyPairs)
             {
-                if (pair.ignore == false)
-                    pair.enemy.GetEntityComponent<EntityHealth>().OnDieEvent += HandleEnemyCounting;
+                if (pair.ignore == false && pair.enemy.TryGetComponent(out EntityHealth entityHealth))
+                {
+                    entityHealth.OnDieEvent += HandleEnemyCounting;
+                }
             }
         }
 
@@ -63,6 +68,7 @@ namespace Hashira.StageSystem
             if (_enemyCount > 0) return;
 
             ClearEvent?.Invoke();
+            GimmickSO?.OnGimmick(this);
             _owner.AddWaveCount();
         }
 
@@ -77,7 +83,7 @@ namespace Hashira.StageSystem
                     // 이전에 미리 켜둔 놈이라면 굳이 건들지 않는다.
                     if (enemyPairs[i].GameObject.activeSelf)
                         continue;
-                    
+
                     if (enemyPairs[i].enemy is Boss boss)
                     {
                         _owner.StartCoroutine(DelaySpawn(enemyPairs[i].enemy, 0f));
@@ -88,7 +94,7 @@ namespace Hashira.StageSystem
                         _owner.StartCoroutine(DelaySpawn(enemyPairs[i].enemy, 1f));
                         yield return waitForSeconds;
                     }
-                }   
+                }
             }
             else
             {
@@ -102,15 +108,19 @@ namespace Hashira.StageSystem
         {
             yield return new WaitForSeconds(delay);
             enemy.gameObject.SetActive(true);
-            PopCore.Pop(EffectPoolType.EnemySpawnEffect, enemy.transform.position, Quaternion.identity);
+            Transform effectTrm = PopCore.Pop(EffectPoolType.EnemySpawnEffect, _owner.Tilemap.transform).gameObject.transform;
+            effectTrm.position = enemy.transform.position;
         }
     }
 
     public class Stage : MonoBehaviour
     {
-        [field:SerializeField] public Camera ScreenCamera { get; private set; }
-        [field:SerializeField] public Vector2 Scale { get; private set; } = new Vector2(15, 15);
-        [field:SerializeField] public Vector2 Center { get; private set; } = Vector2.zero;
+        [field: SerializeField] public Camera ScreenCamera { get; private set; }
+        [field: SerializeField] public Vector2 Scale { get; private set; } = new Vector2(15, 15);
+        [field: SerializeField] public Vector2 Center { get; private set; } = Vector2.zero;
+        [field: SerializeField] public Tilemap Tilemap { get; private set; }
+        public List<Vector2Int> AirTileList { get; private set; }
+        public List<Vector2Int> GroundTileList { get; private set; }
         [Space]
         [SerializeField] private Transform _playerSpawnPoint;
         [SerializeField] private Portal[] _portals;
@@ -124,9 +134,9 @@ namespace Hashira.StageSystem
 
         public int CurrentEnemiesCount => EnemyList.Count;
         public int CurrentWaveCount { get; private set; } = 0;
-        //public UnityEvent OnAllClearEvent;
 
-        public event Action OnWaveChanged;
+        public event Action<int, int> OnWaveChangedEvent;
+        public event Action OnAllClearEvent;
 
         public List<Enemy> EnemyList { get; private set; } = new List<Enemy>();
         public List<Enemy> IgnoredEnemyList { get; private set; } = new List<Enemy>();
@@ -154,7 +164,7 @@ namespace Hashira.StageSystem
             {
                 Enemy[] ignoreEnemies = wave.enemyPairs.Where(x => x.ignore == false).Select(x => x.enemy).ToArray();
                 Enemy[] enemies = wave.enemyPairs.Select(x => x.enemy).ToArray();
-                
+
                 EnemyList.AddRange(enemies);
                 IgnoredEnemyList.AddRange(ignoreEnemies);
             }
@@ -165,21 +175,51 @@ namespace Hashira.StageSystem
                 eventTrm.gameObject.SetActive(false);
 
             if (_useCanvas)
-                UIManager.Instance.AddGameCanvas(_stagePanel);
-            
+            {
+                CanvasUI.UIManager.Instance.AddGameCanvas(_stagePanel);
+            }
+
             StartEvent?.Invoke();
+
+            AirTileList = new List<Vector2Int>();
+            GroundTileList = new List<Vector2Int>();
+            for (int i = -(int)Scale.y; i < Scale.y; i++)
+            {
+                for (int j = -(int)Scale.x; j < Scale.x; j++)
+                {
+                    Vector2Int pos = new Vector2Int(j, i);
+                    TileBase tileBase = Tilemap.GetTile((Vector3Int)pos);
+                    if (tileBase == null)
+                        AirTileList.Add(pos);
+                    else
+                        GroundTileList.Add(pos);
+                }
+            }
+
+            UpdateScreenCamera();
         }
 
         private void Update()
         {
-            if (ScreenCamera == null) return;
-
-            ScreenCamera.orthographicSize = Mathf.Max(Scale.x, Scale.y);
-            ScreenCamera.transform.position = new Vector3(Center.x, Center.y, -10f);
+            //UpdateScreenCamera();
         }
 
+        private void UpdateScreenCamera()
+        {
+            if (ScreenCamera == null) return;
+            ScreenCamera.orthographicSize = Mathf.Max(Scale.x, Scale.y);
+            ScreenCamera.transform.position = new Vector3(Center.x, Center.y, -10f);            
+        }
+        
         private void OnDestroy()
         {
+            PlayerManager.Instance.Player.transform.parent = null;
+                
+            var components = PlayerManager.Instance.Player.GetComponents<Behaviour>();
+
+            foreach (var com in components)
+                com.enabled = true;
+            
             if (_useCanvas && _stagePanel != null)
                 Destroy(_stagePanel.gameObject);
         }
@@ -208,11 +248,11 @@ namespace Hashira.StageSystem
             if (CurrentWaveCount >= waves.Length)
             {
                 ClearStage();
-                //OnAllClearEvent?.Invoke();
+                OnAllClearEvent?.Invoke();
             }
             else
             {
-                OnWaveChanged?.Invoke();
+                OnWaveChangedEvent?.Invoke(CurrentWaveCount, waves.Length);
                 yield return new WaitForSeconds(waves[CurrentWaveCount].delay);
                 StartCoroutine(waves[CurrentWaveCount].SetActiveAllEnemies(true, 0.1f));
             }
@@ -241,6 +281,7 @@ namespace Hashira.StageSystem
 
         public void OpenPortalAndEvent()
         {
+            if (_portals.Length == 0) return;
             List<StageTypeSO> stageTypeSOList = StageGenerator.Instance.GetNextStageData().GetRandomStageType(_portals.Length);
             for (int i = 0; i < stageTypeSOList.Count; i++)
             {
@@ -253,9 +294,15 @@ namespace Hashira.StageSystem
             }
         }
 
+        
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
+            // foreach (var item in AirTileList)
+            // {
+            //     Gizmos.DrawSphere(new Vector3(item.x, item.y), 0.2f);
+            // }
+
             for (int i = 0; i < waves.Length; i++)
             {
                 for (int j = 0; j < waves[i].enemyPairs.Length; j++)
@@ -275,11 +322,13 @@ namespace Hashira.StageSystem
 
             if (_playerSpawnPoint != null)
                 Handles.Label(_playerSpawnPoint.position + new Vector3(0, 1), $"PlayerSpawnPoint");
-            
+
             Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(Center, Scale*2);
+            Gizmos.matrix = Matrix4x4.TRS(Center, transform.rotation, Vector3.one);
+            Gizmos.DrawWireCube(Center, Scale * 2);
             Gizmos.DrawLine(new Vector3(-Scale.x, Center.y), new Vector3(Scale.x, Center.y));
             Gizmos.DrawLine(new Vector3(Center.x, -Scale.y), new Vector3(Center.x, Scale.y));
+            Gizmos.matrix = Matrix4x4.TRS(Vector2.zero, Quaternion.identity, Vector3.one);
             Gizmos.color = Color.white;
         }
 #endif

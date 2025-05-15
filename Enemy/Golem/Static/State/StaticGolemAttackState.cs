@@ -24,6 +24,7 @@ namespace Hashira.Enemies.Golem.StaticGolem
             base.OnEnter();
             _staticGolem.IsEyeFollowToPlayer = true;
             _entityAnimator.OnAnimationTriggeredEvent += HandleAnimationTriggered;
+            //SoundManager.Instance.PlaySFX("LaserShoot", _entity.transform.position, 1f);
         }
         
         private void HandleAnimationTriggered(EAnimationTriggerType triggertype, int count)
@@ -37,6 +38,7 @@ namespace Hashira.Enemies.Golem.StaticGolem
                     .Join(DOTween.To(x=>_currentLaserObject.SetAlpha(x), 0.3f, 1f, 0.85f).SetEase(Ease.InExpo))
                     .AppendCallback(() => _staticGolem.IsEyeFollowToPlayer = false)
                     .Append(_currentLaserObject.Blink(0.6f))
+                    .AppendCallback(() => SoundManager.Instance.PlaySFX("LaserShoot", _entity.transform, 1f))
                     .Append(_currentLaserObject.StartAttack(duration: 0.35f));
             }
             

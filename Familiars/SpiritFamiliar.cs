@@ -100,7 +100,10 @@ namespace Hashira
                 trailData.startColor = color;
                 trailData.endColor = color;
                 PlayerBullet.SetVisual(color, trailData);
+
+                SoundManager.Instance.PlaySFX("SpiritShoot", transform, 1f);
             }
+
         }
 
         public void OnPop()

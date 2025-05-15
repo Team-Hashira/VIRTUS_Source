@@ -1,12 +1,14 @@
 using Hashira.Bosses;
 using Hashira.Cards;
+using Hashira.Combat;
 using Hashira.Core;
 using Hashira.Entities;
 using System;
 using System.Collections;
-using System.Collections.Generic;
+using Doryu.CustomAttributes;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Hashira.StageSystem
 {
@@ -16,13 +18,14 @@ namespace Hashira.StageSystem
         public static int currentStageIdx = 0;
         public static int CurrentStageCount => Instance.floors[currentFloorIdx].stages.Length;
 
+        [VisibleInspectorSO]
         [SerializeField] private FloorSO[] floors;
         private Stage _currentStage;
 
         public event Action OnFloorUpEvent;
         public event Action OnNextStageEvent;
         public event Action OnGeneratedStageEvent;
-
+        [SerializeField] private FollowTarget _followTarget;
         public Stage GetCurrentStage() => _currentStage;
         public void SetCurrentStage(Stage stage) => _currentStage = stage;
         public int GetCurrentEnemiesCount() => _currentStage.CurrentEnemiesCount;
@@ -51,16 +54,7 @@ namespace Hashira.StageSystem
 
             PlayerManager.Instance.Player.Rotate(0, 0);
 
-            //_currentStage.OnAllClearEvent.AddListener(() =>
-            //{
-            //    if (currentFloorIdx == floors.Length - 1 && currentStageIdx == floors[currentFloorIdx].Length - 1)
-            //    {
-            //        // 임시
-            //        GameManager.Instance.GameOver();
-            //    }
-            //    else
-            //        ClearStage();
-            //});
+            //_followTarget?.SetTarget(_currentStage.transform);
             OnGeneratedStageEvent?.Invoke();
         }
 
@@ -107,7 +101,7 @@ namespace Hashira.StageSystem
                 if (currentFloorIdx >= floors.Length)
                 {
                     Debug.Log("Clear");
-                    //SceneLoadingManager.LoadScene("ClearScene");
+                    SceneLoadingManager.LoadScene(SceneName.TitleScene);
                 }
                 else
                 {
@@ -116,7 +110,6 @@ namespace Hashira.StageSystem
             }
             if (isNextFloor)
             {
-                ResetStage();
                 SceneLoadingManager.LoadScene(SceneName.CardSendScene);
             }
             else
@@ -140,47 +133,8 @@ namespace Hashira.StageSystem
             yield return new WaitForEndOfFrame();
             GenerateStage(stages);
             yield return null;
-            List<CardSO> cardSOList = PlayerDataManager.Instance.CardEffectList.Select(cardEffect => cardEffect.CardSO).ToList();
             PlayerManager.Instance.ReEnableCardEffect();
         }
-
-        //private IEnumerator ClearStageCoroutine()
-        //{
-        //    yield return new WaitForSeconds(1f);
-
-        //    MainScreenEffect.OnAlpha(0, 0.75f, Ease.InSine);
-        //    MainScreenEffect.OnGlitch(1f, 0.5f, Ease.InCubic);
-        //    MainScreenEffect.OnScaling(0.5f, 1.15f, Ease.Unset);
-
-        //    yield return new WaitForSeconds(1.5f);
-
-        //    bool isNextFloor = false;
-        //    ++currentStageIdx;
-        //    if (currentStageIdx >= floors[currentStageIdx].stages.Length)
-        //    {
-        //        OnFloorUpEvent?.Invoke();
-        //        currentFloorIdx++;
-        //        currentStageIdx = 0;
-        //        if (currentFloorIdx >= floors.Length)
-        //        {
-        //            Debug.Log("Clear");
-        //            //SceneLoadingManager.LoadScene("ClearScene");
-        //        }
-        //        else
-        //        {
-        //            isNextFloor = true;
-        //        }
-        //    }
-
-        //    OnNextStageEvent?.Invoke();
-        //    GameManager.Instance.ClearStage();
-        //    Cost.AddCost(Cost.ClearCost + Cost.GetBonusCost());
-        //    Destroy(_currentStage.gameObject);
-        //    if (isNextFloor)
-        //        SceneLoadingManager.LoadScene(SceneName.CardSendScene);
-        //    else
-        //        SceneLoadingManager.LoadScene(SceneName.CardSelectScene);
-        //}
 
         public static void ResetStage()
         {

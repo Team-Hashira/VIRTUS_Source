@@ -4,6 +4,7 @@ using Hashira.Enemies.Components;
 using Hashira.Entities;
 using Hashira.FSM;
 using Hashira.Players;
+using System.Net.NetworkInformation;
 using UnityEngine;
 
 namespace Hashira.Enemies.Bee.QueenBee
@@ -12,6 +13,7 @@ namespace Hashira.Enemies.Bee.QueenBee
     {
         private QueenBee _queenBee;
 
+        private EntityRenderer _entityRenderer;
         private EnemyMover _enemyMover;
         private EnemyDetector _enemyDetector;
 
@@ -26,6 +28,7 @@ namespace Hashira.Enemies.Bee.QueenBee
         {
             _queenBee = entity as QueenBee;
 
+            _entityRenderer = entity.GetEntityComponent<EntityRenderer>();
             _enemyMover = entity.GetEntityComponent<EnemyMover>();
             _enemyDetector = entity.GetEntityComponent<EnemyDetector>();
 
@@ -44,6 +47,7 @@ namespace Hashira.Enemies.Bee.QueenBee
         public override void OnUpdate()
         {
             base.OnUpdate();
+            _entityRenderer.LookTarget(_target.transform.position);
             if (!_isEvasioned)
             {
                 if (_enemyDetector.IsTargetOnAttackRange(_target.transform, _queenBee.EvasionRange))

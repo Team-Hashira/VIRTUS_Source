@@ -1,6 +1,8 @@
 using Crogen.CrogenPooling;
 using Hashira.CanvasUI;
+using Hashira.Core;
 using Hashira.EffectSystem;
+using Hashira.EffectSystem.Effects;
 using Hashira.Players;
 using System;
 using System.Collections;
@@ -15,6 +17,7 @@ namespace Hashira.Entities.Interacts
     public struct AltarInfo
     {
         public string effectName;
+        public string description;
         public Sprite visualSprite;
     }
     
@@ -31,7 +34,16 @@ namespace Hashira.Entities.Interacts
             _giftIndex = Random.Range(0, _altarInfoList.Count);
             _visualTransform.GetComponent<SpriteRenderer>().sprite = _altarInfoList[_giftIndex].visualSprite;
         }
-        
+
+        private void Start()
+        {
+            var playerEffector = PlayerManager.Instance.Player.GetEntityComponent<EntityEffector>();
+            if (playerEffector.TryGetEffectList<AltarEffect>(out List<Effect> altarEffectList))
+            {
+                CanInteraction = false;
+            }
+        }
+
         public override void Interaction(Player player)
         {
             base.Interaction(player);
@@ -49,6 +61,7 @@ namespace Hashira.Entities.Interacts
             // Effect 주기
             yield return new WaitForSeconds(1f);
             CameraManager.Instance.ShakeCamera(10, 100, 0.75f);
+            PopupTextManager.Instance.PopupText(_altarInfoList[_giftIndex].description, Color.white);
             LightingControl.LightingController.Aberration(1, 0.75f);
             PopCore.Pop(_giftVFXPoolType, player.transform.position, Quaternion.identity);
             CreateAndAddEffect(player, _altarInfoList[_giftIndex].effectName);

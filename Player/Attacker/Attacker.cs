@@ -39,6 +39,8 @@ namespace Hashira
 
         public event Action<bool> OnChargeEnableEvent;
 
+        public LayerMask WhatIsTarget => _whatIsTarget;
+
         private void Awake()
         {
             _player = PlayerManager.Instance.Player;
@@ -80,10 +82,10 @@ namespace Hashira
                 }
             }
 
-            bool isFliped = transform.parent.eulerAngles.z > 90 && transform.parent.eulerAngles.z < 270;
-            if (isFliped ^ _spriteRenderer.flipY)
+            bool isFlipped = transform.parent.eulerAngles.z > 90 && transform.parent.eulerAngles.z < 270;
+            if (isFlipped ^ _spriteRenderer.flipY)
             {
-                _spriteRenderer.flipY = isFliped;
+                _spriteRenderer.flipY = isFlipped;
             }
         }
 
@@ -135,11 +137,11 @@ namespace Hashira
                 Vector2 direction = Quaternion.Euler(0, 0, -angle / 2 + angle * (i + 0.5f) / _burstBulletCount) * transform.right;
                 if (damage == -1)
                     damage = _attackPowerStat.IntValue;
-                Projectile projectile = gameObject.Pop(_projectilePoolType, shootPoint, Quaternion.identity) as Projectile;
+                Projectile projectile = PopCore.Pop(_projectilePoolType, shootPoint, Quaternion.identity) as Projectile;
                 projectile.Init(_whatIsTarget, direction, _bulletSpeedStat.Value, damage, _player.transform, true, 5);
 
                 // 사격 이펙트
-                ParticleSystem particleSystem = gameObject.Pop(EffectPoolType.BulletShootSparkleEffect, shootPoint, projectile.transform.rotation).gameObject.GetComponent<ParticleSystem>();
+                ParticleSystem particleSystem = PopCore.Pop(EffectPoolType.BulletShootSparkleEffect, shootPoint, projectile.transform.rotation).gameObject.GetComponent<ParticleSystem>();
                 var mianModule = particleSystem.main;
                 mianModule.startRotation = -transform.eulerAngles.z * Mathf.Deg2Rad;
 
@@ -149,7 +151,8 @@ namespace Hashira
                 evt.isPlayerInput = isPlayerInput;
                 GameEventChannel.RaiseEvent(evt);
 
-                CameraManager.Instance.ShakeCamera(Mathf.Log10(projectile.damage * 10) * 4f, Mathf.Log10(projectile.damage * 10) * 4f, 0.15f);
+                float shakeValue = Mathf.Log10(projectile.damage * 10 + 1);
+                CameraManager.Instance.ShakeCamera(shakeValue * 4f, shakeValue * 4f, 0.15f);
 
                 createdProjectileList.Add(projectile);
             }

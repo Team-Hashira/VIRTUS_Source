@@ -43,9 +43,8 @@ namespace Hashira.CanvasUI
         {
             SetActive(true);
             _playerEffectManager.EffectAddedEvent += HandleEffectAddedEvent;
-            List<CardEffect> cardEffectList = _playerEffectManager.CardEffectList;
 
-            foreach (var cardEffect in cardEffectList)
+            foreach (var cardEffect in _playerEffectManager.CardEffectDictionary.Values)
             {
                 if (cardEffect.stack <= 0)
                     continue;
@@ -89,7 +88,7 @@ namespace Hashira.CanvasUI
 
         private void OnDestroy()
         {
-            _canvasGroup.DOKill();
+            _canvasGroup?.DOKill();
             Close();
         }
     }

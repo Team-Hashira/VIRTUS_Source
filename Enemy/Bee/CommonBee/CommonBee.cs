@@ -1,3 +1,4 @@
+using Crogen.CrogenPooling;
 using Hashira.Combat;
 using Hashira.Core.MoveSystem;
 using Hashira.Enemies.PublicStates;
@@ -6,7 +7,7 @@ using UnityEngine;
 
 namespace Hashira.Enemies.Bee.CommonBee
 {
-    public class CommonBee : AirEnemy
+    public class CommonBee : AirEnemy, IPoolingObject
     {
         [SerializeField]
         private List<Transform> _bezierPositionList;
@@ -14,6 +15,9 @@ namespace Hashira.Enemies.Bee.CommonBee
         private bool _showDebug = true;
         [field: SerializeField]
         public DamageCaster2D DamageCaster { get; private set; }
+        public string OriginPoolType { get; set; }
+        GameObject IPoolingObject.gameObject { get; set; }
+
         [field: SerializeField]
         public LayerMask WhatIsWall;
 
@@ -59,5 +63,13 @@ namespace Hashira.Enemies.Bee.CommonBee
             });
         }
 #endif
+
+        public void OnPop()
+        {
+        }
+
+        public void OnPush()
+        {
+        }
     }
 }

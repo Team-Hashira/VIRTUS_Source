@@ -19,20 +19,14 @@ namespace Hashira.Cards.Effects
 
         private Coroutine _lightningCoroutine;
 
-        public override void Enable()
-        {
-            base.Enable();
-        }
-
         public override void Disable()
         {
             base.Disable();
-            if (_lightningCoroutine != null) player.StopCoroutine(_lightningCoroutine);
+            if (_lightningCoroutine != null && player != null) player.StopCoroutine(_lightningCoroutine);
         }
 
-        public override void Use()
+        public override void OnUse()
         {
-            base.Use();
             _lightningCoroutine = player.StartCoroutine(CoroutineCreateLightnings());
         }
 
@@ -74,6 +68,8 @@ namespace Hashira.Cards.Effects
             };
             AttackInfo attackInfo = new AttackInfo(damage, Vector2.zero, EAttackType.Electricity);
             enemy.GetEntityComponent<EntityHealth>().ApplyDamage(attackInfo, hit2D);
+
+            SoundManager.Instance.PlaySFX("Thunder", null, 1f);
 
             CameraManager.Instance.ShakeCamera(4, 15, 0.1f);
             PopCore.Pop(EffectPoolType.LightningVFX, pos, Quaternion.identity);

@@ -43,6 +43,7 @@ namespace Hashira.Enemies.Goblin.DefaultGoblin
         {
             if (trigger == EAnimationTriggerType.Trigger)
             {
+                SoundManager.Instance.PlaySFX("Swing", _entity.transform.position, 1f);
                 _damageCaster.CastDamage(_entity.MakeAttackInfo(_damageElement.IntValue), popupText: false);
             }
             if (trigger == EAnimationTriggerType.End)

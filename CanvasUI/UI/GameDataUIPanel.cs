@@ -1,17 +1,15 @@
 using DG.Tweening;
 using Hashira.StageSystem;
-using System;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Hashira.CanvasUI
 {
     public class GameDataUIPanel : UIBase, IToggleUI
     {
         [field: SerializeField] public string Key { get; set; }
-
-        [SerializeField] private TextMeshProUGUI _stageText;
-
+        [SerializeField] private Slider _waveSlider;
+        
         private Stage _currentStage;
 
         private CanvasGroup _canvasGroup;
@@ -34,50 +32,38 @@ namespace Hashira.CanvasUI
             Open();
         }
 
-        public void Close()
-        {
-            SetVisable(false);
-            StageGenerator.Instance.OnNextStageEvent -= HandleNextStageEvent;
-            if (_currentStage != null) _currentStage.OnWaveChanged -= StageTextUpdate;
-        }
+        
 
         public void Open()
         {
             SetVisable(true);
-            StageGenerator.Instance.OnNextStageEvent += HandleNextStageEvent;
+            _waveSlider.value = 0f;
             _currentStage = StageGenerator.Instance.GetCurrentStage();
-            if (_currentStage != null) _currentStage.OnWaveChanged += StageTextUpdate;
-            StageTextUpdate();
+            StageGenerator.Instance.OnNextStageEvent += HandleNextStageEvent;
+            _currentStage.OnWaveChangedEvent += HandleWaveSliderUpdate;
+            _currentStage.OnAllClearEvent += HandleStageClear;
         }
+
+        public void Close()
+        {
+            SetVisable(false);
+            StageGenerator.Instance.OnNextStageEvent -= HandleNextStageEvent;
+            _currentStage.OnWaveChangedEvent -= HandleWaveSliderUpdate;
+            _currentStage.OnAllClearEvent -= HandleStageClear;
+        }
+        
+        private void HandleWaveSliderUpdate(int cur, int max) => _waveSlider.DOValue(cur / (float)max, 0.1f);
+        private void HandleStageClear() => _waveSlider.DOValue(1f, 0.1f);
 
         private void HandleNextStageEvent()
         {
-            _currentStage.OnWaveChanged -= StageTextUpdate;
             _currentStage = StageGenerator.Instance.GetCurrentStage();
-            _currentStage.OnWaveChanged += StageTextUpdate;
-        }
-
-        private void StageTextUpdate()
-        {
-            bool isTutorial = StageGenerator.Instance.gameObject.activeSelf == false;
-            string text;
-            if (isTutorial)
-            {
-                text = "테스트 구역";
-            }
-            else
-            {
-                Stage stage = StageGenerator.Instance.GetCurrentStage();
-                int waveCount = stage.waves.Length;
-                text = $"{StageGenerator.currentFloorIdx + 1}층 {StageGenerator.currentStageIdx + 1}번 구역\n" +
-                       $"{Mathf.Clamp(stage.CurrentWaveCount + 1, 0, waveCount)}/{waveCount}웨이브";
-            }
-            _stageText.text = text;
         }
 
         private void OnDestroy()
         {
-            Hashira.CanvasUI.UIManager.Instance.RemoveUI(this);
+            _canvasGroup?.DOKill();
+            UIManager.Instance?.RemoveUI(this);
         }
     }
 }

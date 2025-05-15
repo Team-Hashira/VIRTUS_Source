@@ -15,19 +15,22 @@ namespace Hashira.CanvasUI
         private Player _player;
 
         private List<PlayerHealthUI> _healthImageList;
-        private bool _isFirst;
 
         private void Awake()
         {
             _healthImageList = new List<PlayerHealthUI>();
             _player = PlayerManager.Instance.Player;
-            _isFirst = true;
-            _playerHealth = _player.GetEntityComponent<EntityHealth>();
-            _playerHealth.OnHealthChangedEvent += HandleHealthChangedEvent;
-            PlayerManager.Instance.OnCardEffectEnableEvent += HandleCardEffectEnableEvent;
-            SetMaxHealth(_playerHealth.MaxHealth, false);
         }
 
+        private void Start()
+        {
+            PlayerManager.Instance.OnCardEffectEnableEvent += HandleCardEffectEnableEvent;
+            _playerHealth = _player.GetEntityComponent<EntityHealth>();
+            _playerHealth.OnHealthChangedEvent += HandleHealthChangedEvent;
+            HandleCardEffectEnableEvent(false);
+        }
+
+        // Start에서 실행
         private void HandleCardEffectEnableEvent(bool isReEnable)
         {
             SetMaxHealth(_playerHealth.MaxHealth, isReEnable);
@@ -35,7 +38,7 @@ namespace Hashira.CanvasUI
 
         public void HandleHealthChangedEvent(int prev, int current)
         {
-            SetHealthImage(current, true);
+            SetHealthImage(current, current < prev);
         }
 
         private void SetHealthImage(int health, bool isAnimation)

@@ -38,7 +38,7 @@ namespace Hashira.Bosses.Patterns
                 foreach (var firePoint in _firePoints)
                 {
                     Vector2 direction = (Player.transform.position - firePoint.position).normalized;
-                    HomingProjectile homingProjectile = GameObject.Pop(_homingProjectilePoolType, firePoint.position, Quaternion.identity) as HomingProjectile;
+                    HomingProjectile homingProjectile = PopCore.Pop(_homingProjectilePoolType, firePoint.position, Quaternion.identity) as HomingProjectile;
                     // TODO : 나중에 값 바꿔가며 수정
                     homingProjectile.Init(direction, 10, 10);
                 }

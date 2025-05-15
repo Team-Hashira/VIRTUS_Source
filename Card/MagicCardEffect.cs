@@ -3,21 +3,17 @@ using UnityEngine;
 
 namespace Hashira.Cards.Effects
 {
-    public class MagicCardEffect : CardEffect
+    public abstract class MagicCardEffect : CardEffect
     {
         protected float _delayMultiplier = 1f;
 
-        protected virtual float DelayTime { get; }
+        protected abstract float DelayTime { get; }
         protected float _curTime = 0f;
 
         public override void Enable()
         {
-
-        }
-
-        public override void Disable()
-        {
-
+            base.Enable();
+            _curTime = 0f;
         }
 
         public override void Update()
@@ -26,14 +22,11 @@ namespace Hashira.Cards.Effects
             if (DelayTime * _delayMultiplier < _curTime)
             {
                 _curTime = 0;
-                Use();
+                OnUse();
             }
         }
 
-        public virtual void Use()
-        {
-
-        }
+        public abstract void OnUse();
 
         public virtual void SetMultiplier(float multiplier)
         {

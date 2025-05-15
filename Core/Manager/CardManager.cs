@@ -1,3 +1,4 @@
+using Doryu.CustomAttributes;
 using Hashira.CanvasUI;
 using Hashira.Core;
 using System;
@@ -11,7 +12,7 @@ namespace Hashira.Cards
     public class CardManager : DontDestroyMonoSingleton<CardManager>
     {
         [field: SerializeField] public CardSetSO CardSetSO { get; private set; } 
-        [SerializeField] private CardPackSO _defaultCardPackSO;
+        [SerializeField, VisibleInspectorSO] private CardPackSO _defaultCardPackSO;
 
         public readonly int[] FixedCardNeedCost = { 2, 4, 6, 8 };
         public List<Pair<CardSO, int>> FixedCardList { get; private set; } = new List<Pair<CardSO, int>>();

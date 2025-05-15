@@ -3,6 +3,8 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UIManager = Hashira.CanvasUI.UIManager;
 
 public class SceneLoadingManager : MonoBehaviour
 {
@@ -20,6 +22,9 @@ public class SceneLoadingManager : MonoBehaviour
 
     public static void LoadScene(string sceneName)
     {
+        // 다른 UI 전부 비활성화
+        UIManager.UIInteractor.Interactable = false;
+        
         URPScreenEffect.Fade(false, 1f);
         _nextScene = sceneName;
         OnSceneLoadStartEvent?.Invoke();

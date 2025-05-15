@@ -8,7 +8,7 @@ namespace Hashira.CanvasUI
     public class SetupCardVisual : MonoBehaviour
     {
         [SerializeField]
-        private Image _cardBorderImage, _cardIconImage;
+        private Image _cardBorderImage, _cardIconImage, _cardOutlineImage;
         [SerializeField]
         protected TextMeshProUGUI _cardNameText, _cardDescriptionText, _costText;
         [field: SerializeField]
@@ -31,6 +31,11 @@ namespace Hashira.CanvasUI
         public CardSO CardSO { get; protected set; }
         public Image CardBorderImage => _cardBorderImage;
 
+        public void SetOutlineColor(Color color)
+        {
+            _cardOutlineImage.color = color;
+        }
+
         public virtual void VisualSetup(CardSO cardSO)
         {
             CardSO = cardSO;
@@ -44,7 +49,7 @@ namespace Hashira.CanvasUI
                 _cardDescriptionText.text = PlayerDataManager.Instance.GetCardDescription(cardSO);
             if (_costText != null)
             {
-                bool isMaxStack = PlayerDataManager.Instance.GetCardStack(cardSO) == cardSO.maxOverlapCount;
+                bool isMaxStack = PlayerDataManager.Instance.IsMaxStackEffect(cardSO);
                 _costText.text = isMaxStack ? "M" : PlayerDataManager.Instance.GetCardNeedCost(CardSO).ToString();
             }
         }

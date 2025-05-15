@@ -3,6 +3,7 @@ using Hashira.Bosses.BillboardClasses;
 using Hashira.Bosses.Patterns;
 using Hashira.Core.EventSystem;
 using Hashira.Enemies;
+using Hashira.Projectiles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,7 +51,7 @@ namespace Hashira.Bosses
         public Action OnPatternEndEvent;
         
         private BossMover _bossMover;
-        
+
         #region Initialize Boss
 
         protected override void Awake()
@@ -84,7 +85,7 @@ namespace Hashira.Bosses
             var killEnemyEvent = InGameEvents.KillEnemyEvent;
             GameEventChannel.RaiseEvent(killEnemyEvent);
             
-            gameObject.Pop(_dieEffect, transform.position, Quaternion.identity);
+            PopCore.Pop(_dieEffect, transform.position, Quaternion.identity);
             _entityStateMachine.ChangeState("Dead");
             
             PlayerDataManager.Instance.AddKillCount(true);
@@ -143,6 +144,11 @@ namespace Hashira.Bosses
         public void AddPhase()
         {
             currentPhase = Mathf.Clamp(currentPhase + 1, 1, maxPhase);
+            bool b = currentPhase > 1;
+            if (false == b)
+            {
+                Debug.Log("sdfsdf");
+            }
         }
         
         public void OnGroggy(float groggyDuration)

@@ -14,8 +14,18 @@ namespace Hashira.Entities
 
         private Tween _rotateTween;
 
+        private bool _isInitialized;
+
         protected virtual void Awake()
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
+            if (_isInitialized) return;
+            _isInitialized = true;
+
             _componentDict = new Dictionary<Type, IEntityComponent>();
 
             AddComponentsToDictionary();
@@ -50,10 +60,12 @@ namespace Hashira.Entities
         {
             GetComponentsInChildren<IEntityDisposeComponent>().ToList()
                 .ForEach(component => component.Dispose());
+            _rotateTween?.Kill();
         }
 
         public T GetEntityComponent<T>() where T : class, IEntityComponent
         {
+            Initialize();
             if (_componentDict.TryGetValue(typeof(T), out IEntityComponent compo))
             {
                 return compo as T;
@@ -68,6 +80,7 @@ namespace Hashira.Entities
 
         public bool TryGetEntityComponent<T>(out T component, bool isDerived = false) where T : class, IEntityComponent
         {
+            Initialize();
             component = null;
             if (_componentDict.TryGetValue(typeof(T), out IEntityComponent compo))
             {

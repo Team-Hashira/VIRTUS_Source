@@ -41,7 +41,7 @@ namespace Hashira.Players
 
             if (_entityMover.IsGrounded == true)
             {
-                ParticleSystem landingEffect = _player.gameObject.Pop(EffectPoolType.LandingSmoke, _player.transform.position - _player.transform.up * 0.4f, Quaternion.identity).gameObject.GetComponent<ParticleSystem>();
+                ParticleSystem landingEffect = PopCore.Pop(EffectPoolType.LandingSmoke, _player.transform.position - _player.transform.up * 0.4f, Quaternion.identity).gameObject.GetComponent<ParticleSystem>();
                 var mainModule = landingEffect.main;
                 mainModule.startRotation = _player.transform.eulerAngles.z * Mathf.Deg2Rad;
                 _entityStateMachine.ChangeState("Idle");

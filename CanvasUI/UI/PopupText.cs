@@ -1,41 +1,27 @@
-using Crogen.CrogenPooling;
 using TMPro;
 using UnityEngine;
 
 namespace Hashira
 {
-    public class PopupText : MonoBehaviour, IPoolingObject
+    public class PopupText : SimplePoolingObject
     {
-        public string OriginPoolType { get; set; }
-        GameObject IPoolingObject.gameObject { get; set; }
-
         [SerializeField] private float _upSpeed;
         [SerializeField] private TextMeshProUGUI _text;
-        [SerializeField] private SimplePoolingObject _simplePoolingObject;
 
-        private void Update()
+        protected override void Update()
         {
+            base.Update();
             Color color = _text.color;
-            color.a = 1 - _simplePoolingObject.CurLifetime / _simplePoolingObject.duration;
+            color.a = 1 - CurLifetime / duration;
             _text.color = color;
 
-            transform.position += Vector3.up * _upSpeed;
+            transform.position += Vector3.up * _upSpeed * Time.deltaTime;
         }
 
         public void Init(string text, Color color)
         {
             _text.color = color;
             _text.text = text;
-        }
-
-        public void OnPop()
-        {
-            
-        }
-
-        public void OnPush()
-        {
-
         }
     }
 }

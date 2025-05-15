@@ -33,7 +33,7 @@ namespace Hashira.CanvasUI
             var list = CardManager.Instance.GetCardList();
             foreach (var card in list)
             {
-                BookCardUI bookCardUI = gameObject.Pop(UIPoolType.BookCardUI, _contentTrm) as BookCardUI;
+                BookCardUI bookCardUI = PopCore.Pop(UIPoolType.BookCardUI, _contentTrm) as BookCardUI;
                 bookCardUI.Initialize(card);
                 _cardList.Add(bookCardUI);
             }
@@ -80,6 +80,11 @@ namespace Hashira.CanvasUI
             _canvasGroup.DOFade(alpha, duration);
             _canvasGroup.interactable = isActive;
             _canvasGroup.blocksRaycasts = isActive;
+        }
+
+        private void OnDestroy()
+        {
+            _canvasGroup?.DOKill();
         }
     }
 }

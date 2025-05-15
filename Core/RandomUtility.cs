@@ -1,3 +1,4 @@
+using Hashira.StageSystem;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,13 +19,13 @@ namespace Hashira.Core
             return random < percent;
         }
 
-        public static T GetRandomElement<T>(List<T> list)
+        public static T GetRandomElement<T>(this List<T> list)
         {
             int index = Random.Range(0, list.Count);
             return list[index];
         }
 
-        public static T GetRandomElement<T>(T[] arr)
+        public static T GetRandomElement<T>(this T[] arr)
         {
             int index = Random.Range(0, arr.Length);
             return arr[index];

@@ -121,7 +121,7 @@ namespace Hashira.CanvasUI
         {
             if (Cost.TryRemoveCost(_needCost))
             {
-                PlayerDataManager.Instance.AddEffect(CardSO.GetEffectInstance<CardEffect>());
+                PlayerDataManager.Instance.AddEffect(CardSO);
 
                 _useableCardDrawer.CardSelectCancel(null);
                 _useableCardDrawer.CardDraw();
@@ -210,6 +210,7 @@ namespace Hashira.CanvasUI
 
         private void OnDestroy()
         {
+            _useSeq?.Kill(true);
             if (PlayerDataManager.Instance != null) PlayerDataManager.Instance.EffectAddedEvent -= HandleEffectAddedEvent;
         }
     }

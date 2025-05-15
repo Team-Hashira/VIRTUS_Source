@@ -35,6 +35,22 @@ namespace Hashira.Enemies
             //_fovElement = _entityStat.StatDictionary[StatName.FieldOfView];
         }
 
+        protected virtual void Start()
+        {
+            if (EntityHealth != null)
+            {
+                EntityHealth.OnHitEvent += HandleHitEvent;
+            }
+        }
+
+        protected void OnDisable()
+        {
+            if (EntityHealth != null)
+            {
+                EntityHealth.OnHitEvent -= HandleHitEvent;
+            }
+        }
+
         public void SetEnable(bool enable)
         {
             IsEnable = enable;
@@ -44,11 +60,16 @@ namespace Hashira.Enemies
         {
             var killEnemyEvent = InGameEvents.KillEnemyEvent;
             GameEventChannel.RaiseEvent(killEnemyEvent);
-            gameObject.Pop(_dieEffect, transform.position, Quaternion.identity);
+            PopCore.Pop(_dieEffect, transform.position, Quaternion.identity);
             PlayerDataManager.Instance.AddKillCount();
             SoundManager.Instance.PlaySFX("EnemyDie", transform.position, 1f);
             Destroy(gameObject);
             Cost.AddCost(_killCost);
+        }
+
+        private void HandleHitEvent(int currentHealth)
+        {
+            SoundManager.Instance.PlaySFX("BeShotSound", transform.position, 1f);
         }
 
         protected override void InitializeComponent()

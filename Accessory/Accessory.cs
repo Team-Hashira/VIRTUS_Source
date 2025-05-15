@@ -72,7 +72,6 @@ namespace Hashira.Accessories
         {
             foreach (var pair in _AccessoryDict)
             {
-                Debug.Log(pair.Value);
                 pair.Value?.OnApply(owner, pair.Key);
             }
         }

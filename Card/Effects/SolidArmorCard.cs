@@ -17,6 +17,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             _hitStack = 0;
             _entityHealth = player.GetEntityComponent<EntityHealth>();
             _entityHealth.OnHealthChangedEvent += HandlePlayerHitEvent;
@@ -53,13 +54,9 @@ namespace Hashira.Cards.Effects
             _shieldSpriteRenderer.color = new Color(1, 1, 1, (float)_hitStack / 2);
         }
 
-        public override void Update()
-        {
-
-        }
-
         public override void Disable()
         {
+            base.Disable();
             _entityHealth.OnHealthChangedEvent -= HandlePlayerHitEvent;
             if (_hitStack == 2)
             {

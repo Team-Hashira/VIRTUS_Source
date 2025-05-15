@@ -1,3 +1,4 @@
+using Hashira.Accessories.Effects;
 using Hashira.Core;
 using Hashira.StageSystem;
 using System;
@@ -43,18 +44,27 @@ namespace Hashira.Accessories
         {
             foreach (var accessory in Accessory.Accessories)
             {
-                if (accessory != null && accessory.CurrentEffect is IInitializeOnNextStage nextStage)
-                    nextStage.OnNextStage();
+                if (accessory != null && accessory.CurrentEffect is IInitializeOnStageStart startStage)
+                    startStage.OnStageStart();
             }
         }
 
         private void Update()
         {
-            Accessory.GetAccessoryEffect(EAccessoryType.Passive)?.PassiveSkill();
+            foreach(var effector in Accessory.Accessories)
+            {
+                if (effector == null)
+                    continue;
+                if(effector.CurrentEffect is IUpdatableEffect updatableEffect)
+                {
+                    updatableEffect.OnUpdate();
+                }
+            }
         }
 
         private void ActiveSkill()
         {
+            Debug.Log("님ㅇㅏ");
             Accessory.GetAccessoryEffect(EAccessoryType.Active)?.ActiveSkill();
         }
 

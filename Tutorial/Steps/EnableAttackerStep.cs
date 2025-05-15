@@ -1,11 +1,11 @@
 using DG.Tweening;
+using Hashira.Core;
 using UnityEngine;
 
 namespace Hashira.Tutorials
 {
     public class EnableAttackerStep : TutorialStep
     {
-        [SerializeField]
         private GameObject _attackerObject;
 
         private Material _attackMaterial;
@@ -19,6 +19,9 @@ namespace Hashira.Tutorials
         public override void Initialize(TutorialManager tutorialManager)
         {
             base.Initialize(tutorialManager);
+            _attackerObject = PlayerManager.Instance.Player.Attacker.gameObject;
+            _attackerObject.SetActive(false);
+
             _attackMaterial = _attackerObject.GetComponent<SpriteRenderer>().material;
             _endColor = _attackMaterial.GetColor(_glowColorHash);
         }

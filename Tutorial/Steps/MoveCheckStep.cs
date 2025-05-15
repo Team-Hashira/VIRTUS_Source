@@ -1,3 +1,5 @@
+using Hashira.Core;
+using Hashira.Core.EventSystem;
 using Hashira.Entities;
 using Hashira.Players;
 using UnityEngine;
@@ -6,7 +8,6 @@ namespace Hashira.Tutorials
 {
     public class MoveCheckStep : TutorialStep
     {
-        [SerializeField]
         private Player _player;
 
         private PlayerMover _playerMover;
@@ -18,6 +19,7 @@ namespace Hashira.Tutorials
         public override void OnEnter()
         {
             base.OnEnter();
+            _player = PlayerManager.Instance.Player;
             _playerMover = _player.GetEntityComponent<PlayerMover>();
         }
 

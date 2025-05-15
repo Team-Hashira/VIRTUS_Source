@@ -2,7 +2,6 @@ using Hashira.Accessories;
 using Hashira.Cards;
 using Hashira.Cards.Effects;
 using Hashira.Core;
-using Hashira.EffectSystem;
 using Hashira.StageSystem;
 using System;
 using System.Collections.Generic;
@@ -13,7 +12,7 @@ namespace Hashira
 {
     public class PlayerDataManager : DontDestroyMonoSingleton<PlayerDataManager>
     {
-        public List<CardEffect> CardEffectList { get; private set; } = new List<CardEffect>();
+        public Dictionary<CardSO, CardEffect> CardEffectDictionary { get; private set; } = new Dictionary<CardSO, CardEffect>();
 
         public event Action<CardEffect> EffectAddedEvent;
         public event Action<CardEffect> EffectRemovedEvent;
@@ -24,6 +23,9 @@ namespace Hashira
 
         public int KillCount { get; private set; }
         public int BossKillCount { get; private set; }
+
+        [SerializeField]
+        private AccessorySetSO _allAccessorySet;
 
         protected override void Awake()
         {
@@ -45,23 +47,35 @@ namespace Hashira
             MaxHealth = maxHealth;
         }
 
+        /// <summary>
+        /// 해당 카드의 효과 stack이 Max인지 검사합니다.
+        /// </summary>
+        /// <param name="cardSO"></param>
+        /// <returns></returns>
         public bool IsMaxStackEffect(CardSO cardSO)
         {
             if (cardSO.maxOverlapCount < 0) return false;
-            CardEffect cardEffect = CardEffectList.Find(effect => effect.CardSO == cardSO);
-            if (cardEffect != null)
+
+            if (CardEffectDictionary.TryGetValue(cardSO, out CardEffect cardEffect))
                 return cardSO.maxOverlapCount == cardEffect.stack;
             else
                 return false;
         }
 
-        public void AddEffect(CardEffect cardEffect)
+        /// <summary>
+        /// CardEffect를 하나 추가합니다.
+        /// </summary>
+        /// <param name="cardEffect"></param>
+        public void AddEffect(CardSO cardSO)
         {
-            if (cardEffect == null) return;
-            if (IsMaxStackEffect(cardEffect.CardSO)) return;
+            if (IsMaxStackEffect(cardSO)) return;
 
-            if (CardEffectList.Contains(cardEffect) == false)
-                CardEffectList.Add(cardEffect);
+            if (CardEffectDictionary.TryGetValue(cardSO, out CardEffect cardEffect) == false)
+            {
+                cardEffect = cardSO.GetEffectInstance<CardEffect>();
+                CardEffectDictionary.Add(cardSO, cardEffect);
+            }
+
             cardEffect.stack++;
 
             if (PlayerManager.Instance != null)
@@ -73,9 +87,13 @@ namespace Hashira
             EffectAddedEvent?.Invoke(cardEffect);
         }
 
-        public void RemoveEffect(CardEffect cardEffect)
+        /// <summary>
+        /// CardEffect를 하나 제거합니다.
+        /// </summary>
+        /// <param name="cardEffect"></param>
+        public void RemoveEffect(CardSO cardSO)
         {
-            if (CardEffectList.Contains(cardEffect))
+            if (CardEffectDictionary.TryGetValue(cardSO, out CardEffect cardEffect))
             {
                 cardEffect.stack--;
 
@@ -86,15 +104,20 @@ namespace Hashira
                 }
 
                 if (cardEffect.stack == 0)
-                    CardEffectList.Remove(cardEffect);
+                    CardEffectDictionary.Remove(cardSO);
             }
-                
+
             EffectRemovedEvent?.Invoke(cardEffect);
         }
 
+        /// <summary>
+        /// 카드의 stack을 바꾸고 재실행해서 적용합니다.
+        /// </summary>
+        /// <param name="cardSO"></param>
+        /// <param name="stack"></param>
         public void SetEffectStack(CardSO cardSO, int stack)
         {
-            CardEffect cardEffect = CardEffectList.Find(effect => effect.CardSO == cardSO);
+            CardEffect cardEffect = CardEffectDictionary[cardSO];
             if (cardSO != null && cardEffect != null)
             {
                 cardEffect.stack = stack;
@@ -109,99 +132,95 @@ namespace Hashira
                 Debug.Log($"{cardSO.className} was not found");
         }
 
+        /// <summary>
+        /// Card의 설명을 가져옵니다.
+        /// </summary>
+        /// <param name="cardSO"></param>
+        /// <returns></returns>
         public string GetCardDescription(CardSO cardSO)
         {
-            foreach (CardEffect cardEffect in CardEffectList)
-            {
-                if (cardEffect.CardSO == cardSO)
-                {
-                    return cardEffect.GetCardDescription();
-                }
-            }
-            return cardSO.cardDescriptions[0];
+            if (CardEffectDictionary.TryGetValue(cardSO, out CardEffect cardEffect))
+                return cardEffect.GetCardDescription();
+            else
+                return cardSO.cardDescriptions[0];
         }
 
+        /// <summary>
+        /// Card의 중첩 수를 가져옵니다.
+        /// </summary>
+        /// <param name="cardSO"></param>
+        /// <returns></returns>
         public int GetCardStack(CardSO cardSO)
         {
-            foreach (CardEffect cardEffect in CardEffectList)
-            {
-                if (cardEffect.CardSO == cardSO)
-                {
-                    return cardEffect.stack;
-                }
-            }
-            return 0;
+            if (CardEffectDictionary.TryGetValue(cardSO, out CardEffect cardEffect))
+                return cardEffect.stack;
+            else
+                return 0;
         }
 
+        /// <summary>
+        /// Card 강화에 필요한 Cost를 반환합니다.
+        /// </summary>
+        /// <param name="cardSO"></param>
+        /// <returns></returns>
         public int GetCardNeedCost(CardSO cardSO)
         {
-            foreach (CardEffect cardEffect in CardEffectList)
+            if (IsMaxStackEffect(cardSO))
+                return 0;
+            else
             {
-                if (cardEffect.CardSO == cardSO)
-                {
-                    if (cardEffect.IsMaxStack == false)
-                        return cardSO.needCost[cardEffect.stack];
-                    else
-                        return 0;
-                }
+                if (CardEffectDictionary.TryGetValue(cardSO, out CardEffect cardEffect))
+                    return cardSO.needCost[cardEffect.stack];
+                else
+                    return cardSO.needCost[0];
             }
-            return cardSO.needCost[0];
         }
 
+        /// <summary>
+        /// 플레이어의 모든 데이터를 초기화합니다.
+        /// </summary>
         public void ResetData()
         {
             SetHealth(DefaultMaxHealth, DefaultMaxHealth);
-            ResetPlayerData();
+            KillCount = 0;
+            BossKillCount = 0;
             CardManager.Instance.ClearCardList();
             Cost.ResetCost();
             Accessory.ResetAccessory();
             StageGenerator.ResetStage();
+            _allAccessorySet.ResetAll();
+            ResetCardEffectList(null);
         }
-        public void ResetPlayerData()
+
+        /// <summary>
+        /// 카드효과 리스트 초기화
+        /// </summary>
+        /// <param name="exceptionCardSO"></param>
+        public void ResetCardEffectList(List<CardSO> exceptionCardSO)
         {
-            KillCount = 0;
-            BossKillCount = 0;
-
-            //bool isInGame = PlayerManager.Instance != null;
-
-            //if (isInGame)
-            //    PlayerManager.Instance.SetCardEffectList(CardEffectList);
-        }
-        public void ResetPlayerCardEffect(List<CardSO> exceptionCardSO = null, bool useDisable = false)
-        {
-            if (useDisable)
-            {
-                foreach (CardEffect cardEffect in CardEffectList)
-                {
-                    cardEffect.Disable();
-                    cardEffect.stack = 0;
-                }
-            }
-
             if (exceptionCardSO == null)
-                CardEffectList = new List<CardEffect>();
+            {
+                foreach (CardSO cardSO in CardEffectDictionary.Keys.ToList())
+                {
+                    CardEffectDictionary[cardSO].stack = 0;
+                }
+                CardEffectDictionary = new Dictionary<CardSO, CardEffect>();
+            }
             else
             {
-                List<CardEffect> exceptionCardEffectList = new List<CardEffect>();
-                foreach (CardEffect cardEffect in CardEffectList)
+                foreach (CardSO cardSO in CardEffectDictionary.Keys.Except(exceptionCardSO))
                 {
-                    if (exceptionCardSO.Contains(cardEffect.CardSO))
-                        exceptionCardEffectList.Add(cardEffect);
-                    else
-                        cardEffect.stack = 0;
-                }
-
-                CardEffectList = new List<CardEffect>();
-
-                foreach (CardEffect cardEffect in exceptionCardEffectList)
-                {
-                    CardEffectList.Add(cardEffect);
+                    CardEffectDictionary[cardSO].stack = 0;
+                    CardEffectDictionary.Remove(cardSO);
                 }
             }
         }
+        /// <summary>
+        /// 모든 카드 해제
+        /// </summary>
         public void CardDisable()
         {
-            foreach (CardEffect cardEffect in CardEffectList)
+            foreach (CardEffect cardEffect in CardEffectDictionary.Values)
             {
                 cardEffect.Disable();
             }

@@ -19,7 +19,6 @@ namespace Hashira.CanvasUI
         [SerializeField] private CustomButton _stageBtn;
 
         [SerializeField] private SpriteRenderer _backgroundGlitchRenderer;
-
         private Sequence _openSeq;
 
         protected override void Awake()
@@ -71,8 +70,8 @@ namespace Hashira.CanvasUI
 
             _openSeq.Clear();
             _openSeq = DOTween.Sequence();
-            _openSeq.Append(DOTween.To(() => 1f, value => _backgroundGlitchRenderer.material
-                .SetFloat(_GlitchValueHash, value), 0, 0.5f).SetEase(Ease.Linear));
+            _openSeq.Append(DOTween.To(value => _backgroundGlitchRenderer.material
+                .SetFloat(_GlitchValueHash, value), 1f, 0, 0.5f).SetEase(Ease.Linear));
             _openSeq.AppendCallback(() =>
             {
                 _backgroundGlitchRenderer.gameObject.SetActive(false);
@@ -81,10 +80,15 @@ namespace Hashira.CanvasUI
                 _canvasGroup.blocksRaycasts = true;
                 _useableCardDrower.CardDraw();
             });
-            _openSeq.Join(DOTween.To(() => 1f, value => _playerImage.material
-                .SetFloat(_GlitchValueHash, value), 0.1f, 0.5f).SetEase(Ease.Linear));
-            _openSeq.Join(DOTween.To(() => 1f, value => _cardAreaGlitchController.SetValue(_GlitchValueHash, value), 0, 0.5f).SetEase(Ease.Linear));
-            _openSeq.Join(DOTween.To(() => 0f, value => _cardAreaGroup.alpha = value, 1, 0.5f).SetEase(Ease.Linear));
+            _openSeq.Join(DOTween.To(value => _playerImage.material
+                .SetFloat(_GlitchValueHash, value), 1f, 0.1f, 0.5f).SetEase(Ease.Linear));
+            _openSeq.Join(DOTween.To(value => _cardAreaGlitchController.SetValue(_GlitchValueHash, value), 1f, 0, 0.5f).SetEase(Ease.Linear));
+            _openSeq.Join(DOTween.To( value => _cardAreaGroup.alpha = value, 0, 1f, 0.5f).SetEase(Ease.Linear));
+        }
+
+        private void OnDestroy()
+        {
+            _openSeq?.Kill();
         }
     }
 }

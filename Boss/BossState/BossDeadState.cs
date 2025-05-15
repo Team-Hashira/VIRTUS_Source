@@ -15,14 +15,14 @@ namespace Hashira.Bosses.States
         {
             base.OnEnter();
             (_entity as Boss)?.CurrentBossPattern?.EndPattern();
-            _entityAnimator.OnAnimationTriggeredEvent += OnAnimationTriggeredHandle;
+            _entityAnimator.OnAnimationTriggeredEvent += HandleAnimationTriggered;
         }
 
-        private void OnAnimationTriggeredHandle(EAnimationTriggerType triggertype, int count)
+        private void HandleAnimationTriggered(EAnimationTriggerType triggertype, int count)
         {
             if (triggertype == EAnimationTriggerType.End)
             {
-                _entityAnimator.OnAnimationTriggeredEvent -= OnAnimationTriggeredHandle;
+                _entityAnimator.OnAnimationTriggeredEvent -= HandleAnimationTriggered;
             }
         }
     }

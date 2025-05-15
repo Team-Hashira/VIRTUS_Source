@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Hashira.Accessories.Effects
 {
-    public class ProtectiveLumberPassive : AccessoryPassiveEffect
+    public class ProtectiveLumberPassive : AccessoryPassiveEffect, IUpdatableEffect
     {
         private EntityHealth _ownerHealth;
 
@@ -67,9 +67,8 @@ namespace Hashira.Accessories.Effects
             }
         }
 
-        public override void OnUpdate()
+        public void OnUpdate()
         {
-            base.OnUpdate();
             if (_isActive)
                 return;
             _activeTimer += Time.deltaTime;

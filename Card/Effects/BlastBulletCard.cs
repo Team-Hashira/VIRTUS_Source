@@ -12,6 +12,7 @@ namespace Hashira.Cards.Effects
     {
         public override void Enable()
         {
+            base.Enable();
             GameEventChannel.AddListener<ProjectileAfterHitEvent>(HandleProjectileHitEvent);
         }
 
@@ -33,11 +34,8 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<ProjectileAfterHitEvent>(HandleProjectileHitEvent);
-        }
-
-        public override void Update()
-        {
         }
     }
 }

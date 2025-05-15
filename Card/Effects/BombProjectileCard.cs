@@ -19,6 +19,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             _bombProjectileLisr = new List<Projectile>();
             GameEventChannel.AddListener<ProjectileAfterHitEvent>(HandleProjectileAfterHitEvent);
             GameEventChannel.AddListener<ProjectileShootEvent>(HandleProjectileShootEvent);
@@ -61,6 +62,8 @@ namespace Hashira.Cards.Effects
                 var mainModule = bombEffect.main;
                 mainModule.startSize = 2.5f * _radius[stack - 1];
 
+                SoundManager.Instance.PlaySFX("Explosion", null, 1f);
+
                 if (projectileHitEvent.projectile.TryGetCurrentLifeCountType(out EProjectileUndyingMode projectileUndyingMode) == false)
                     _bombProjectileLisr.Remove(projectile);
             }
@@ -68,13 +71,9 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<ProjectileAfterHitEvent>(HandleProjectileAfterHitEvent);
             GameEventChannel.RemoveListener<ProjectileShootEvent>(HandleProjectileShootEvent);
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

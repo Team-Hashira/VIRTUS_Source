@@ -11,7 +11,7 @@ using static UnityEngine.ParticleSystem;
 
 namespace Hashira.Accessories.Effects
 {
-    public class SlaughterRequiemScorePassive : AccessoryPassiveEffect, IInitializeOnNextStage
+    public class SlaughterRequiemScorePassive : AccessoryPassiveEffect, IInitializeOnNextStage, IUpdatableEffect
     {
         [SerializeField]
         [Tooltip("스택당 공격력 증가 퍼센트")]
@@ -61,7 +61,7 @@ namespace Hashira.Accessories.Effects
             }
         }
 
-        public override void OnUpdate()
+        public void OnUpdate()
         {
             if (_currentIncreaseCount > 0)
             {

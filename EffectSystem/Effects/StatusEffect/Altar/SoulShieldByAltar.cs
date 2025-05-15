@@ -15,7 +15,6 @@ namespace Hashira.EffectSystem.Effects
             base.Enable();
             var shieldHandler = new ShieldHandler(3, true);
             _health.AddDamageHandler(EDamageHandlerLayer.First, shieldHandler);
-            Debug.Log(_effectVFXObject.gameObject.transform);
             SetBrokenLevel();
         }
 

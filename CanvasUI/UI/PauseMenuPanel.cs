@@ -46,7 +46,7 @@ namespace Hashira
         private void HandleTitleEvent()
         {
             PlayerDataManager.Instance.ResetData();
-            PlayerDataManager.Instance.ResetPlayerCardEffect(useDisable: PlayerManager.Instance != null);
+            if (PlayerManager.Instance != null) PlayerDataManager.Instance.CardDisable();
             SceneLoadingManager.LoadScene(SceneName.TitleScene);
         }
 

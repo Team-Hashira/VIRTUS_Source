@@ -13,18 +13,15 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             _projectileSpeedStat = player.GetEntityComponent<EntityStat>().StatDictionary[StatName.ProjectileSpeed];
             _projectileSpeedStat.AddModify("ProjectileSpeedStatEffect", _projectileSpeedUpValue[stack - 1], EModifyMode.Percent, EModifyLayer.Default);
         }
 
         public override void Disable()
         {
+            base.Disable();
             _projectileSpeedStat?.RemoveModifyOverlap("ProjectileSpeedStatEffect", EModifyLayer.Default);
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

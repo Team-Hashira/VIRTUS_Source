@@ -17,6 +17,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             GameEventChannel.AddListener<ProjectileShootEvent>(HandleShootEvent);
             _attackPowerStat = player.GetEntityComponent<EntityStat>().StatDictionary[StatName.AttackPower];
             _attackPowerStat.AddModify("PrecisionAimEffect", _attackPowerUpByStack[stack - 1], EModifyMode.Percent, EModifyLayer.Default);
@@ -34,13 +35,9 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             _attackPowerStat.RemoveModifyOverlap("PrecisionAimEffect", EModifyLayer.Default);
             GameEventChannel.RemoveListener<ProjectileShootEvent>(HandleShootEvent);
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

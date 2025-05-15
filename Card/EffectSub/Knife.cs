@@ -67,7 +67,7 @@ namespace Hashira
                         damageable.ApplyDamage(attackInfo, raycastHit2D, _owner.transform);
                     }
                     CameraManager.Instance.ShakeCamera(5, 5, 0.2f);
-                    gameObject.Pop(EffectPoolType.KnifeHitEffect, transform.position, transform.rotation);
+                    PopCore.Pop(EffectPoolType.KnifeHitEffect, transform.position, transform.rotation);
                     this.Push();
                 }
                 else

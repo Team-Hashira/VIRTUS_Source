@@ -26,6 +26,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             _killCount = 0;
             _isBloodFrenzy = false;
             _lastEnableBloodFrenzyTime = -100;
@@ -50,6 +51,7 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<KillEnemyEvent>(HandleKillEnemyEvent);
 
             if (_isBloodFrenzy)
@@ -111,7 +113,7 @@ namespace Hashira.Cards.Effects
                 if (entity.TryGetEntityComponent(out EntityEffector entityEffector))
                 {
                     Bleeding bleeding = new Bleeding();
-                    bleeding.Setup(_bleedingDamageByStack[stack - 1], 0.25f, 3.1f);
+                    bleeding.Setup(_bleedingDamageByStack[stack - 1], 0.25f, nameof(BloodFrenzyCard));
                     entityEffector.AddEffect(bleeding);
 
                     // 비주얼 효과

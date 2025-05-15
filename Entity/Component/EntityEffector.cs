@@ -35,6 +35,16 @@ namespace Hashira.Entities
         public int GetEffectCount(Type effectType)
             => _effectDictionary[effectType].Count;
 
+        public List<Effect> GetEffectList<T>(T effect) where T : Effect 
+            => _effectDictionary.GetValueOrDefault(effect.GetType());
+
+        public List<Effect> GetEffectList<T>() where T : Effect
+            => _effectDictionary.GetValueOrDefault(typeof(T));
+
+        public bool TryGetEffectList<T>(out List<Effect> effects) where T : Effect 
+            => _effectDictionary.TryGetValue(typeof(T), out effects);
+        
+        
         public void AddEffect(Effect effect)
         {
             if (effect == null) return;

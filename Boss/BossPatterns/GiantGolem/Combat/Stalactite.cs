@@ -31,7 +31,7 @@ namespace Hashira.Bosses.Patterns.GiantGolem
 
         private void OnDieHandle(RaycastHit2D hit)
         {
-            gameObject.Pop(_dieEffectPooltype, hit.point, Quaternion.identity);
+            PopCore.Pop(_dieEffectPooltype, hit.point, Quaternion.identity);
             this.Push();
         }
 

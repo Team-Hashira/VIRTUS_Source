@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 namespace Hashira.CanvasUI
 {
@@ -23,6 +24,7 @@ namespace Hashira.CanvasUI
         public static Vector2 WorldMousePosition;
 
         [SerializeField] private InputReaderSO _inputReader;
+        [SerializeField] private Transform _stagePanelTrm;
 
         private bool _isPaused;
 
@@ -37,7 +39,7 @@ namespace Hashira.CanvasUI
 
         private void Awake()
         {
-            UIInteractor = FindFirstObjectByType<UIInteractor>();
+            UIInteractor = new UIInteractor(MainCanvas.GetComponent<GraphicRaycaster>());
         }
 
         private void Update()
@@ -58,6 +60,16 @@ namespace Hashira.CanvasUI
         {
             _pauseMenuList.Add(uiBase);
             PauseUpdate();
+        }
+        
+        public void AddGameCanvas(Transform panel)
+        {
+            var rectTrm = panel as RectTransform;
+            panel.SetParent(_stagePanelTrm);
+            rectTrm.localScale = Vector3.one;
+            rectTrm.anchoredPosition3D = Vector3.zero;
+            
+            rectTrm.sizeDelta = Vector2.zero;
         }
 
         public void RemovePauseMenu(UIBase uiBase)

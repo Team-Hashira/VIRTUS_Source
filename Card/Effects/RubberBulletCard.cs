@@ -15,6 +15,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             GameEventChannel.AddListener<ProjectileAfterHitEvent>(HandleProjectileHitEvent);
             GameEventChannel.AddListener<ProjectileShootEvent>(HandleProjectileShootEvent);
             _attackPower = player.GetEntityComponent<EntityStat>().StatDictionary[StatName.AttackPower];
@@ -38,6 +39,7 @@ namespace Hashira.Cards.Effects
                     Vector2 reflect = Vector2.Reflect(projectile.movement, projectileHitEvent.hitInfo.raycastHit.normal);
                     reflect.Normalize();
                     projectile.Redirection(reflect);
+                    projectile.damage = Mathf.CeilToInt(projectile.damage * 0.8f);
                     projectile.transform.position += (Vector3)reflect * projectile.Speed * Time.deltaTime;
                 }
             }
@@ -45,13 +47,10 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<ProjectileAfterHitEvent>(HandleProjectileHitEvent);
             GameEventChannel.RemoveListener<ProjectileShootEvent>(HandleProjectileShootEvent);
             _attackPower.RemoveModifyOverlap("RubberBulletCard", EModifyLayer.Default);
-        }
-
-        public override void Update()
-        {
         }
     }
 }

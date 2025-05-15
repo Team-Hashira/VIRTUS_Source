@@ -17,9 +17,6 @@ namespace Hashira.Enemies.Components
 
         private EntityRenderer _entityRenderer;
 
-        [SerializeField]
-        private int _jumpableWallCount;
-
         public override void Initialize(Entity entity)
         {
             base.Initialize(entity);
@@ -33,24 +30,46 @@ namespace Hashira.Enemies.Components
         //}
 
         public bool IsOnEdge()
-            => !Physics2D.OverlapBox(transform.position + new Vector3(_edgeCheckerOffset.x * _entityRenderer.FacingDirection, _edgeCheckerOffset.y), _edgeCheckerSize, 0, _whatIsGround);
+        {
+            Vector3 rotatedOffset = RotateOffset(_edgeCheckerOffset, transform.rotation);
+            return !Physics2D.OverlapBox(transform.position + rotatedOffset, _edgeCheckerSize, transform.eulerAngles.z, _whatIsGround);
+        }
+
         public bool IsWallOnFront()
-            => Physics2D.OverlapBox(transform.position + new Vector3(_wallCheckerOffset.x * _entityRenderer.FacingDirection, _wallCheckerOffset.y), _wallCheckerSize, 0, _whatIsGround);
-        public bool IsWallJumpable()
-            => !Physics2D.Raycast(transform.position + new Vector3(0, _jumpableWallCount), new Vector2(_entityRenderer.FacingDirection, 0), _checkerSize.x / 2 + 0.2f, _whatIsGround);
+        {
+            Vector3 rotatedOffset = RotateOffset(_wallCheckerOffset, transform.rotation);
+            return Physics2D.OverlapBox(transform.position + rotatedOffset, _wallCheckerSize, transform.eulerAngles.z, _whatIsGround);
+        }
+
+        private Vector3 RotateOffset(Vector2 offset, Quaternion rotation)
+        {
+            offset.x *= _entityRenderer.FacingDirection;
+            return rotation * offset;
+        }
 
 #if UNITY_EDITOR
         protected override void OnDrawGizmos()
         {
             base.OnDrawGizmos();
-            float facingDir = 1;
-            if (_entityRenderer != null)
-                facingDir = _entityRenderer.FacingDirection;
+
+            float facingDir = _entityRenderer != null ? _entityRenderer.FacingDirection : 1;
+
+            Quaternion rotation = transform.rotation;
+
+            Vector3 edgeOffset = rotation * new Vector2(_edgeCheckerOffset.x * facingDir, _edgeCheckerOffset.y);
+            Vector3 wallOffset = rotation * new Vector2(_wallCheckerOffset.x * facingDir, _wallCheckerOffset.y);
+
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireCube(transform.position + new Vector3(_edgeCheckerOffset.x * facingDir, _edgeCheckerOffset.y), _edgeCheckerSize);
+            Gizmos.matrix = Matrix4x4.TRS(transform.position + edgeOffset, rotation, Vector3.one);
+            Gizmos.DrawWireCube(Vector3.zero, _edgeCheckerSize);
+
             Gizmos.color = Color.magenta;
-            Gizmos.DrawWireCube(transform.position + new Vector3(_wallCheckerOffset.x * facingDir, _wallCheckerOffset.y), _wallCheckerSize);
+            Gizmos.matrix = Matrix4x4.TRS(transform.position + wallOffset, rotation, Vector3.one);
+            Gizmos.DrawWireCube(Vector3.zero, _wallCheckerSize);
+
+            Gizmos.matrix = Matrix4x4.identity;
         }
 #endif
+
     }
 }

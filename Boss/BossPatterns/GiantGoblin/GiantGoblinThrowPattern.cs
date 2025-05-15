@@ -1,5 +1,6 @@
 using Crogen.CrogenPooling;
 using Hashira.Entities.Components;
+using Hashira.Projectiles;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -48,30 +49,23 @@ namespace Hashira.Bosses.Patterns
         private void HandleThrowRock(EAnimationTriggerType trigger, int count)
         {
             if (trigger != EAnimationTriggerType.Trigger) return;
-            GiantBounceRock rock = GameObject.Pop(_giantRockPoolType, _firePoint.position, Quaternion.Euler(0, 0, Random.Range(0, 360))) as GiantBounceRock;
+            GiantBounceRock rock = PopCore.Pop(_giantRockPoolType, _firePoint.position, Quaternion.Euler(0, 0, Random.Range(0, 360))) as GiantBounceRock;
+            rock.Owner = Boss;
             rock.Init(_rockStartLevel, Player.transform.position, HandleRocksDieEvent);
         }
 
         public override void OnEnd()
         {
-            GiantBounceRock[] rocks = GameObject.FindObjectsByType<GiantBounceRock>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-Debug.Log(rocks.Length);
-            // foreach (var rock in rocks)
-            //     rock.Push();
-            
             _rockList?.Clear();
             EntityAnimator.OnAnimationTriggeredEvent -= HandleThrowRock;
             base.OnEnd();
         }
 
-        private void HandleRocksDieEvent(GiantBounceRock rock, int level)
+        private void HandleRocksDieEvent(IEnemyProjectile rock, int level)
         {
-            Debug.Log("Start" + _rockCount);
             _rockCount--;
-            Debug.Log(_rockCount);
             if (_rockCount <= 0)
             {
-                Debug.Log("밍ㅋㅋㅋ");
                 EndPattern();
             }
         }

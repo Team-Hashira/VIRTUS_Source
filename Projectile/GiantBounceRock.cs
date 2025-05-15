@@ -1,14 +1,18 @@
 using Crogen.CrogenPooling;
 using Hashira.Combat;
+using Hashira.Enemies;
 using Hashira.Entities;
+using Hashira.Projectiles;
 using System;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Hashira.Bosses.Patterns
 {
-    public class GiantBounceRock : MonoBehaviour, IPoolingObject
+    public class GiantBounceRock : MonoBehaviour, IPoolingObject, IEnemyProjectile
     {
+        public Enemy Owner { get; set; }
+        public bool CanAttack => Owner != null;
+
         [SerializeField] private LayerMask _whatIsPlayer;
         [SerializeField] private LayerMask _whatIsGround;
         [SerializeField] private EffectPoolType _rockDestoryVFXPoolType;
@@ -29,7 +33,7 @@ namespace Hashira.Bosses.Patterns
             _rigidbody = GetComponent<Rigidbody2D>();
         }
 
-        public void Init(int level, Vector2 targetPos, Action<GiantBounceRock, int> dieEvent)
+        public void Init(int level, Vector2 targetPos, Action<IEnemyProjectile, int> dieEvent = null)
         {
             this._level = level;
 
@@ -49,6 +53,7 @@ namespace Hashira.Bosses.Patterns
             transform.localScale = Vector3.one * _level;
             OnDieEvent = dieEvent;
         }
+        
         public void Init(int level, Vector2 dir, float power, Action<GiantBounceRock, int> dieEvent)
         {
             this._level = level;
@@ -65,7 +70,7 @@ namespace Hashira.Bosses.Patterns
         public void OnPush()
         {
             OnDieEvent?.Invoke(this, _level);
-            gameObject.Pop(_rockDestoryVFXPoolType, transform.position, Quaternion.identity)
+            PopCore.Pop(_rockDestoryVFXPoolType, transform.position, Quaternion.identity)
                 .gameObject.transform.localScale = Vector3.one * _level;
 
             OnDieEvent = null;
@@ -79,6 +84,8 @@ namespace Hashira.Bosses.Patterns
 
         private void CheckDamageCast()
         {
+            if (CanAttack == false) return;
+            
             RaycastHit2D hit = Physics2D.CircleCast(transform.position, _radius * transform.localScale.z, Vector2.right, 0, _whatIsPlayer);
 
             if (hit.transform == null) return;
@@ -106,12 +113,18 @@ namespace Hashira.Bosses.Patterns
         private void GenerateLowLevelRock(Vector2 dir, Vector2 normal)
         {
             if (_level <= 1) return;
-            var lowLevelRock = gameObject.Pop(OriginPoolType, transform.position, Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360))) as GiantBounceRock;
 
-            float deceleration  = (-Vector2.Dot(_rigidbody.linearVelocity.normalized, normal) + 1) * 0.5f;
+            if (_level >= 3)
+                SoundManager.Instance.PlaySFX("LargeStone", transform.position, 1f);
+            else
+                SoundManager.Instance.PlaySFX("SmallStone", transform.position, 0.8f);
+
+            var lowLevelRock =PopCore.Pop(OriginPoolType, transform.position, Quaternion.Euler(0, 0, UnityEngine.Random.Range(0, 360))) as GiantBounceRock;
+
+            float deceleration = (-Vector2.Dot(_rigidbody.linearVelocity.normalized, normal) + 1) * 0.5f;
             lowLevelRock.Init(_level - 1, dir, _rigidbody.linearVelocity.magnitude * deceleration * 0.83f, OnDieEvent);
-            
-            
+
+
             // 충돌 노말 벡터랑 Vec.up Dot, 
         }
 

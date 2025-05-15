@@ -65,7 +65,7 @@ namespace Hashira.Bosses.Patterns.GiantGolem
             Blink(0.1f);
             if (_currentHitCount >= _maxHitCount)
             {
-                gameObject.Pop(_destroyEffectPoolType, transform.position, Quaternion.identity);
+                PopCore.Pop(_destroyEffectPoolType, transform.position, Quaternion.identity);
                 Destroy(this.gameObject);
             }
             _hitCountText.text = (_maxHitCount - _currentHitCount).ToString();

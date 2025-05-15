@@ -1,8 +1,6 @@
 using Hashira.Core.MoveSystem;
-using Hashira.Players;
 using System;
 using System.Collections.Generic;
-using Unity.Cinemachine;
 using UnityEngine;
 
 namespace Hashira.Entities
@@ -32,6 +30,8 @@ namespace Hashira.Entities
         protected Vector2 _movement;
         public Vector2 ToMove { get; private set; }
         public Vector2 Velocity { get; private set; }
+
+        protected Vector2 _addedVelocity;
 
         public bool IsGrounded => _hitedGround != default && _yMovement < 0;
         public bool IsOneWayPlatform { get; private set; }
@@ -89,7 +89,7 @@ namespace Hashira.Entities
             }
             //if (_entity is Player) Debug.Log($"{transform.up} dot {_hitedGround.normal}");
             //if (_entity is Player) Debug.Log($"{Mathf.Acos(Vector3.Dot(transform.up, _hitedGround.normal)) * Mathf.Rad2Deg} >= {_maxSlopeAngle}");
-            
+
             foreach (var processor in _moveProcessorDict.Values)
             {
                 if (processor.IsActive)
@@ -125,7 +125,13 @@ namespace Hashira.Entities
         private void ApplyVelocity()
         {
             if (Rigidbody2D.bodyType == RigidbodyType2D.Static) return;
-            Rigidbody2D.linearVelocity = Velocity;
+            Rigidbody2D.linearVelocity = Velocity + _addedVelocity;
+            _addedVelocity = Vector2.zero;
+        }
+
+        public void AddForce(Vector2 velocity)
+        {
+            _addedVelocity = velocity;
         }
 
         public void SetGravity(bool active)

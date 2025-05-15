@@ -67,4 +67,47 @@ public static class MathEx
 
         return Bezier(t, nextPositions);
     }
+
+    /// <summary>
+    /// 포물선 구하기 함수. 중력이 (0, gravity)라고 가정.
+    /// </summary>
+    /// <param name="direction">시점으로부터 쏘아진 방향</param>
+    /// <param name="power">쏘아진 힘</param>
+    /// <param name="gravity">중력</param>
+    /// <param name="t"></param>
+    /// <returns>포물선 함수에 t를 넣었을때 나오는 값 반환</returns>
+    public static Vector2 Parabola(Vector2 direction, float power, float gravity, float t)
+    {
+        float angle = Mathf.Atan2(direction.y, direction.x);
+
+        Vector2 v = new Vector2(power * Mathf.Cos(angle), power * Mathf.Sin(angle));
+        Vector2 result = new Vector2(v.x * t, v.y * t - (gravity * t * t) * 0.5f);
+        return result;
+    }
+
+    /// <summary>
+    /// 포물선 구하기 함수. 중력을 커스텀
+    /// </summary>
+    /// <param name="direction">시점으로부터 쏘아진 방향</param>
+    /// <param name="power">쏘아진 힘</param>
+    /// <param name="gravity">중력</param>
+    /// <param name="t"></param>
+    /// <returns>포물선 함수에 t를 넣었을때 나오는 값 반환</returns>
+    public static Vector2 Parabola(Vector2 direction, float power, Vector2 gravity, float t)
+    {
+        Vector2 velocity = power * direction;
+        Vector2 gravityEffect = gravity * t * t * 0.5f;
+
+        Vector2 result = velocity * t + gravityEffect;
+        return result;
+    }
+
+    public static Vector2 Parabola(float angle, float power, Vector2 gravity, float t)
+    {
+        Vector2 velocity = new Vector2(power * Mathf.Cos(angle), power * Mathf.Sin(angle));
+        Vector2 gravityEffect = gravity * t * t * 0.5f;
+
+        Vector2 result = velocity * t + gravityEffect;
+        return result;
+    }
 }

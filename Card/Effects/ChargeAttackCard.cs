@@ -14,6 +14,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             player.Attacker.SetChargeMode(_maxChargeTimeByStack[stack - 1]);
             player.Attacker.OnChargeEnableEvent += HandleChargeEnableEvent;
 
@@ -34,12 +35,8 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             player.Attacker.OnChargeEnableEvent -= HandleChargeEnableEvent;
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

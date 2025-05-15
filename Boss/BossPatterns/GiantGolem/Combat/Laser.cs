@@ -1,6 +1,7 @@
 using Crogen.CrogenPooling;
 using DG.Tweening;
 using Hashira.Combat;
+using System;
 using UnityEngine;
 
 namespace Hashira.Bosses.Patterns.GiantGolem
@@ -38,8 +39,8 @@ namespace Hashira.Bosses.Patterns.GiantGolem
                 _lineRenderer.gameObject.SetActive(_isAttacking);
                 if (_isAttacking == true)
                 {
-                    _hitVFXObject = gameObject.Pop(_hitVFXPoolType, _endPosition, Quaternion.identity);
-                    gameObject.Pop(_muzzleVFXPoolType, transform.position, Quaternion.identity);
+                    _hitVFXObject = PopCore.Pop(_hitVFXPoolType, _endPosition, Quaternion.identity);
+                    PopCore.Pop(_muzzleVFXPoolType, transform.position, Quaternion.identity);
                     CameraManager.Instance.ShakeCamera(10, 20, 0.25f);
                 }
                 else
@@ -54,10 +55,16 @@ namespace Hashira.Bosses.Patterns.GiantGolem
             _damageCaster = _attackVisualizer.DamageCaster as BoxDamageCaster2D;
             _attackVisualizer.InitDamageCastVisualSign();
         }
-        
+
+        private void OnDestroy()
+        {
+            OnPush();
+        }
+
         public void OnPop()
         {
             IsAttacking = false;
+            _attackVisualizer.SetOriginColor();
             _attackVisualizer.SetAlpha(1);
             _attackVisualizer.SetDamageCastValue(0);
         }

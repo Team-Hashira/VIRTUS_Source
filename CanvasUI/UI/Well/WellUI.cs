@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Hashira.Cards;
 using Hashira.Cards.Effects;
 using Hashira.Entities.Interacts;
 using Hashira.Object;
@@ -72,11 +73,11 @@ namespace Hashira.CanvasUI.Wells
 
         public void Enable()
         {
-            List<CardEffect> effectList = PlayerDataManager.Instance.CardEffectList;
-            if (effectList.Count != 0)
+            List<CardSO> cardSO = PlayerDataManager.Instance.CardEffectDictionary.Keys.ToList();
+            if (cardSO.Count != 0)
             {
                 _cardScrollView.ActiveGrid(true);
-                _cardScrollView.CreateCard(effectList.Select(cardEffect => cardEffect.CardSO).ToList(), true);
+                _cardScrollView.CreateCard(cardSO.ToList(), true);
                 StartCoroutine(CreateCardCoroutine());
             }
 
@@ -158,6 +159,7 @@ namespace Hashira.CanvasUI.Wells
 
         private void OnDestroy()
         {
+            _selectViewSeq.Clear();
             UIManager.Instance?.RemoveUI(this);
         }
     }

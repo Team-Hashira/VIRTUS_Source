@@ -11,7 +11,7 @@ namespace Hashira.Enemies.Bee.QueenBee
     public class QueenBee : AirEnemy
     {
         [field: SerializeField]
-        public FamiliarPoolType CommonBee { get; private set; }
+        public EntityPoolType CommonBee { get; private set; }
 
         [field: SerializeField]
         public float EvasionRange { get; private set; }

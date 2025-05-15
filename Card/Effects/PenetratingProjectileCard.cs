@@ -12,6 +12,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             GameEventChannel.AddListener<ProjectileAfterHitEvent>(HandleHitEvent);
             GameEventChannel.AddListener<ProjectileShootEvent>(HandleShootEvent);
         }
@@ -22,7 +23,7 @@ namespace Hashira.Cards.Effects
             if (random < _penetratingPercentByStack[stack - 1])
             {
                 Projectile projectile = projectileShootEvent.projectile;
-                projectile.SetLifeCount(EProjectileUndyingMode.penetration, 1);
+                projectile.SetLifeCount(EProjectileUndyingMode.Penetration, 1);
             }
         }
 
@@ -30,7 +31,7 @@ namespace Hashira.Cards.Effects
         {
             Projectile projectile = projectileHitEvent.projectile;
             if (projectile.TryGetCurrentLifeCountType(out EProjectileUndyingMode projectileUndyingMode) &&
-                projectileUndyingMode == EProjectileUndyingMode.penetration)
+                projectileUndyingMode == EProjectileUndyingMode.Penetration)
             {
                 projectile.damage = Mathf.CeilToInt(projectile.damage * (100 - _damageDownByStack[stack - 1]) / 100);
             }
@@ -38,13 +39,9 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<ProjectileAfterHitEvent>(HandleHitEvent);
             GameEventChannel.RemoveListener<ProjectileShootEvent>(HandleShootEvent);
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Hashira.Enemies.Golem.StaticGolem
             _entityStateMachine.GetState<EnemyIdlePublicState>().TargetState = "Attack";
         }
 
-        private void Start()
+        protected override void Start()
         {
             _player = PlayerManager.Instance.Player;
         }

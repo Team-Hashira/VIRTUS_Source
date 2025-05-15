@@ -111,7 +111,7 @@ namespace Hashira
 
         private void OnDestroy()
         {
-            _cardGetVisualSeq.Clear();
+            _cardGetVisualSeq?.Kill(true);
         }
     }
 }

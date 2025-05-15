@@ -26,6 +26,7 @@ namespace Hashira.Bosses.Patterns
         {
             if (trigger == EAnimationTriggerType.Trigger)
             {
+                SoundManager.Instance.PlaySFX("Swing", Transform.position, 1.2f);
                 CameraManager.Instance.ShakeCamera(30, 5, 0.85f);
                 _damageCaster.CastDamage(AttackInfo.defaultOneDamage, Vector2.right * _lookDirection * _knockbackPower, false);
             }

@@ -20,7 +20,7 @@ namespace Hashira.Projectiles
     public enum EProjectileUndyingMode
     {
         Reflection,
-        penetration
+        Penetration
     }
 
     public class Projectile : ProjectileBase, IPoolingObject
@@ -28,6 +28,8 @@ namespace Hashira.Projectiles
         public bool IsDead { get; set; } = false;
         public bool IsEventSender { get; private set; }
         public float MoveDistance { get; set; }
+        public bool IsPenetrateWall { get; set; } = false;
+        public bool UseGravity { get; set; } = true;
         public LayerMask WhatIsTarget { get; protected set; }
         [SerializeField] protected float _pushDelay;
         [SerializeField] protected bool _canMultipleAttacks;
@@ -128,7 +130,8 @@ namespace Hashira.Projectiles
         {
             if (IsDead) return;
             // 중력
-            movement -= Owner.up * _gravity * Time.fixedDeltaTime * 25f;
+            if (UseGravity)
+                movement -= Owner.up * _gravity * Time.fixedDeltaTime * 25f;
             transform.right = movement.normalized;
 
             _projectileCollider2D.CheckCollision(WhatIsTarget, out _currentHit2D, movement * Time.fixedDeltaTime);
@@ -149,6 +152,8 @@ namespace Hashira.Projectiles
                     HitInfo hitInfo = new HitInfo();
                     hitInfo.raycastHit = raycastHit;
                     hitInfo.damageable = raycastHit.transform.GetComponent<IDamageable>();
+                    if (IsPenetrateWall && hitInfo.damageable == null)
+                        continue;
                     hitInfo.entity = raycastHit.transform.GetComponent<Entity>();
 
                     bool isStayTransform = prevTransformSet.Contains(raycastHit.transform);
@@ -225,7 +230,6 @@ namespace Hashira.Projectiles
         public void Redirection(Vector2 direction, float speed = -1f)
         {
             movement = direction.normalized * Speed;
-            damage = Mathf.CeilToInt(damage * 0.8f);
         }
 
         protected virtual void OnHited(HitInfo hitInfo) { }
@@ -237,6 +241,7 @@ namespace Hashira.Projectiles
             WhatIsTarget = whatIsTarget;
             MoveDistance = 0;
             _gravity = gravity;
+            IsPenetrateWall = false;
 
             transform.right = direction;
             movement = transform.right * speed;
@@ -249,7 +254,7 @@ namespace Hashira.Projectiles
             _lifeCountDictionary = new()
             {
                 { EProjectileUndyingMode.Reflection, 0},
-                { EProjectileUndyingMode.penetration, 0},
+                { EProjectileUndyingMode.Penetration, 0},
             };
 
             SetVisual(_defaultSpriteColor, _defaultTrailData, _defaultSprite, 2);

@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Hashira.Cards;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -38,6 +39,11 @@ namespace Hashira.CanvasUI
             {
                 card.Initialize(this);
             }
+        }
+
+        private void OnDestroy()
+        {
+            _canvasGroup?.DOKill();
         }
 
         public void Open()

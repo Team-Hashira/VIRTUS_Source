@@ -51,7 +51,8 @@ namespace Hashira.Bosses.Patterns
                 _lasers[i]?.ShowVisualizer(0.85f)
                     .Join(DOTween.To(x => _lasers[i].SetAlpha(x), 0.3f, 1f, 0.85f).SetEase(Ease.InExpo))
                     .Append(_lasers[i].Blink(0.6f))
-                    .Append(_lasers[i].StartAttack(duration: 0.25f));             
+                    .AppendCallback(() => SoundManager.Instance.PlaySFX("LaserShoot", Transform.position, 1f))
+                    .Append(_lasers[i].StartAttack(duration: 0.25f));
             }
         }
         
@@ -62,7 +63,7 @@ namespace Hashira.Bosses.Patterns
                 laser?.Push();
             }
 
-            Transform.DOKill(true);
+            Transform.DOKill();
             ReturnToOriginPosition();
             base.OnEnd();
         }

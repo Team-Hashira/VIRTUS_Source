@@ -10,6 +10,7 @@ namespace Hashira
         public void PopupText(string text, Color color)
         {
             PopupText popupText = PopCore.Pop(UIPoolType.PopupText, _popupTextTrm) as PopupText;
+            popupText.transform.localScale = Vector3.one;
             popupText.Init(text, color);
         }
     }

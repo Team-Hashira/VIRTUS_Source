@@ -1,17 +1,16 @@
-using NUnit.Framework.Constraints;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace Hashira.Core.StatSystem
 {
+
     public enum EModifyMode
     {
         Add,
         Percent,
     }
-    
+
     public enum EModifyLayer
     {
         Default,
@@ -21,18 +20,18 @@ namespace Hashira.Core.StatSystem
     public struct StatModifier
     {
         private float _originValue;
-        private bool _canValueOverlap;
 
         private int _overlapCount;
         public EModifyMode Mode { get; private set; }
         public float Value { get; private set; }
+        public bool CanValueOverlap { get; private set; }
 
         public StatModifier(float originValue, EModifyMode mode, bool canValueOverlap)
         {
             _originValue = originValue;
             Mode = mode;
             _overlapCount = 1;
-            _canValueOverlap = canValueOverlap;
+            CanValueOverlap = canValueOverlap;
 
             Value = originValue;
         }
@@ -40,14 +39,14 @@ namespace Hashira.Core.StatSystem
         public static StatModifier operator ++(StatModifier modifier)
         {
             modifier._overlapCount++;
-            if (modifier._canValueOverlap)
+            if (modifier.CanValueOverlap)
                 modifier.Value += modifier._originValue;
             return modifier;
         }
         public static StatModifier operator --(StatModifier modifier)
         {
             modifier._overlapCount--;
-            if (modifier._canValueOverlap)
+            if (modifier.CanValueOverlap)
                 modifier.Value -= modifier._originValue;
             return modifier;
         }
@@ -60,6 +59,7 @@ namespace Hashira.Core.StatSystem
     [Serializable]
     public class StatElement : ICloneable
     {
+
         [HideInInspector] public string Name;
         public StatElementSO elementSO;
         [SerializeField] private float _baseValue;
@@ -78,7 +78,15 @@ namespace Hashira.Core.StatSystem
         {
             _isUseClamp = isUseClamp;
             _isUseModifier = isUseModifier;
-            
+
+            SetDictionary();
+            SetValue();
+        }
+
+        public void Initialize(int baseValue)
+        {
+            _baseValue = baseValue;
+
             SetDictionary();
             SetValue();
         }
@@ -132,13 +140,16 @@ namespace Hashira.Core.StatSystem
 
         public void AddModify(string key, float value, EModifyMode eModifyMode, EModifyLayer eModifyLayer, bool canValueOverlap = true)
         {
+            StatModifier modifier = new StatModifier(value, eModifyMode, canValueOverlap);
             if (_modifiers[eModifyLayer].ContainsKey(key))
             {
-                _modifiers[eModifyLayer][key]++;
+                if (canValueOverlap)
+                    _modifiers[eModifyLayer][key]++;
+                else
+                    _modifiers[eModifyLayer][key] = modifier;
             }
             else
             {
-                StatModifier modifier = new StatModifier(value, eModifyMode, canValueOverlap);
                 _modifiers[eModifyLayer][key] = modifier;
             }
 
@@ -148,7 +159,10 @@ namespace Hashira.Core.StatSystem
         {
             if (_modifiers[eModifyLayer].ContainsKey(key))
             {
-                _modifiers[eModifyLayer][key]++;
+                if (statModifier.CanValueOverlap)
+                    _modifiers[eModifyLayer][key]++;
+                else
+                    _modifiers[eModifyLayer][key] = statModifier;
             }
             else
             {
@@ -157,6 +171,16 @@ namespace Hashira.Core.StatSystem
 
             SetValue();
         }
+        //public void AddModifyOverlap(string key, EModifyLayer eModifyLayer)
+        //{
+        //    if (_modifiers[eModifyLayer].TryGetValue(key, out StatModifier statModifier))
+        //    {
+        //        _modifiers[eModifyLayer][key]++;
+        //        SetValue();
+        //    }
+        //    else
+        //        Debug.LogWarning($"[{key}]Key not found for statModifier");
+        //}
 
         public void RemoveModifyOverlap(string key, EModifyLayer eModifyLayer)
         {
@@ -170,12 +194,13 @@ namespace Hashira.Core.StatSystem
             else
                 Debug.LogWarning($"[{key}]Key not found for statModifier");
         }
-        
+
         public void RemoveModify(string key, EModifyLayer eModifyLayer)
         {
             if (_modifiers[eModifyLayer].ContainsKey(key))
             {
                 _modifiers[eModifyLayer].Remove(key);
+                SetValue();
             }
             else
                 Debug.LogWarning($"[{key}]Key not found for statModifier");
@@ -184,7 +209,11 @@ namespace Hashira.Core.StatSystem
         public object Clone()
         {
             StatElement clonedStatElement = (StatElement)MemberwiseClone();
-            clonedStatElement._modifiers = new Dictionary<EModifyLayer, Dictionary<string, StatModifier>>();
+            clonedStatElement._modifiers = new Dictionary<EModifyLayer, Dictionary<string, StatModifier>>()
+            {
+                { EModifyLayer.Default, new Dictionary<string, StatModifier>() },
+                { EModifyLayer.Last, new Dictionary<string, StatModifier>() },
+            };
             return clonedStatElement;
         }
     }

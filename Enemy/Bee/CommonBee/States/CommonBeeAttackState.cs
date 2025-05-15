@@ -30,6 +30,8 @@ namespace Hashira.Enemies.Bee.CommonBee
         private Vector2 _direction;
         private Vector2 _destination;
         private float _distanceThresholdSqr = 1f;
+        private float _dashTime;
+        private float _dashTimer;
 
         private bool _isDashStarted = false;
 
@@ -63,7 +65,7 @@ namespace Hashira.Enemies.Bee.CommonBee
             _enemyMover.SetActiveMoveProcessor<ApplyVelocityProcessor>(true);
             _enemyMover.SetActiveMoveProcessor<XSmoothProcessor>(false);
             _enemyMover.SetActiveMoveProcessor<YSmoothProcessor>(false);
-
+            _dashTimer = 0;
             _target = _entityStateMachine.GetShareVariable<Player>("Target");
 
             _direction = _target.transform.position - _entity.transform.position;
@@ -92,6 +94,8 @@ namespace Hashira.Enemies.Bee.CommonBee
             {
                 _visualizer.Blink(0, 0.1f, OnComplete: () => _visualizer.Fold(0.1f));
                 _enemyMover.SetMovement(_direction * _dashSpeedElement.Value);
+                float dist = (_destination - (Vector2)_entity.transform.position).magnitude;
+                _dashTime = dist / _dashSpeedElement.Value;
                 _isDashStarted = true;
             }
         }
@@ -101,10 +105,11 @@ namespace Hashira.Enemies.Bee.CommonBee
             base.OnUpdate();
             if (_isDashStarted)
             {
+                _dashTimer += Time.deltaTime;
                 _bee.DamageCaster.CastDamage(_bee.MakeAttackInfo(_attackPowerElement.IntValue), popupText: false);
                 Vector2 dir = (_entity.transform.position - (Vector3)_destination);
                 float distSqr = dir.sqrMagnitude;
-                if (distSqr < _distanceThresholdSqr)
+                if (distSqr < _distanceThresholdSqr || _dashTimer > _dashTime)
                 {
                     var stun = new Stun();
                     stun.Setup(1f);

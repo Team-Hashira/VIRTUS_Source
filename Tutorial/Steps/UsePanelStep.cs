@@ -106,17 +106,12 @@ namespace Hashira.Tutorials
         [SerializeField]
         private bool _ifPanelStillExist;
 
-        [ToggleField(nameof(_ifPanelStillExist))]
         [SerializeField]
-        private string _existKey;
+        private string _panelKey;
 
         [ToggleField(nameof(_ifPanelStillExist))]
         [SerializeField]
         private bool _doRelocate;
-
-        [ToggleField(nameof(_ifPanelStillExist), false)]
-        [SerializeField]
-        private string _newKey;
 
         [SerializeField]
         private PanelRect _panelRect;
@@ -144,10 +139,10 @@ namespace Hashira.Tutorials
             base.OnEnter();
             if (_ifPanelStillExist)
             {
-                _panel = _tutorialManager.GetTutorialPanel(_existKey);
+                _panel = _tutorialManager.GetTutorialPanel(_panelKey);
                 if (_panel == null)
                 {
-                    _panel = _tutorialManager.GenerateTutorialPanel(_existKey);
+                    _panel = _tutorialManager.GenerateTutorialPanel(_panelKey);
                     _panel.Open(_panelPosition, _panelSize, _duration);
                 }
                 else if (_doRelocate)
@@ -155,22 +150,22 @@ namespace Hashira.Tutorials
             }
             else
             {
-                _panel = _tutorialManager.GenerateTutorialPanel(_newKey);
+                _panel = _tutorialManager.GenerateTutorialPanel(_panelKey);
                 _panel.Open(_panelPosition, _panelSize, _duration);
             }
         }
 
         public override void OnExit()
         {
-            base.OnExit();
             if (_onEndClosePanel)
-                _panel.Close();
+                _tutorialManager.CloseTutorialPanel(_panelKey);
+            base.OnExit();
         }
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
-            Gizmos.color = Color.green;
+            Gizmos.color = Color.yellow;
             Gizmos.DrawWireCube(Vector2.zero, new Vector2(1920f, 1080f));
             Gizmos.DrawWireCube(_panelRect.GetCenterPosition(), _panelRect.GetSize());
         }

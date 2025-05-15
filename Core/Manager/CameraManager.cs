@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Hashira;
+using System;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ public class CameraManager : MonoSingleton<CameraManager>
 {
     [SerializeField] private AYellowpaper.SerializedCollections.SerializedDictionary<string, CinemachineCamera> _cameraDictionary = new AYellowpaper.SerializedCollections.SerializedDictionary<string, CinemachineCamera>();
 
-    private DG.Tweening.Sequence _shakeSequence;
+    private Sequence _shakeSequence;
     
     private CinemachineVirtualCameraBase _currentCamera;
     public CinemachineVirtualCameraBase CurrentCamera
@@ -123,5 +124,10 @@ public class CameraManager : MonoSingleton<CameraManager>
                 DOTween.To(() => startFre,
                 value => CurrentMultiChannel.FrequencyGain = value,
                 0, time).SetEase(ease));
+    }
+
+    private void OnDestroy()
+    {
+        _shakeSequence?.Kill(true);
     }
 }

@@ -106,7 +106,12 @@ namespace Hashira.Tutorials
 
         public void OnPush()
         {
+            _toggleSequence?.Kill(true);
         }
 
+        private void OnDestroy()
+        {
+            OnPush();
+        }
     }
 }

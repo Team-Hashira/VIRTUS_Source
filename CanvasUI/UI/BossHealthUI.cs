@@ -48,9 +48,14 @@ namespace Hashira.UI
 
         private void OnDestroy()
         {
-            _stageGenerator.OnGeneratedStageEvent -= OnCheckBossStageHandle;
-            _player.EntityHealth.OnDieEvent -= OnPlayerDieHandle;
-            _rectTransform?.DOKill(true);
+            if (_stageGenerator!=null)
+                _stageGenerator.OnGeneratedStageEvent -= OnCheckBossStageHandle;
+            
+            if (_player != null)
+                _player.EntityHealth.OnDieEvent -= OnPlayerDieHandle;
+            
+            _rectTransform?.DOKill();
+            _canvasGroup?.DOKill();
         }
 
         private void OnPlayerDieHandle(Entity _)

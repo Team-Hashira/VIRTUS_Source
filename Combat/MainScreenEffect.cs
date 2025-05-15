@@ -1,8 +1,10 @@
 using DG.Tweening;
 using Hashira.Core;
 using Hashira.Pathfind;
+using Hashira.Players;
 using UnityEngine;
 using Hashira.StageSystem;
+using System;
 using UnityEngine.UIElements;
 using Unity.Cinemachine;
 
@@ -21,9 +23,9 @@ namespace Hashira.MainScreen
 
         private static Vector3 _originScale;
         private static Vector2 _originPos;
-        private static Vector2 _scaleMulipler = Vector2.one;
-        private static Vector2 _movableAreaMin => Camera.main.ViewportToWorldPoint(Vector2.zero) + (Vector3)(CurrentStage.Scale * _scaleMulipler) - (Vector3)CurrentStage.Center;
-        private static Vector2 _movabletAreaMax => Camera.main.ViewportToWorldPoint(Vector2.one) - (Vector3)(CurrentStage.Scale * _scaleMulipler) - (Vector3)CurrentStage.Center;
+        private static Vector2 _scaleMultiplier = Vector2.one;
+        private static Vector2 _movableAreaMin => Camera.main.ViewportToWorldPoint(Vector2.zero) + (Vector3)(CurrentStage.Scale * _scaleMultiplier) - (Vector3)CurrentStage.Center;
+        private static Vector2 _movabletAreaMax => Camera.main.ViewportToWorldPoint(Vector2.one) - (Vector3)(CurrentStage.Scale * _scaleMultiplier) - (Vector3)CurrentStage.Center;
         public static Vector2 worldScreenPositionMin => CurrentStage.Center - CurrentStage.Scale;
         public static Vector2 worldScreenPositionMax => CurrentStage.Center + CurrentStage.Scale;
 
@@ -50,21 +52,49 @@ namespace Hashira.MainScreen
         private static Tween _glitchTween;
         private static Tween _fadeTween;
 
+        public static event Action OnScreenRotateEvent;
+        
         private void Awake()
         {
-            _levelTransform = FindFirstObjectByType<StageSystem.Stage>().transform;
-            _transform = this.transform;
+            _transform = transform;
             _mainScreenEffect = this;
             _mainScreenMat = GetComponent<MeshRenderer>().material;
         }
 
         private void Start()
         {
-            _originScale = _transform.localScale;
-
+            SetOriginScale();
+            
+            _levelTransform = StageGenerator.Instance.GetCurrentStage().transform;
             _mainScreenMat.SetFloat(_glitch_ValueID, 1f);
             _mainScreenMat.SetFloat(_alphaID, 0f);
 
+            Show();
+        }
+        
+        private void OnDestroy()
+        {
+            _moveTween?.Kill();
+            _rotateTween?.Kill();
+            _reverseXTween?.Kill();
+            _reverseYTween?.Kill();
+            _scalingTween?.Kill();
+            _glitchTween?.Kill();
+            _fadeTween?.Kill();
+            
+            _transform?.DOKill();
+            ResetTrm();
+        }
+
+        private void SetOriginScale()
+        {
+            float scaleValue = Camera.main.ViewportToWorldPoint(new Vector2(0, 0.95f)).y;
+            _transform.localScale = new Vector3(scaleValue, scaleValue, scaleValue);
+            _originScale = _transform.localScale;
+        }
+        
+        private void Show()
+        {
             OnAlpha(1, 0.75f, Ease.InSine);
             OnGlitch(0f, 0.8f, Ease.InCubic);
             OnScaling(1, 0.45f, Ease.Unset);
@@ -72,9 +102,6 @@ namespace Hashira.MainScreen
 
         private void Update()
         {
-            var playerPos = PlayerManager.Instance.Player.transform.position;
-            SetPlayerPos(playerPos);
-
 #if UNITY_EDITOR
             Debug();
 #endif
@@ -84,13 +111,12 @@ namespace Hashira.MainScreen
         public static Vector3 OriginPositionConvert(Vector3 position)
         {
             if (_transform == null) return Vector3.zero;
-            Vector3 offsetPos = position - _transform.position + (Vector3)CurrentStage.Center;
-            Vector3 rotatedPos = Quaternion.Inverse(_transform.rotation) * offsetPos;
-            Vector3 scaledPosx= new Vector3(
-                rotatedPos.x / (_transform.localScale.x / CurrentStage.ScreenCamera.orthographicSize),
-                rotatedPos.y / (_transform.localScale.y / CurrentStage.ScreenCamera.orthographicSize));
+            Vector3 offsetPos = position + _transform.position + Quaternion.Inverse(_transform.rotation) * (Vector3)CurrentStage.Center;
+            Vector3 scaledPosX= new Vector3(
+                offsetPos.x / (_transform.localScale.x / CurrentStage.ScreenCamera.orthographicSize),
+                offsetPos.y / (_transform.localScale.y / CurrentStage.ScreenCamera.orthographicSize));
 
-            return scaledPosx;
+            return scaledPosX;
         }
 
         private void Debug()
@@ -144,11 +170,6 @@ namespace Hashira.MainScreen
                 OnReverseY();
         }
 
-        private void OnDestroy()
-        {
-            ResetTrm();
-        }
-
         private void ResetTrm()
         {
             _transform.position = Vector3.zero;
@@ -197,8 +218,9 @@ namespace Hashira.MainScreen
         public static Tween OnRotate(float value, float duration = 0.25f, RotateMode rotateMode = RotateMode.Fast, Ease ease = Ease.OutBounce)
         {
             _rotateTween?.Kill();
-            PlayerManager.Instance.Player.Rotate(-value, duration, rotateMode, ease);
-            return _rotateTween = _transform.DORotate(new Vector3(0, 0, value), duration, rotateMode).SetEase(ease);
+            OnScreenRotateEvent?.Invoke();
+            _rotateTween = _levelTransform.DORotate(new Vector3(0, 0, value), duration, rotateMode).SetEase(ease);
+            return _rotateTween;
         }
 
         public static void OnLocalMoveScreenSide(int direction)
@@ -255,8 +277,8 @@ namespace Hashira.MainScreen
         public static Tween OnScaling(float scale = 1, float duration = 0.25f, Ease ease = Ease.OutBounce)
         {
             _scalingTween?.Kill();
-            _scaleMulipler = Vector2.one * scale;
-            return _scalingTween = _transform.DOScale(_originScale * _scaleMulipler, duration).SetEase(ease);
+            _scaleMultiplier = Vector2.one * scale;
+            return _scalingTween = _transform.DOScale(_originScale * _scaleMultiplier, duration).SetEase(ease);
         }
 
         public static void OnReverseX()
@@ -298,10 +320,10 @@ namespace Hashira.MainScreen
         {
             OnAlpha(value, 0.25f);
         }
-        public static Tween OnAlpha(float value, float duration=0.25f, Ease ease = Ease.Unset)
+        public static void OnAlpha(float value, float duration=0.25f, Ease ease = Ease.Unset)
         {
             _fadeTween?.Kill();
-            return _fadeTween = _mainScreenMat.DOFloat(value, _alphaID, duration).SetEase(ease);
+            _fadeTween = _mainScreenMat.DOFloat(value, _alphaID, duration).SetEase(ease);
         }
     }
 }

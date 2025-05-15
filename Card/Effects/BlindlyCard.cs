@@ -12,6 +12,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             _statDictionary = player.GetEntityComponent<EntityStat>().StatDictionary;
             _attackPowerStat = _statDictionary[StatName.AttackPower];
             _attackSpeedStat = _statDictionary[StatName.AttackSpeed];
@@ -21,12 +22,9 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             _attackPowerStat.RemoveModifyOverlap("BlindlyCard", EModifyLayer.Last);
             _attackSpeedStat.RemoveModifyOverlap("BlindlyCard", EModifyLayer.Default);
-        }
-
-        public override void Update()
-        {
         }
     }
 }

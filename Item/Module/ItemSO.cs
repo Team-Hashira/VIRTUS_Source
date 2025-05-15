@@ -9,10 +9,9 @@ namespace Hashira.Items
         public Sprite sprite;
         public string displayName;
         public new string name;
-        public virtual string Description { get; set; }
+        public abstract string Description { get; }
 
         public string className;
-        private string _prevClassName;
 
         private Type _classType;
         [Space]
@@ -27,14 +26,13 @@ namespace Hashira.Items
 
         private void CachingTypeAndInstance()
         {
-            if (_prevClassName != className || _classType == null)
+            if (_effectInstance == null || _effectInstance.GetType().Name != className)
             {
                 try
                 {
                     string typeName = $"{GetType().Namespace}.Effects.{className}";
                     Type t = Type.GetType(typeName);
                     _classType = t;
-                    _prevClassName = className;
                     CreateInstance();
                 }
                 catch (Exception ex)
@@ -43,8 +41,9 @@ namespace Hashira.Items
                     Debug.LogError($"ItemSO의 className이 유효하지 않지롱 : {ex.Message}");
                 }
             }
-            if (_effectInstance == null && _classType != null)
-                CreateInstance();
+            if (_classType == null || _classType != _effectInstance?.GetType())
+                _classType = _effectInstance?.GetType();
+            _effectInstance?.Initialize(this);
 
         }
 

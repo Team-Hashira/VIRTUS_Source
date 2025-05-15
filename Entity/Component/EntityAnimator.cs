@@ -20,7 +20,7 @@ namespace Hashira.Entities.Components
     public class EntityAnimator : MonoBehaviour, IEntityComponent, IAfterInitialzeComponent
     {
         [field: SerializeField] public Animator Animator { get; private set; }
-        [SerializeField] private AnimatorParamSO _moveDirParamSO;
+        //[SerializeField] private AnimatorParamSO _moveDirParamSO;
         [SerializeField] private AnimatorParamSO _yVelocityParamSO;
 
         private Entity _entity;
@@ -55,10 +55,10 @@ namespace Hashira.Entities.Components
 
         private void Update()
         {
-            if (_mover != null && _renderer != null)
+            if (_entity is Player && _mover != null && _renderer != null)
             {
-                float xVelocity = Mathf.Sign(_mover.Velocity.x) * _renderer.FacingDirection;
-                SetParam(_moveDirParamSO, xVelocity);
+                //float xVelocity = Mathf.Sign(_mover.Velocity.x) * _renderer.FacingDirection;
+                //SetParam(_moveDirParamSO, xVelocity);
                 SetParam(_yVelocityParamSO, _mover.Velocity.y);
             }
         }

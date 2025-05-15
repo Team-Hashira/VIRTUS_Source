@@ -10,6 +10,7 @@ using Hashira.MainScreen;
 using Hashira.StageSystem;
 using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace Hashira.Players
@@ -70,12 +71,12 @@ namespace Hashira.Players
 
             //InputReader.OnReloadEvent += _weaponGunHolderCompo.Reload; //재장전 만들꺼면 다시 구현
             InputReader.OnAttackEvent += HandleAttackEvent;
+            PlayerManager.Instance.SetCardEffectList(PlayerDataManager.Instance.CardEffectDictionary.Values.ToList(), true);
         }
 
         
         private void Start()
         {
-            PlayerManager.Instance.SetCardEffectList(PlayerDataManager.Instance.CardEffectList, true);
             Accessory.ApplyAll(this);
             StageGenerator.Instance.OnGeneratedStageEvent += HandleStageChangedEvent;
             HandleStageChangedEvent();
@@ -83,6 +84,7 @@ namespace Hashira.Players
 
         private void HandleStageChangedEvent()
         {
+            transform.SetParent(StageGenerator.Instance.GetCurrentStage().transform);
             _currentStamina = MaxStamina;
         }
 
@@ -138,10 +140,6 @@ namespace Hashira.Players
                 {
                     Mover.OnDash();
                     _stateMachine.ChangeState("Rolling");
-                }
-                else
-                {
-                    Debug.Log("스테미나 부족!");
                 }
             }
         }
@@ -212,6 +210,11 @@ namespace Hashira.Players
                 _damageStat.AddModify("DebugDamageUp", 100, EModifyMode.Add, EModifyLayer.Default);
             }
             //#endif
+        }
+
+        private void LateUpdate()
+        {
+            transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
         }
 
         protected override void OnDestroy()

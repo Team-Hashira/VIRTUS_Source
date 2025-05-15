@@ -11,6 +11,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             _attackPowerStat = player.GetEntityComponent<EntityStat>().StatDictionary[StatName.AttackPower];
 
             if (stack < 5)
@@ -30,12 +31,8 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             _spiritFamiliar?.Push();
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

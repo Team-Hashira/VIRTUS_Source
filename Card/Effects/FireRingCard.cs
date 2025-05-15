@@ -13,7 +13,7 @@ namespace Hashira.Cards.Effects
         [SerializeField] private int[] _tickDamageByStack = { 4, 6, 8, 10 };
         [SerializeField] private int[] _endBurstDamageByStack = { 50, 50, 50, 50 };
 
-        public override void Use()
+        public override void OnUse()
         {
             FireRing fireRing = PopCore.Pop(CardSubPoolType.FireRing, player.transform) as FireRing;
             fireRing.Init(_tickDamageByStack[stack - 1], _endBurstDamageByStack[stack - 1], _duration);

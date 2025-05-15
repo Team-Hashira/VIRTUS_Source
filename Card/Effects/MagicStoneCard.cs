@@ -14,7 +14,8 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
-            foreach (CardEffect cardEffect in PlayerDataManager.Instance.CardEffectList)
+            base.Enable();
+            foreach (CardEffect cardEffect in PlayerDataManager.Instance.CardEffectDictionary.Values)
             {
                 if (cardEffect is MagicCardEffect magicCardEffect)
                 {
@@ -35,7 +36,7 @@ namespace Hashira.Cards.Effects
         {
             if (projectileHitEvent.hitInfo.damageable != null)
             {
-                foreach (CardEffect cardEffect in PlayerDataManager.Instance.CardEffectList)
+                foreach (CardEffect cardEffect in PlayerDataManager.Instance.CardEffectDictionary.Values)
                 {
                     if (cardEffect is MagicCardEffect magicCardEffect)
                     {
@@ -47,21 +48,17 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<ProjectileAfterHitEvent>(HandleHitEvent);
             _attackPowerStat.RemoveModifyOverlap("MagicStoneCard", EModifyLayer.Default);
             _attackSpeedStat.RemoveModifyOverlap("MagicStoneCard", EModifyLayer.Default);
-            foreach (CardEffect cardEffect in PlayerDataManager.Instance.CardEffectList)
+            foreach (CardEffect cardEffect in PlayerDataManager.Instance.CardEffectDictionary.Values)
             {
                 if (cardEffect is MagicCardEffect magicCardEffect)
                 {
                     magicCardEffect.SetMultiplier(1f);
                 }
             }
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

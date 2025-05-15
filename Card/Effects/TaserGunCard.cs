@@ -21,6 +21,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             _currentShootCount = 0;
             _projectileList = new List<Projectile>();
             GameEventChannel.AddListener<ProjectileShootEvent>(HandleShootEvent);
@@ -107,13 +108,9 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<ProjectileShootEvent>(HandleShootEvent);
             GameEventChannel.RemoveListener<ProjectileAfterHitEvent>(HandleHitEvent);
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

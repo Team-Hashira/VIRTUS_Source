@@ -45,7 +45,7 @@ namespace Hashira.CanvasUI.Wells
                     if (random < _percent)
                     {
                         // 성공
-                        PlayerDataManager.Instance.AddEffect(_selecrableCard.CardSO.GetEffectInstance<CardEffect>());
+                        PlayerDataManager.Instance.AddEffect(_selecrableCard.CardSO);
                         _selecrableCard.VisualSetup(_selecrableCard.CardSO);
                         _percent -= 10;
                         UpdatePercentText();

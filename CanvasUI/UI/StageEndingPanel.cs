@@ -1,6 +1,7 @@
 using DG.Tweening;
 using Hashira.Core.Attribute;
 using Hashira.Pathfind;
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -61,6 +62,11 @@ namespace Hashira.CanvasUI
                 _openSequence.Insert(offset * i, _boxRects[i].DOAnchorPosX(destination.x, 0.7f));
                 _openSequence.Insert(offset * i + 0.2f, _boxRects[i].DOAnchorPosY(destination.y, 0.5f));
             }
+        }
+
+        private void OnDestroy()
+        {
+            _openSequence?.Kill(true);
         }
 
         public void Close()

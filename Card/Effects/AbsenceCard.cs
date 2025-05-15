@@ -18,6 +18,7 @@ namespace Hashira.Cards.Effects
 
         public override void Enable()
         {
+            base.Enable();
             _attackCountDictionary = new();
             GameEventChannel.AddListener<ProjectileBeginHitEvent>(HandleBeginHitEvent);
         }
@@ -53,6 +54,7 @@ namespace Hashira.Cards.Effects
                     point = hitPos
                 };
                 PopCore.Pop(EffectPoolType.AbsenceSlice, raycastHit.point, Quaternion.identity);
+                SoundManager.Instance.PlaySFX("Absence", raycastHit.point, 1f);
                 int damage = Mathf.CeilToInt(Mathf.Log(health.Health / projectile.damage + 1, 10) * projectile.damage * _damageMultiplier[stack - 1]);
                 AttackInfo attackInfo = new AttackInfo(damage);
                 health.ApplyDamage(attackInfo, raycastHit);
@@ -63,12 +65,8 @@ namespace Hashira.Cards.Effects
 
         public override void Disable()
         {
+            base.Disable();
             GameEventChannel.RemoveListener<ProjectileBeginHitEvent>(HandleBeginHitEvent);
-        }
-
-        public override void Update()
-        {
-
         }
     }
 }

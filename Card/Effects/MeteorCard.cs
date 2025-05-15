@@ -3,9 +3,7 @@ using Hashira.Enemies;
 using Hashira.Entities.Components;
 using Hashira.StageSystem;
 using System.Collections;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Hashira.Cards.Effects
 {
@@ -18,20 +16,14 @@ namespace Hashira.Cards.Effects
 
         private Coroutine _meteorCoroutine;
 
-        public override void Enable()
-        {
-            base.Enable();
-        }
-
         public override void Disable()
         {
             base.Disable();
-            if (_meteorCoroutine != null) player.StopCoroutine(_meteorCoroutine);
+            if (_meteorCoroutine != null && player != null) player.StopCoroutine(_meteorCoroutine);
         }
 
-        public override void Use()
+        public override void OnUse()
         {
-            base.Use();
             _meteorCoroutine = player.StartCoroutine(MeteorGenerateCoroutine());
         }
 

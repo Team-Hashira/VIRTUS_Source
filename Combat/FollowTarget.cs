@@ -1,3 +1,4 @@
+using Doryu.CustomAttributes;
 using Hashira.Core;
 using UnityEngine;
 
@@ -5,22 +6,42 @@ namespace Hashira.Combat
 {
     public class FollowTarget : MonoBehaviour
     {
-        public Vector3 offset;
-        public Transform _target;
-
-        [Header("Enable Axis")]
+        public Transform target;
+        
+        public bool followPosition = true;
+        [ToggleField(nameof(followPosition))]
         public bool enableX = true;
+        [ToggleField(nameof(followPosition))]
         public bool enableY = true;
+        [ToggleField(nameof(followPosition))]
         public bool enableZ = true;
+        [ToggleField(nameof(followPosition))]
+        public Vector3 offset;
+        
+        public bool followRotation = true;
+
+        public void SetTarget(Transform target)
+        {
+            this.target = target;
+        }
 
         private void Awake()
         {
-            _target = PlayerManager.Instance.Player.transform;
+            target = PlayerManager.Instance.Player.transform;
         }
 
         private void LateUpdate()
         {
-            Vector3 targetPos = _target.position + offset;
+            if (followPosition)
+                FollowToTargetPosition();
+
+            if (followRotation)
+                FollowToTargetRotation();
+        }
+
+        private void FollowToTargetPosition()
+        {
+            Vector3 targetPos = target.position + offset;
 
             targetPos = new Vector3(
                 enableX ? targetPos.x : transform.position.x, 
@@ -28,6 +49,11 @@ namespace Hashira.Combat
                 enableZ ? targetPos.z : transform.position.z);
             
             transform.position = targetPos;
+        }
+        
+        private void FollowToTargetRotation()
+        {
+            transform.rotation = target.rotation;
         }
     }
 }
